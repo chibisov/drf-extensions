@@ -15,17 +15,9 @@ class TestExtendedDefaultRouterRouter(TestCase):
     def get_routes_names(self, routes):
         return [i.name for i in routes]
 
-    def get_dynamic_detail_route_by_def_name(self, def_name, routes):
-        def_name = def_name.replace('_', '-')
+    def get_dynamic_route_by_def_name(self, def_name, routes):
         try:
-            return [i for i in routes if i.name == '{basename}-' + def_name][0]
-        except IndexError:
-            return None
-
-    def get_dynamic_list_route_by_def_name(self, def_name, routes):
-        def_name = def_name.replace('_', '-')
-        try:
-            return [i for i in routes if i.name == '{basename}-' + def_name + '-list'][0]
+            return [i for i in routes if def_name in i.mapping.values()][0]
         except IndexError:
             return None
 
@@ -59,7 +51,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        action1_route = self.get_dynamic_detail_route_by_def_name('action1', routes)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
         msg = '@action with endpoint route should map methods to endpoint if it is specified'
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
@@ -74,7 +66,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        link1_route = self.get_dynamic_detail_route_by_def_name('link1', routes)
+        link1_route = self.get_dynamic_route_by_def_name('link1', routes)
 
         msg = '@link with endpoint route should map methods to endpoint if it is specified'
         self.assertEquals(link1_route.mapping, {'get': 'link1'}, msg)
@@ -89,7 +81,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        action1_route = self.get_dynamic_list_route_by_def_name('action1', routes)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
         msg = '@action with is_for_list=True route should map methods to def name'
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
@@ -104,7 +96,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        action1_route = self.get_dynamic_list_route_by_def_name('action1', routes)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
         msg = '@action with is_for_list=True and endpoint route should map methods to "endpoint"'
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
@@ -123,8 +115,8 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        action1_list_route = self.get_dynamic_list_route_by_def_name('action1', routes)
-        action1_detail_route = self.get_dynamic_detail_route_by_def_name('action1_detail', routes)
+        action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
+        action1_detail_route = self.get_dynamic_route_by_def_name('action1_detail', routes)
 
         self.assertEquals(action1_list_route.mapping, {'post': 'action1'})
         self.assertEquals(action1_list_route.url, u'^{prefix}/action-one/$')
@@ -143,8 +135,25 @@ class TestExtendedDefaultRouterRouter(TestCase):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
-        action1_list_route = self.get_dynamic_list_route_by_def_name('action1', routes)
-        action2_detail_route = self.get_dynamic_detail_route_by_def_name('action2', routes)
+        action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
+        action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
         self.assertEquals(action1_list_route.name, u'{basename}-action1-list')
         self.assertEquals(action2_detail_route.name, u'{basename}-action2')
+
+    def test_action_names__with_endpoints(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @action(is_for_list=True, endpoint='action_one')
+            def action1(self, request, *args, **kwargs):
+                pass
+
+            @action(endpoint='action-two')
+            def action2(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
+        action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
+
+        self.assertEquals(action1_list_route.name, u'{basename}-action-one-list')
+        self.assertEquals(action2_detail_route.name, u'{basename}-action-two')

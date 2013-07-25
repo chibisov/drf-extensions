@@ -135,7 +135,7 @@ class ExtendedActionLinkRouterMixin(object):
             dynamic_routes_instances.append(Route(
                 url=replace_methodname(route.url, endpoint),
                 mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, methodname),
+                name=replace_methodname(route.name, endpoint),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
