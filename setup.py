@@ -54,7 +54,7 @@ setup(
     author_email='web-chib@ya.ru',
     packages=get_packages('rest_framework_extensions'),
     package_data=get_package_data('rest_framework_extensions'),
-    # test_suite='rest_framework.runtests.runtests.main',  # todo
+    test_suite='rest_framework_extensions.runtests.runtests.main',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

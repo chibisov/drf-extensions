@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.3"
+
+env:
+  - DJANGO="django==1.5.1 --use-mirrors"
+
+install:
+  - pip install $DJANGO
+
+script:
+  - python rest_framework_extensions/runtests/runtests.py

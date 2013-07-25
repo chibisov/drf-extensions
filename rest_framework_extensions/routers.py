@@ -134,30 +134,11 @@ class ExtendedActionLinkRouterMixin(object):
             initkwargs.update(getattr(viewset, methodname).kwargs)
             dynamic_routes_instances.append(Route(
                 url=replace_methodname(route.url, endpoint),
-                mapping=dict((httpmethod, endpoint) for httpmethod in httpmethods),
+                mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
                 name=replace_methodname(route.name, methodname),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
-
-    def get_method_map(self, viewset, method_map):
-        """
-        Given a viewset, and a mapping of http methods to actions,
-        return a new mapping which only includes any mappings that
-        are actually implemented by the viewset.
-        """
-        bound_methods = {}
-        for method, action in method_map.items():
-            if hasattr(viewset, action):
-                bound_methods[method] = action
-            else:
-                dynamic_action_method_name = self.get_dynamic_route_viewset_method_name_by_endpoint(
-                    viewset=viewset,
-                    endpoint=action,
-                )
-                if dynamic_action_method_name and hasattr(viewset, dynamic_action_method_name):
-                    bound_methods[method] = dynamic_action_method_name
-        return bound_methods
 
 
 class ExtendedSimpleRouter(ExtendedActionLinkRouterMixin, SimpleRouter):
