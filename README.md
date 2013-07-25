@@ -2,6 +2,8 @@
 
 DRF-extensions is a collection of custom extensions for Django REST Framework
 
+[![Build Status](https://travis-ci.org/chibisov/drf-extensions.png?branch=master)](https://travis-ci.org/chibisov/drf-extensions)
+
 Extended @action, @link decorators and ExtendedDefaultRouter example.
 
     class DistributionViewSet(viewsets.ReadOnlyModelViewSet):
