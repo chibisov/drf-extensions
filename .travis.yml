@@ -9,6 +9,7 @@ env:
 
 install:
   - pip install $DJANGO
+  - pip install -e git+https://github.com/tomchristie/django-rest-framework.git#egg=djangorestframework
 
 script:
   - python rest_framework_extensions/runtests/runtests.py
