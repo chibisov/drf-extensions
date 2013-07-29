@@ -1,8 +1,14 @@
 # Django REST Framework extensions
 
-DRF-extensions is a collection of custom extensions for Django REST Framework
+DRF-extensions is a collection of custom extensions for [Django REST Framework](https://github.com/tomchristie/django-rest-framework)
 
 [![Build Status](https://travis-ci.org/chibisov/drf-extensions.png?branch=master)](https://travis-ci.org/chibisov/drf-extensions)
+
+# Installation:
+
+    pip install drf-extensions
+
+# Extensions
 
 Extended @action, @link decorators and ExtendedDefaultRouter example.
 
