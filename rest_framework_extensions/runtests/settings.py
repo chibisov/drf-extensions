@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'rest_framework_extensions',
+    'rest_framework_extensions.tests',
 )
 
 STATIC_URL = '/static/'

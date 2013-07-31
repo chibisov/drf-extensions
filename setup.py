@@ -45,7 +45,7 @@ setup(
     name='drf-extensions',
     version=version,
     url='http://github.com/chibisov/drf-extensions',
-    # download_url='http://pypi.python.org/pypi/rest_framework_extensions/',  # todo
+    download_url='https://pypi.python.org/pypi/drf-extensions/',
     license='BSD',
     install_requires=['djangorestframework>=2.3.5'],
     description='Extensions for Django REST Framework',
@@ -54,6 +54,7 @@ setup(
     author_email='web-chib@ya.ru',
     packages=get_packages('rest_framework_extensions'),
     package_data=get_package_data('rest_framework_extensions'),
+    tests_require=['django>=1.5'],
     test_suite='rest_framework_extensions.runtests.runtests.main',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

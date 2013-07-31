@@ -55,3 +55,35 @@ Extended @action, @link decorators and ExtendedDefaultRouter example.
     router = DefaultRouter()
     router.register(r'distributions', DistributionViewSet, base_name='distribution')
     urlpatterns = router.urls
+
+DetailSerializerMixin lets add custom serializer for detail view:
+
+    class SurveySerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Survey
+            fields = (
+                'id',
+                'name',
+            )
+
+
+    class SurveySerializerDetail(serializers.ModelSerializer):
+        class Meta:
+            model = Survey
+            fields = (
+                'id',
+                'name',
+                'form',
+            )
+
+
+    from rest_framework_extensions.mixins import DetailSerializerMixin
+
+    class SurveyViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
+        serializer_class = SurveySerializer
+        serializer_detail_class = SurveySerializerDetail
+        queryset = Survey.objects.all()
+
+How to run tests locally:
+
+    $ python setup.py test

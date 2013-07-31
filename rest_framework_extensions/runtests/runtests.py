@@ -32,13 +32,10 @@ def main():
     TestRunner = get_runner(settings)
 
     test_runner = TestRunner()
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 2 and sys.argv[1] != 'test':
         test_case = '.' + sys.argv[1]
-    elif len(sys.argv) == 1:
-        test_case = ''
     else:
-        print(usage())
-        sys.exit(1)
+        test_case = ''
     test_module_name = 'rest_framework_extensions'
 
     failures = test_runner.run_tests([test_module_name + test_case])
