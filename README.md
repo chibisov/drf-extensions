@@ -84,6 +84,15 @@ DetailSerializerMixin lets add custom serializer for detail view:
         serializer_detail_class = SurveySerializerDetail
         queryset = Survey.objects.all()
 
+
+Custom queryset for detail view:
+
+    class SurveyViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
+        serializer_class = SurveySerializer
+        serializer_detail_class = SurveySerializerDetail
+        queryset = Survey.objects.all()
+        queryset_detail = queryset.select_related('form')
+
 How to run tests locally:
 
     $ python setup.py test

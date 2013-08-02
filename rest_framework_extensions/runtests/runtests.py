@@ -31,6 +31,8 @@ def usage():
 def main():
     TestRunner = get_runner(settings)
 
+    monkeypatch_default_settings();
+
     test_runner = TestRunner()
     if len(sys.argv) == 2 and sys.argv[1] != 'test':
         test_case = '.' + sys.argv[1]
@@ -41,6 +43,23 @@ def main():
     failures = test_runner.run_tests([test_module_name + test_case])
 
     sys.exit(failures)
+
+def monkeypatch_default_settings():
+    from rest_framework import settings
+
+    PATCH_REST_FRAMEWORK = {
+        # Testing
+        'TEST_REQUEST_RENDERER_CLASSES': (
+            'rest_framework.renderers.MultiPartRenderer',
+            'rest_framework.renderers.JSONRenderer'
+        ),
+        'TEST_REQUEST_DEFAULT_FORMAT': 'multipart',    
+    }
+
+    for key, value in PATCH_REST_FRAMEWORK.items():
+        if key not in settings.DEFAULTS:
+            settings.DEFAULTS[key] = value
+
 
 if __name__ == '__main__':
     main()
