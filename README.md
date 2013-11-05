@@ -12,8 +12,12 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
 ## Extensions
 
-* Collection level `@action` and `@link` decorators
 * DetailSerializerMixin
+* Collection level `@action` and `@link` controller decorators
+* Custom enpoint name for `@action` and `@link` decorators
+
+## In development
+
 * Response pluggable caching
 
 ## Development
