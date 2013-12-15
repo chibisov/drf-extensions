@@ -14,7 +14,7 @@ class ExtendedActionLinkRouterMixin(object):
     routes = [
         # List route.
         Route(
-            url=r'^{prefix}/$',
+            url=r'^{prefix}$',
             mapping={
                 'get': 'list',
                 'post': 'create'
@@ -24,7 +24,7 @@ class ExtendedActionLinkRouterMixin(object):
         ),
         # Detail route.
         Route(
-            url=r'^{prefix}/{lookup}/$',
+            url=r'^{prefix}/{lookup}$',
             mapping={
                 'get': 'retrieve',
                 'put': 'update',
@@ -38,16 +38,16 @@ class ExtendedActionLinkRouterMixin(object):
         # Generated using @action or @link decorators on methods of the viewset.
         # List
         Route(
-            url=r'^{prefix}/{methodname}/$',
+            url=r'^{prefix}/{methodname}$',
             mapping={
                 '{httpmethod}': '{methodname}',
             },
-            name='{basename}-{methodnamehyphen}-list',
+            name='{basename}-{methodnamehyphen}',
             initkwargs={}
         ),
         # Detail
         Route(
-            url=r'^{prefix}/{lookup}/{methodname}/$',
+            url=r'^{prefix}/{lookup}/{methodname}$',
             mapping={
                 '{httpmethod}': '{methodname}',
             },
