@@ -3,70 +3,17 @@ import datetime
 
 from django.test import TestCase
 
-from rest_framework import serializers, routers
-from rest_framework import viewsets
-
-from rest_framework_extensions.mixins import DetailSerializerMixin
-from rest_framework_extensions.tests.models import Comment
 from rest_framework_extensions.test import APIRequestFactory  # todo: use from rest_framework when released
+
+from .urls import urlpatterns
+from .models import Comment
 
 
 factory = APIRequestFactory()
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = (
-            'id',
-            'email',
-        )
-
-
-class CommentDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = (
-            'id',
-            'email',
-            'content',
-        )
-
-
-class CommentViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    serializer_class = CommentSerializer
-    serializer_detail_class = CommentDetailSerializer
-    queryset = Comment.objects.all()
-
-
-class CommentWithoutDetailSerializerClassViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    serializer_class = CommentSerializer
-    queryset = Comment.objects.all()   
-
-
-class CommentWithIdTwoViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    serializer_class = CommentSerializer
-    serializer_detail_class = CommentDetailSerializer
-    queryset = Comment.objects.filter(id=2)
-
-
-class CommentWithIdTwoAndIdOneForDetailViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    serializer_class = CommentSerializer
-    serializer_detail_class = CommentDetailSerializer
-    queryset = Comment.objects.filter(id=2)    
-    queryset_detail = Comment.objects.filter(id=1)
-
-
-viewset_router = routers.DefaultRouter()
-viewset_router.register('comments', CommentViewSet)
-viewset_router.register('comments-2', CommentWithoutDetailSerializerClassViewSet)
-viewset_router.register('comments-3', CommentWithIdTwoViewSet)
-viewset_router.register('comments-4', CommentWithIdTwoAndIdOneForDetailViewSet)
-urlpatterns = viewset_router.urls
-
-
-class TestDetailSerializerMixin(TestCase):
-    urls = 'rest_framework_extensions.tests.test_mixins'
+class DetailSerializerMixinTest_serializer_detail_class(TestCase):
+    urls = urlpatterns
 
     def setUp(self):
         self.comment = Comment.objects.create(
@@ -98,8 +45,8 @@ class TestDetailSerializerMixin(TestCase):
         self.assertRaisesMessage(AssertionError, msg, self.client.get, '/comments-2/')
 
 
-class TestDetailSerializerMixinQuerysetDetail(TestCase):
-    urls = 'rest_framework_extensions.tests.test_mixins'
+class DetailSerializerMixin_queryset_detail(TestCase):
+    urls = urlpatterns
 
     def setUp(self):
         self.comments = [

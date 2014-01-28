@@ -6,15 +6,16 @@ from rest_framework.routers import (
     SimpleRouter,
     Route,
     replace_methodname,
-    flatten
 )
+from rest_framework_extensions.utils import flatten
+from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
 
 
 class ExtendedActionLinkRouterMixin(object):
     routes = [
         # List route.
         Route(
-            url=r'^{prefix}/$',
+            url=add_trailing_slash_if_needed(r'^{prefix}/$'),
             mapping={
                 'get': 'list',
                 'post': 'create'
@@ -24,7 +25,7 @@ class ExtendedActionLinkRouterMixin(object):
         ),
         # Detail route.
         Route(
-            url=r'^{prefix}/{lookup}/$',
+            url=add_trailing_slash_if_needed(r'^{prefix}/{lookup}/$'),
             mapping={
                 'get': 'retrieve',
                 'put': 'update',
@@ -38,7 +39,7 @@ class ExtendedActionLinkRouterMixin(object):
         # Generated using @action or @link decorators on methods of the viewset.
         # List
         Route(
-            url=r'^{prefix}/{methodname}/$',
+            url=add_trailing_slash_if_needed(r'^{prefix}/{methodname}/$'),
             mapping={
                 '{httpmethod}': '{methodname}',
             },
@@ -47,7 +48,7 @@ class ExtendedActionLinkRouterMixin(object):
         ),
         # Detail
         Route(
-            url=r'^{prefix}/{lookup}/{methodname}/$',
+            url=add_trailing_slash_if_needed(r'^{prefix}/{lookup}/{methodname}/$'),
             mapping={
                 '{httpmethod}': '{methodname}',
             },

@@ -54,7 +54,6 @@ setup(
     author_email='web-chib@ya.ru',
     packages=get_packages('rest_framework_extensions'),
     package_data=get_package_data('rest_framework_extensions'),
-    tests_require=['django>=1.5'],
     test_suite='rest_framework_extensions.runtests.runtests.main',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

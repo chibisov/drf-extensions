@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
+from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 
 
 class DetailSerializerMixin(object):
@@ -26,3 +28,11 @@ class DetailSerializerMixin(object):
             return self.queryset_detail._clone()  # todo: test _clone()
         else:
             return super(DetailSerializerMixin, self).get_queryset()
+
+
+class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):
+    pass
+
+
+class CacheResponseAndETAGMixin(ETAGMixin, CacheResponseMixin):
+    pass

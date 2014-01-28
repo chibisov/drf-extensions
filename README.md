@@ -10,21 +10,47 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
     pip install drf-extensions
 
-## Extensions
+## Some features
 
 * DetailSerializerMixin
 * Collection level `@action` and `@link` controller decorators
-* Custom enpoint name for `@action` and `@link` decorators
+* Custom endpoint name for `@action` and `@link` decorators
+* Caching
+* Conditional requests
+* Customizable key construction for caching and conditional requests
 
-## In development
-
-* Response pluggable caching
+Read more in [documentation](http://chibisov.github.io/drf-extensions/docs)
 
 ## Development
 
-Run tests:
+Running the tests:
 
-    $ python setup.py test
+    $ pip install tox
+    $ tox -- tests_app
+
+Running test for exact environment:
+
+    $ tox -e py27-drf2.3.5 -- tests_app
+
+Recreate envs before running tests:
+
+    $ tox --recreate -- tests_app
+
+Pass custom arguments:
+
+    $ tox -- tests_app --verbosity=3
+
+Run with pdb support:
+
+    $ tox -- tests_app --processes=0
+
+Run exact TestCase:
+
+    $ tox -- tests_app.tests.unit.mixins.tests:DetailSerializerMixinTest_serializer_detail_class
+
+Run tests from exact module:
+
+    $ tox -- tests_app.tests.unit.mixins.tests
 
 Build docs:
 

@@ -25,3 +25,4 @@ def action(methods=['post'], endpoint=None, is_for_list=False, **kwargs):
         func.is_for_list = is_for_list
         return func
     return decorator
+
