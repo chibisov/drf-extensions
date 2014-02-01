@@ -1,4 +1,5 @@
 # Django settings for testproject project.
+import multiprocessing
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -14,13 +15,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'sqlite.db',                     # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test',
+        'TEST_CHARSET': 'utf8',
+    },
 }
 
 CACHES = {
@@ -97,8 +95,9 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'django_nose',
     'rest_framework_extensions',
-    'rest_framework_extensions.tests',
+    'tests_app',
 )
 
 STATIC_URL = '/static/'
@@ -118,3 +117,17 @@ import django
 
 if django.VERSION < (1, 3):
     INSTALLED_APPS += ('staticfiles',)
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--processes=%s' % multiprocessing.cpu_count(),
+    '--process-timeout=100',
+    '--nocapture',
+]
+
+NOSE_PLUGINS = [
+    'plugins.UnitTestDiscoveryPlugin',
+    'plugins.PrepareRestFrameworkSettingsPlugin',
+    'plugins.FlushCache'
+]

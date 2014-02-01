@@ -20,6 +20,7 @@ class ResourceUriField(HyperlinkedRelatedField):
             "resource_uri": "http://localhost/v1/surveys/1/",
         }
     """
+    # todo: test me
     read_only = True
 
     def __init__(self, *args, **kwargs):

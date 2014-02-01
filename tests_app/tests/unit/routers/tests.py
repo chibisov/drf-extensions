@@ -5,9 +5,10 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 from rest_framework_extensions.decorators import link, action
+from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
 
 
-class TestExtendedDefaultRouterRouter(TestCase):
+class ExtendedDefaultRouterTest(TestCase):
     def setUp(self):
         self.router = ExtendedDefaultRouter()
 
@@ -56,7 +57,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@action with endpoint route should use url with detail lookup'
-        self.assertEquals(action1_route.url, u'^{prefix}/{lookup}/action-one/$', msg)
+        self.assertEquals(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'), msg)
 
     def test_link_endpoint(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -71,7 +72,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
         self.assertEquals(link1_route.mapping, {'get': 'link1'}, msg)
 
         msg = '@link with endpoint route should use url with detail lookup'
-        self.assertEquals(link1_route.url, u'^{prefix}/{lookup}/link-one/$', msg)
+        self.assertEquals(link1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/link-one/$'), msg)
 
     def test_action__for_list(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -86,7 +87,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@action with is_for_list=True route should use url in list scope'
-        self.assertEquals(action1_route.url, u'^{prefix}/action1/$', msg)
+        self.assertEquals(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action1/$'), msg)
 
     def test_action__for_list__and__with_endpoint(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -101,7 +102,7 @@ class TestExtendedDefaultRouterRouter(TestCase):
         self.assertEquals(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@action with is_for_list=True and endpoint route should use url in list scope with "endpoint" value'
-        self.assertEquals(action1_route.url, u'^{prefix}/action-one/$', msg)
+        self.assertEquals(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'), msg)
 
     def test_actions__for_list_and_detail_with_exact_names(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -118,10 +119,10 @@ class TestExtendedDefaultRouterRouter(TestCase):
         action1_detail_route = self.get_dynamic_route_by_def_name('action1_detail', routes)
 
         self.assertEquals(action1_list_route.mapping, {'post': 'action1'})
-        self.assertEquals(action1_list_route.url, u'^{prefix}/action-one/$')
+        self.assertEquals(action1_list_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'))
 
         self.assertEquals(action1_detail_route.mapping, {'post': 'action1_detail'})
-        self.assertEquals(action1_detail_route.url, u'^{prefix}/{lookup}/action-one/$')
+        self.assertEquals(action1_detail_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'))
 
     def test_action_names(self):
         class BasicViewSet(viewsets.ViewSet):

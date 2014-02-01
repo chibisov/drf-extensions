@@ -5,11 +5,12 @@ python:
   - "3.3"
 
 env:
-  - DJANGO="django==1.5.1 --use-mirrors"
-
-install:
-  - pip install $DJANGO
-  - pip install -e git+https://github.com/tomchristie/django-rest-framework.git#egg=djangorestframework
+  - TOX_ENV=py27-drf2.3.5
+  - TOX_ENV=py27-drf2.3.6
+  - TOX_ENV=py27-drf2.3.7
+  - TOX_ENV=py27-drf2.3.8
+  - TOX_ENV=py27-drf2.3.9
+  - TOX_ENV=py27-drf2.3.10
 
 script:
-  - python rest_framework_extensions/runtests/runtests.py
+  - tox -e $TOX_ENV
