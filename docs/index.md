@@ -1067,61 +1067,61 @@ The operation succeeds if the token is still valid and fails otherwise.
 
 HTTP, being a stateless application control, is designed for optimistic concurrency control.
 
-                                       PUT
-                                        |
-                                 +-------------+
-                                 |  Etag       |
-                                 |  supplied?  |
-                                 +-------------+
-                                  |           |
-                                 Yes          No
-                                  |           |
-               +--------------------+       +-----------------------+
-               |  Do preconditions  |       |  Does the             |
-               |  match?            |       |  resource exist?      |
-               +--------------------+       +-----------------------+
-                   |           |                   |              |
-                   Yes         No                  Yes            No
-                   |           |                   |              |
-       +--------------+  +--------------------+  +-------------+  |
-       |  Update the  |  |  412 Precondition  |  |  403        |  |
-       |  resource    |  |  failed            |  |  Forbidden  |  |
-       +--------------+  +--------------------+  +-------------+  |
-                                                                  |
-                                            +-----------------------+
-                                            |  Can clients          |
-                                            |  create resources     |
-                                            +-----------------------+
-                                                  |           |
-                                                 Yes          No
-                                                  |           |
-                                            +-----------+   +-------------+
-                                            |  201      |   |  404        |
-                                            |  Created  |   |  Not Found  |
-                                            +-----------+   +-------------+
+                                    PUT
+                                     |
+                              +-------------+
+                              |  Etag       |
+                              |  supplied?  |
+                              +-------------+
+                               |           |
+                              Yes          No
+                               |           |
+            +--------------------+       +-----------------------+
+            |  Do preconditions  |       |  Does the             |
+            |  match?            |       |  resource exist?      |
+            +--------------------+       +-----------------------+
+                |           |                   |              |
+                Yes         No                  Yes            No
+                |           |                   |              |
+    +--------------+  +--------------------+  +-------------+  |
+    |  Update the  |  |  412 Precondition  |  |  403        |  |
+    |  resource    |  |  failed            |  |  Forbidden  |  |
+    +--------------+  +--------------------+  +-------------+  |
+                                                               |
+                                         +-----------------------+
+                                         |  Can clients          |
+                                         |  create resources     |
+                                         +-----------------------+
+                                               |           |
+                                              Yes          No
+                                               |           |
+                                         +-----------+   +-------------+
+                                         |  201      |   |  404        |
+                                         |  Created  |   |  Not Found  |
+                                         +-----------+   +-------------+
 
 Delete:
 
-                                        DELETE
-                                          |
-                                   +-------------+
-                                   |  Etag       |
-                                   |  supplied?  |
-                                   +-------------+
-                                    |           |
-                                   Yes          No
-                                    |           |
-                 +--------------------+       +-------------+
-                 |  Do preconditions  |       |  403        |
-                 |  match?            |       |  Forbidden  |
-                 +--------------------+       +-------------+
-                     |           |
-                     Yes         No
-                     |           |
-         +--------------+  +--------------------+
-         |  Delete the  |  |  412 Precondition  |
-         |  resource    |  |  failed            |
-         +--------------+  +--------------------+
+                                   DELETE
+                                     |
+                              +-------------+
+                              |  Etag       |
+                              |  supplied?  |
+                              +-------------+
+                               |           |
+                              Yes          No
+                               |           |
+            +--------------------+       +-------------+
+            |  Do preconditions  |       |  403        |
+            |  match?            |       |  Forbidden  |
+            +--------------------+       +-------------+
+                |           |
+                Yes         No
+                |           |
+    +--------------+  +--------------------+
+    |  Delete the  |  |  412 Precondition  |
+    |  resource    |  |  failed            |
+    +--------------+  +--------------------+
 
 
 Here is example of implementation for all CRUD methods (except create, because it doesn't need concurrency control)
@@ -1223,37 +1223,37 @@ sense to use returned Etag value on clients if object deletion already performed
 
 With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PATCH` method would look like:
 
-                                 +--------------+
-                                 |    Request   |
-                                 +--------------+
-                                        |
-                           +--------------------------+
-                           |  Calculate Etag          |
-                           |  for condition matching  |
-                           +--------------------------+
-                                        |
-                              +--------------------+
-                              |  Do preconditions  |
-                              |  match?            |
-                              +--------------------+
-                                  |           |
-                                  Yes         No
-                                  |           |
-                      +--------------+  +--------------------+
-                      |  Update the  |  |  412 Precondition  |
-                      |  resource    |  |  failed            |
-                      +--------------+  +--------------------+
-                             |
-                   +--------------------+
-                   |  Calculate Etag    |
-                   |  again and add it  |
-                   |  to response       |
-                   +--------------------+
-                             |
-                       +------------+
-                       |  Return    |
-                       |  response  |
-                       +------------+
+                 +--------------+
+                 |    Request   |
+                 +--------------+
+                        |
+           +--------------------------+
+           |  Calculate Etag          |
+           |  for condition matching  |
+           +--------------------------+
+                        |
+              +--------------------+
+              |  Do preconditions  |
+              |  match?            |
+              +--------------------+
+                  |           |
+                  Yes         No
+                  |           |
+      +--------------+  +--------------------+
+      |  Update the  |  |  412 Precondition  |
+      |  resource    |  |  failed            |
+      +--------------+  +--------------------+
+             |
+    +--------------------+
+    |  Calculate Etag    |
+    |  again and add it  |
+    |  to response       |
+    +--------------------+
+             |
+       +------------+
+       |  Return    |
+       |  response  |
+       +------------+
 
 `If-None-Match` example for `DELETE` method:
 
