@@ -4,3 +4,4 @@
 *.egg
 .idea
 env
+dist
