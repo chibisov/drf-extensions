@@ -6,6 +6,11 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
 [![Build Status](https://travis-ci.org/chibisov/drf-extensions.png?branch=master)](https://travis-ci.org/chibisov/drf-extensions)
 
+## Requirements
+
+* Tested for python 2.7 and 3.3 versions
+* Tested for all releases of Django Rest Framework from 2.3.5 to 2.3.12 versions
+
 ## Installation:
 
     pip install drf-extensions

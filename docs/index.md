@@ -38,6 +38,46 @@ If you use `DetailSerializerMixin` and don't specify `serializer_detail_class` a
 If you use `DetailSerializerMixin` and don't specify `queryset_detail` attribute, then `queryset` will be used.
 
 
+#### PaginateByMaxMixin
+
+*New in DRF-extensions Development version*
+
+This mixin allows to paginate results by [max\_paginate\_by](http://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
+value. This approach is useful when clients want to take as much paginated data as possible,
+but don't want to bother about backend limitations.
+
+    from myapps.serializers import UserSerializer
+    from rest_framework_extensions.mixins import PaginateByMaxMixin
+
+    class UserViewSet(PaginateByMaxMixin,
+                      viewsets.ReadOnlyModelViewSet):
+        max_paginate_by = 100
+        serializer_class = UserSerializer
+
+And now you can send requests with `?page_size=max` argument:
+
+    # Request
+    GET /users/?page_size=max HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        count: 1000,
+        next: "https://localhost:8000/v1/users/?page=2&page_size=max",
+        previous: null,
+        results: [
+            ...100 items...
+        ]
+    }
+
+This mixin could be used only with Django Rest Framework >= 2.3.8, because
+[max\_paginate\_by](http://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
+was introduced in 2.3.8 version.
+
+
 #### Cache/ETAG mixins
 
 **ReadOnlyCacheResponseAndETAGMixin**
@@ -1383,6 +1423,10 @@ If you need to access the values of DRF-exteinsions API settings in your project
 
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
+
+#### New in development version
+
+* Added [PaginateByMaxMixin](#paginatebymaxmixin)
 
 #### 0.2.1
 

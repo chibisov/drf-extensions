@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from copy import copy
+from copy import deepcopy
 import hashlib
 import json
 from mock import Mock, patch
@@ -53,7 +53,6 @@ class KeyConstructorTest_bits(TestCase):
         self.assertEqual(constructor_instance.bits, expected)
 
 
-
 class KeyConstructorTest(TestCase):
     def setUp(self):
         class View(viewsets.ReadOnlyModelViewSet):
@@ -70,8 +69,18 @@ class KeyConstructorTest(TestCase):
             'kwargs': None
         }
 
+    def test_prepare_key_consistency_for_equal_dicts_with_different_key_positions(self):
+        class MyKeyConstructor(KeyConstructor):
+            pass
+
+        constructor_instance = MyKeyConstructor()
+        one = {'used_kwargs': {'view_method': 'view_method', 'kwargs': None, 'view_instance': 'view_instance', 'params': {'hello': 'world'}, 'args': None, 'request': 'request'}}
+        two = {'used_kwargs': {'params': {'hello': 'world'}, 'kwargs': None, 'view_method': 'view_method', 'view_instance': 'view_instance', 'args': None, 'request': 'request'}}
+        self.assertEqual(one, two)
+        self.assertEqual(constructor_instance.prepare_key(one), constructor_instance.prepare_key(two))
+
     def prepare_key(self, key_dict):
-        return hashlib.sha256(json.dumps(key_dict)).hexdigest()
+        return hashlib.sha256(json.dumps(key_dict, sort_keys=True).encode('utf-8')).hexdigest()
 
     def test_key_construction__with_bits_without_params(self):
         class MyKeyConstructor(KeyConstructor):
@@ -93,12 +102,17 @@ class KeyConstructorTest(TestCase):
         with patch.object(json.JSONEncoder, 'default', Mock(return_value='force serializing')):
             constructor_instance = MyKeyConstructor()
             response = constructor_instance(**self.kwargs)
-            expected_value = copy(self.kwargs)
+            expected_value = deepcopy(self.kwargs)
             expected_value['params'] = {'hello': 'world'}
-            expected = {
+            expected_data_from_bits = {
                 'used_kwargs': expected_value
             }
-            self.assertEqual(response, self.prepare_key(expected))
+            msg = 'Data from bits: {data_from_bits}\nExpected data from: {expected_data_from_bits}'.format(
+                data_from_bits=json.dumps(constructor_instance.get_data_from_bits(**self.kwargs)),
+                expected_data_from_bits=json.dumps(expected_data_from_bits)
+            )
+
+            self.assertEqual(response, self.prepare_key(expected_data_from_bits), msg=msg)
 
     def test_two_key_construction_with_same_bits_in_different_order_should_produce_equal_keys(self):
         class MyKeyConstructor_1(KeyConstructor):
@@ -133,13 +147,13 @@ class KeyConstructorTest___get_memoization_key(TestCase):
         response = constructor_instance._get_memoization_key(
             view_instance=self.view_intance,
             view_method=self.view_method,
-            args=[1, 2, 3],
-            kwargs={1: 2, 3: 4}
+            args=[1, 2, 3, u'Привет мир'],
+            kwargs={1: 2, 3: 4, u'привет': u'мир'}
         )
         expected = json.dumps({
             'unique_method_id': get_unique_method_id(view_instance=self.view_intance, view_method=self.view_method),
-            'args': [1, 2, 3],
-            'kwargs': {1: 2, 3: 4},
+            'args': [1, 2, 3, u'Привет мир'],
+            'kwargs': {1: 2, 3: 4, u'привет': u'мир'},
             'instance_id': id(constructor_instance)
         })
         self.assertEqual(response, expected)
@@ -200,7 +214,7 @@ class KeyConstructorTestBehavior__memoization(TestCase):
         response_2 = constructor_instance(**self.kwargs)
         self.assertTrue(response_1 is response_2)
 
-        self.kwargs['args'] = [1, 2, 3]
+        self.kwargs['args'] = [1, 2, 3, u'привет мир']
         response_3 = constructor_instance(**self.kwargs)
         response_4 = constructor_instance(**self.kwargs)
         self.assertTrue(response_3 is response_4)

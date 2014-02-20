@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from rest_framework_extensions.utils import prepare_header_name
 from rest_framework_extensions.settings import extensions_api_settings
+from rest_framework_extensions.compat import six
 
 
 logger = logging.getLogger('django.request')
@@ -99,7 +100,7 @@ class ETAGProcessor(object):
                        request,
                        args,
                        kwargs):
-        if isinstance(self.etag_func, basestring):
+        if isinstance(self.etag_func, six.string_types):
             etag_func = getattr(view_instance, self.etag_func)
         else:
             etag_func = self.etag_func

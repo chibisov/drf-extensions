@@ -5,6 +5,7 @@ from django.utils.decorators import available_attrs
 from django.core.cache import cache
 
 from rest_framework_extensions.settings import extensions_api_settings
+from rest_framework_extensions.compat import six
 
 
 class CacheResponse(object):
@@ -59,7 +60,7 @@ class CacheResponse(object):
                       request,
                       args,
                       kwargs):
-        if isinstance(self.key_func, basestring):
+        if isinstance(self.key_func, six.string_types):
             key_func = getattr(view_instance, self.key_func)
         else:
             key_func = self.key_func

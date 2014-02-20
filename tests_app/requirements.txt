@@ -2,3 +2,4 @@ Django>=1.5.0
 nose
 django-nose
 mock
+ipdb

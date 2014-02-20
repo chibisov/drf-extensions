@@ -13,6 +13,9 @@ env:
   - TOX_ENV=py27-drf2.3.8
   - TOX_ENV=py27-drf2.3.9
   - TOX_ENV=py27-drf2.3.10
+  - TOX_ENV=py27-drf2.3.11
+  - TOX_ENV=py27-drf2.3.12
+  - TOX_ENV=py33-drf2.3.12
 
 script:
   - tox -e $TOX_ENV -- tests_app
