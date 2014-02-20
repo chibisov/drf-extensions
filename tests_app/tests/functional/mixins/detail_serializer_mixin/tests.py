@@ -29,7 +29,7 @@ class DetailSerializerMixinTest_serializer_detail_class(TestCase):
             'id': 1,
             'email': 'example@ya.ru'
         }]
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)
 
     def test_serializer_detail_class_response(self):
         resp = self.client.get('/comments/1/')
@@ -38,7 +38,7 @@ class DetailSerializerMixinTest_serializer_detail_class(TestCase):
             'email': 'example@ya.ru',
             'content': 'Hello world',
         }
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)
 
     def test_view_with_mixin_and_withou__serializer_detail_class__should_raise_exception(self):
         msg = "'CommentWithoutDetailSerializerClassViewSet' should include a 'serializer_detail_class' attribute"
@@ -70,11 +70,11 @@ class DetailSerializerMixin_queryset_detail(TestCase):
             'id': 2,
             'email': 'example2@ya.ru'
         }]
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)
 
     def test_detail_view_should_use_default_queryset_if_queryset_detail_not_specified(self):
         resp = self.client.get('/comments-3/1/')
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 404)
 
         resp = self.client.get('/comments-3/2/')
         expected = {
@@ -82,7 +82,7 @@ class DetailSerializerMixin_queryset_detail(TestCase):
             'email': 'example2@ya.ru',
             'content': 'Hello world 2',
         }
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)
 
     def test_list_should_use_default_queryset_method_if_queryset_detail_specified(self):
         resp = self.client.get('/comments-4/')
@@ -90,11 +90,11 @@ class DetailSerializerMixin_queryset_detail(TestCase):
             'id': 2,
             'email': 'example2@ya.ru'
         }]
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)
 
     def test_detail_view_should_use_custom_queryset_if_queryset_detail_specified(self):
         resp = self.client.get('/comments-4/2/')
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 404)
 
         resp = self.client.get('/comments-4/1/')
         expected = {
@@ -102,4 +102,4 @@ class DetailSerializerMixin_queryset_detail(TestCase):
             'email': 'example@ya.ru',
             'content': 'Hello world',
         }
-        self.assertEquals(resp.data, expected)
+        self.assertEqual(resp.data, expected)

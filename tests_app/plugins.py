@@ -25,8 +25,6 @@ class UnitTestDiscoveryPlugin(AlwaysOnPlugin):
             return False
 
     def wantMethod(self, method):
-        if not issubclass(method.im_class, TestCase):
-            return False
         if not method.__name__.lower().startswith('test'):
             return False
 
