@@ -74,7 +74,7 @@ And now you can send requests with `?page_size=max` argument:
     }
 
 This mixin could be used only with Django Rest Framework >= 2.3.8, because
-[max\_paginate\_by](http://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
+[max\_paginate\_by](http://www.django-rest-framework.org/topics/release-notes#238)
 was introduced in 2.3.8 version.
 
 
@@ -380,6 +380,8 @@ Now lets see request response for user that has no permissions for viewing `Comm
     Content-Type: application/json; charset=UTF-8
 
     {u'detail': u'You do not have permission to perform this action.'}
+
+`ExtenedDjangoObjectPermissions` could be used only with Django Rest Framework >= 2.3.8, because [DjangoObjectPermissions](http://www.django-rest-framework.org/topics/release-notes#238) was introduced in 2.3.8 version.
 
 
 ### Caching
