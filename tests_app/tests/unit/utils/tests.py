@@ -133,6 +133,49 @@ class Test_get_rest_framework_features(TestCase):
                     exp['expected']
                 )
 
+    def test_django_object_permissions_class(self):
+        experiments = [
+            {
+                'version': (2, 3),
+                'expected': False
+            },
+            {
+                'version': (2, 3, 5),
+                'expected': False
+            },
+            {
+                'version': (2, 3, 6),
+                'expected': False
+            },
+            {
+                'version': (2, 3, 7),
+                'expected': False
+            },
+            {
+                'version': (2, 3, 8),
+                'expected': True
+            },
+            {
+                'version': (2, 3, 9),
+                'expected': True
+            },
+            {
+                'version': (2, 3, 10),
+                'expected': True
+            },
+            {
+                'version': (2, 4),
+                'expected': True
+            },
+        ]
+
+        for exp in experiments:
+            with patch('rest_framework_extensions.utils.get_rest_framework_version', Mock(return_value=exp['version'])):
+                self.assertEqual(
+                    get_rest_framework_features()['django_object_permissions_class'],
+                    exp['expected']
+                )
+
 
 class Test_prepare_header_name(TestCase):
     def test_upper(self):

@@ -18,6 +18,7 @@ def get_rest_framework_features():
         'router_trailing_slash': get_rest_framework_version() >= (2, 3, 6),
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
+        'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
     }
 
 
