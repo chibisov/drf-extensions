@@ -96,6 +96,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'django_nose',
+    'guardian',
     'rest_framework_extensions',
     'tests_app',
 )
@@ -131,3 +132,11 @@ NOSE_PLUGINS = [
     'plugins.PrepareRestFrameworkSettingsPlugin',
     'plugins.FlushCache'
 ]
+
+# guardian
+ANONYMOUS_USER_ID = -1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)

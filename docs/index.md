@@ -326,6 +326,62 @@ Request example:
     }
 
 
+### Permissions
+
+Extensions for [permissions](http://www.django-rest-framework.org/api-guide/permissions.html).
+
+#### Object permissions
+
+*New in DRF-extensions Development version*
+
+Django Rest Framework allows you to use [DjangoObjectPermissions](http://www.django-rest-framework.org/api-guide/permissions#djangoobjectpermissions) out of the box. But it has one limitation - if user has no permissions for viewing resource he will get `404` as response code. In most cases it's good approach because it solves security issues by default. But what if you wanted to return `401` or `403`? What if you wanted to say to user - "You need to be logged in for viewing current resource" or "You don't have permissions for viewing current resource"?
+
+`ExtenedDjangoObjectPermissions` will help you to be more flexible. By default it behaves as standard [DjangoObjectPermissions](http://www.django-rest-framework.org/api-guide/permissions#djangoobjectpermissions). For example, it is safe to replace `DjangoObjectPermissions` with extended permissions class:
+
+    from rest_framework_extensions.permissions import (
+        ExtendedDjangoObjectPermissions as DjangoObjectPermissions
+    )
+
+    class CommentView(viewsets.ModelViewSet):
+        permission_classes = (DjangoObjectPermissions,)
+
+Now every request from unauthorized user will get `404` response:
+
+    # Request
+    GET /comments/1/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 404 NOT FOUND
+    Content-Type: application/json; charset=UTF-8
+
+    {"detail": "Not found"}
+
+With `ExtenedDjangoObjectPermissions` you can disable hiding forbidden for read objects by changing `hide_forbidden_for_read_objects` attribute:
+
+    from rest_framework_extensions.permissions import (
+        ExtendedDjangoObjectPermissions
+    )
+
+    class CommentViewObjectPermissions(ExtendedDjangoObjectPermissions):
+        hide_forbidden_for_read_objects = False
+
+    class CommentView(viewsets.ModelViewSet):
+        permission_classes = (CommentViewObjectPermissions,)
+
+Now lets see request response for user that has no permissions for viewing `CommentView` object:
+
+    # Request
+    GET /comments/1/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 403 FORBIDDEN
+    Content-Type: application/json; charset=UTF-8
+
+    {u'detail': u'You do not have permission to perform this action.'}
+
+
 ### Caching
 
 To cache something is to save the result of an expensive calculation so that you don’t have to perform the calculation next time. Here’s some pseudocode explaining how this would work for a dynamically generated api response:
@@ -1427,6 +1483,7 @@ You can read about versioning, deprecation policy and upgrading from
 #### New in development version
 
 * Added [PaginateByMaxMixin](#paginatebymaxmixin)
+* Added [ExtenedDjangoObjectPermissions](#object-permissions)
 
 #### 0.2.1
 
