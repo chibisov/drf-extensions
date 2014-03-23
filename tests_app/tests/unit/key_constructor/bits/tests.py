@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
 
+import django
 from django.test import TestCase
 from django.utils.translation import override
 
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework_extensions.test import APIRequestFactory
+from rest_framework_extensions.utils import get_django_features
 
 from rest_framework_extensions.key_constructor.bits import (
     KeyBitDictBase,
@@ -373,7 +375,12 @@ class ListSqlQueryKeyBitTest(TestCase):
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset(self):
         expected = (u'SELECT "tests_app_bittestmodel"."id", "tests_app_bittestmodel"."is_active" '
                     u'FROM "tests_app_bittestmodel" '
-                    u'WHERE "tests_app_bittestmodel"."is_active" = True ')
+                    u'WHERE "tests_app_bittestmodel"."is_active" = True{space}')
+        if get_django_features()['has_odd_space_in_sql_query']:
+            space = ' '
+        else:
+            space = ''
+        expected = expected.format(space=space)
         response = ListSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
 
@@ -396,7 +403,13 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field(self):
         expected = (u'SELECT "tests_app_bittestmodel"."id", "tests_app_bittestmodel"."is_active" '
                     u'FROM "tests_app_bittestmodel" '
-                    u'WHERE ("tests_app_bittestmodel"."is_active" = True  AND "tests_app_bittestmodel"."id" = 123 )')
+                    u'WHERE ("tests_app_bittestmodel"."is_active" = True {space}AND "tests_app_bittestmodel"."id" = 123{space})')
+        if get_django_features()['has_odd_space_in_sql_query']:
+            space = ' '
+        else:
+            space = ''
+        expected = expected.format(space=space)
+
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
 

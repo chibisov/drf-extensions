@@ -40,7 +40,7 @@ If you use `DetailSerializerMixin` and don't specify `queryset_detail` attribute
 
 #### PaginateByMaxMixin
 
-*New in DRF-extensions Development version*
+*New in DRF-extensions 0.2.2*
 
 This mixin allows to paginate results by [max\_paginate\_by](http://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
 value. This approach is useful when clients want to take as much paginated data as possible,
@@ -332,7 +332,7 @@ Extensions for [permissions](http://www.django-rest-framework.org/api-guide/perm
 
 #### Object permissions
 
-*New in DRF-extensions Development version*
+*New in DRF-extensions 0.2.2*
 
 Django Rest Framework allows you to use [DjangoObjectPermissions](http://www.django-rest-framework.org/api-guide/permissions#djangoobjectpermissions) out of the box. But it has one limitation - if user has no permissions for viewing resource he will get `404` as response code. In most cases it's good approach because it solves security issues by default. But what if you wanted to return `401` or `403`? What if you wanted to say to user - "You need to be logged in for viewing current resource" or "You don't have permissions for viewing current resource"?
 
@@ -1482,10 +1482,13 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### New in development version
+#### 0.2.2
+
+*Mar. 23, 2014*
 
 * Added [PaginateByMaxMixin](#paginatebymaxmixin)
 * Added [ExtenedDjangoObjectPermissions](#object-permissions)
+* Added tests for django 1.7
 
 #### 0.2.1
 
