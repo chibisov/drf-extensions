@@ -15,7 +15,11 @@ env:
   - TOX_ENV=py27-drf2.3.10
   - TOX_ENV=py27-drf2.3.11
   - TOX_ENV=py27-drf2.3.12
-  - TOX_ENV=py33-drf2.3.12
+  - TOX_ENV=py27-drf2.3.13
+  - TOX_ENV=py33
+  - TOX_ENV=django1.5.5
+  - TOX_ENV=django1.6.2
+  - TOX_ENV=django1.7
 
 script:
   - tox -e $TOX_ENV -- tests_app

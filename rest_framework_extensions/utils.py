@@ -2,6 +2,7 @@
 import itertools
 from functools import wraps
 
+from django import VERSION as django_version
 from django.utils.decorators import available_attrs
 
 import rest_framework
@@ -19,6 +20,13 @@ def get_rest_framework_features():
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
         'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
+    }
+
+
+def get_django_features():
+    # todo: test me
+    return {
+        'has_odd_space_in_sql_query': django_version < (1, 7, 0)
     }
 
 

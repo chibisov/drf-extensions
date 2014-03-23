@@ -8,6 +8,7 @@ from django.conf import settings
 from django.test.client import Client as DjangoClient
 from django.test.client import ClientHandler
 from django.test import testcases
+from django.utils.http import urlencode
 from rest_framework.settings import api_settings
 from rest_framework_extensions.compat import RequestFactory as DjangoRequestFactory  # changed here
 from rest_framework_extensions.compat import force_bytes_or_smart_bytes, six  # changed here
@@ -70,6 +71,17 @@ class APIRequestFactory(DjangoRequestFactory):
                 ret = bytes(ret.encode(renderer.charset))
 
         return ret, content_type
+
+    def get(self, path, data=None, **extra):
+        r = {
+            'QUERY_STRING': urlencode(data or {}, doseq=True),
+        }
+        # Fix to support old behavior where you have the arguments in the url
+        # See #1461
+        if not data and '?' in path:
+            r['QUERY_STRING'] = path.split('?')[1]
+        r.update(extra)
+        return self.generic('GET', path, **r)
 
     def post(self, path, data=None, format=None, content_type=None, **extra):
         data, content_type = self._encode_data(data, format, content_type)
@@ -134,6 +146,8 @@ class APIClient(APIRequestFactory, DjangoClient):
         """
         self.handler._force_user = user
         self.handler._force_token = token
+        if user is None:
+            self.logout()  # Also clear any possible session info if required
 
     def request(self, **kwargs):
         # Ensure that any credentials set get added to every request.

@@ -9,6 +9,7 @@ from django.db.models import get_app, get_models
 from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import status
+from rest_framework_extensions.test import APITestCase
 
 from rest_framework_extensions.compat import guardian, get_model_name
 from rest_framework_extensions.utils import get_rest_framework_features
@@ -78,7 +79,7 @@ class ExtendedDjangoObjectPermissionTestMixin(object):
     "Current DRF version doesn't support DjangoObjectPermissions"
 )
 class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjangoObjectPermissionTestMixin,
-                                                                  TestCase):
+                                                                  APITestCase):
     urls = urlpatterns
 
     # Delete
@@ -157,7 +158,7 @@ class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjango
     "Current DRF version doesn't support DjangoObjectPermissions"
 )
 class ExtendedDjangoObjectPermissionsTest_without_hiding_forbidden_objects(ExtendedDjangoObjectPermissionTestMixin,
-                                                                           TestCase):
+                                                                           APITestCase):
     urls = urlpatterns
 
     # Delete
