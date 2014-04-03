@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import shutil
+import os
+
 from django_nose.plugin import AlwaysOnPlugin
 
 from django.test import TestCase
@@ -51,6 +54,15 @@ class PrepareRestFrameworkSettingsPlugin(AlwaysOnPlugin):
         for key, value in PATCH_REST_FRAMEWORK.items():
             if key not in settings.DEFAULTS:
                 settings.DEFAULTS[key] = value
+
+
+class PrepareFileStorageDir(AlwaysOnPlugin):
+    def begin(self):
+        if not os.path.isdir(settings.FILE_STORAGE_DIR):
+            os.makedirs(settings.FILE_STORAGE_DIR)
+
+    def finalize(self, result):
+        shutil.rmtree(settings.FILE_STORAGE_DIR, ignore_errors=True)
 
 
 class FlushCache(AlwaysOnPlugin):
