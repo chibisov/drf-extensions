@@ -293,6 +293,58 @@ Change password request:
     ['password changed']
 
 
+### Serializers
+
+Extensions for [serializers](http://www.django-rest-framework.org/api-guide/serializers) functionality.
+
+#### PartialUpdateSerializerMixin
+
+*New in DRF-extensions development version*
+
+By default every saving of [ModelSerializer](http://www.django-rest-framework.org/api-guide/serializers#modelserializer)
+saves the whole object. Even partial update just patches model instance. For example:
+
+    from myapps.models import City
+    from myapps.serializers import CitySerializer
+
+    moscow = City.objects.get(pk=10)
+    city_serializer = CitySerializer(
+        instance=moscow,
+        data={'country': 'USA'},
+        partial=True
+    )
+    if city_serializer.is_valid():
+        city_serializer.save()
+
+    # equivalent to
+    moscow.country = 'USA'
+    moscow.save()
+
+SQL representation for previous example will be:
+
+    UPDATE city SET name='Moscow', country='USA' WHERE id=1;
+
+Django's `save` method has keyword argument [update_fields](https://docs.djangoproject.com/en/dev/ref/models/instances/#specifying-which-fields-to-save).
+Only the fields named in that list will be updated:
+
+    moscow.country = 'USA'
+    moscow.save(update_fields=['country'])
+
+SQL representation for example with `update_fields` usage will be:
+
+    UPDATE city SET country='USA' WHERE id=1;
+
+To use `update_fields` for every partial update you should mixin `PartialUpdateSerializerMixin` to your serializer:
+
+    from rest_framework_extensions.serializers import (
+        PartialUpdateSerializerMixin
+    )
+
+    class CitySerializer(PartialUpdateSerializerMixin,
+                         serializers.ModelSerializer):
+        class Meta:
+            model = City
+
 ### Fields
 
 Set of serializer fields that extends [default fields](http://www.django-rest-framework.org/api-guide/fields) functionality.
@@ -1481,6 +1533,10 @@ If you need to access the values of DRF-exteinsions API settings in your project
 
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
+
+#### Development version
+
+* Added [PartialUpdateSerializerMixin](#partialupdateserializermixin)
 
 #### 0.2.2
 
