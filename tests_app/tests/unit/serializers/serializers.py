@@ -2,16 +2,42 @@
 from rest_framework import serializers
 from rest_framework_extensions import serializers as drf_serializers
 
-from .models import CommentModel
+from .models import CommentModel, UserModel
+
+
+class UserSerializer(drf_serializers.PartialUpdateSerializerMixin,
+                     serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = (
+            'name',
+            'comments'
+        )
 
 
 class CommentSerializer(drf_serializers.PartialUpdateSerializerMixin,
                         serializers.ModelSerializer):
+    title_from_source = serializers.CharField(source='title', required=False)
+
     class Meta:
         model = CommentModel
         fields = (
             'user',
+            'users_liked',
             'title',
             'text',
-            'attachment'
+            'attachment',
+            'title_from_source'
+        )
+
+
+class CommentSerializerWithExpandedUsersLiked(drf_serializers.PartialUpdateSerializerMixin,
+                                              serializers.ModelSerializer):
+    user = UserSerializer(source='user')
+
+    class Meta:
+        model = CommentModel
+        fields = (
+            'title',
+            'user'
         )

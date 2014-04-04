@@ -20,6 +20,7 @@ def get_rest_framework_features():
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
         'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
+        'save_related_serializers': get_rest_framework_version() >= (2, 3, 8)  # todo: test me
     }
 
 
@@ -57,6 +58,13 @@ def get_unique_method_id(view_instance, view_method):
         view_instance.__class__.__name__,
         view_method.__name__
     ])
+
+
+def get_model_opts_concrete_fields(opts):
+    # todo: test me
+    if not hasattr(opts, 'concrete_fields'):
+        opts.concrete_fields = [f for f in opts.fields if f.column is not None]
+    return opts.concrete_fields
 
 
 default_cache_key_func = DefaultKeyConstructor()

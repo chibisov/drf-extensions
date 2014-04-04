@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.core.files import File
+from rest_framework_extensions.utils import get_rest_framework_features
 
 from rest_framework_extensions.compat import BytesIO
 
-from .serializers import CommentSerializer
+from .serializers import CommentSerializer, UserSerializer, CommentSerializerWithExpandedUsersLiked
 from .models import UserModel, CommentModel
 
 
@@ -67,6 +68,69 @@ class PartialUpdateSerializerMixinTest(TestCase):
         self.assertEqual(fresh_instance.text, 'moon')
         self.assertEqual(fresh_instance.title, 'goodbye')
 
+    def test_should_use_related_field_name_for_update_field_list(self):
+        another_user = UserModel.objects.create(name='vova')
+        data = {
+            'title': 'goodbye',
+            'user': another_user.pk
+        }
+        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.title, 'goodbye')
+        self.assertEqual(fresh_instance.user, another_user)
+
+    def test_should_use_field_source_value_for_searching_model_concrete_fields(self):
+        data = {
+            'title_from_source': 'goodbye'
+        }
+        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.title, 'goodbye')
+
+    def test_should_not_use_m2m_field_name_for_update_field_list(self):
+        another_user = UserModel.objects.create(name='vova')
+        data = {
+            'title': 'goodbye',
+            'users_liked': [self.user.pk, another_user.pk]
+        }
+        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        try:
+            serializer.save()
+        except ValueError:
+            self.fail('If m2m field used in partial update then it should not be used in update_fields list')
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.title, 'goodbye')
+        users_liked = set(fresh_instance.users_liked.all().values_list('pk', flat=True))
+        self.assertEqual(users_liked, set([self.user.pk, another_user.pk]))
+
+    def test_should_not_use_related_set_field_name_for_update_field_list(self):
+        another_user = UserModel.objects.create(name='vova')
+        another_comment = CommentModel.objects.create(
+            user=another_user,
+            title='goodbye',
+            text='moon',
+        )
+        data = {
+            'name': 'vova',
+            'comments': [another_comment.pk]
+        }
+        serializer = UserSerializer(instance=another_user, data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        try:
+            serializer.save()
+        except ValueError:
+            self.fail('If related set field used in partial update then it should not be used in update_fields list')
+        fresh_comment = CommentModel.objects.get(pk=another_comment.pk)
+        fresh_user = UserModel.objects.get(pk=another_user.pk)
+        self.assertEqual(fresh_comment.user, another_user)
+        self.assertEqual(fresh_user.name, 'vova')
+
     def test_should_not_try_to_update_fields_that_are_not_in_model(self):
         data = {
             'title': 'goodbye',
@@ -107,3 +171,25 @@ class PartialUpdateSerializerMixinTest(TestCase):
         fresh_instance = self.get_comment()
         self.assertEqual(fresh_instance.title, 'goodbye')
         self.assertEqual(fresh_instance.text, 'world')
+
+    def test_should_not_use_update_fields_when_related_objects_are_saving(self):
+        data = {
+            'title': 'goodbye',
+            'user': {
+                'id': self.user.pk,
+                'name': 'oleg'
+            }
+
+        }
+        serializer = CommentSerializerWithExpandedUsersLiked(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        try:
+            serializer.save()
+        except ValueError:
+            self.fail('If serializer has expanded related serializer, then it should not use update_fields while '
+                      'saving related object')
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.title, 'goodbye')
+
+        if get_rest_framework_features()['save_related_serializers']:
+            self.assertEqual(fresh_instance.user.name, 'oleg')
