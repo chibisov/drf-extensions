@@ -16,7 +16,11 @@ class PartialUpdateSerializerMixin(object):
         cls = self.opts.model
         opts = get_concrete_model(cls)._meta
         partial_fields = list((self.init_data or {}).keys()) + list((self.init_files or {}).keys())
-        concrete_field_names = [i.name for i in get_model_opts_concrete_fields(opts)]
+        concrete_field_names = []
+        for field in get_model_opts_concrete_fields(opts):
+            concrete_field_names.append(field.name)
+            if field.name != field.attname:
+                concrete_field_names.append(field.attname)
         update_fields = []
         for field_name in partial_fields:
             if field_name in self.fields:

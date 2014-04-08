@@ -5,7 +5,7 @@ from rest_framework_extensions.utils import get_rest_framework_features
 
 from rest_framework_extensions.compat import BytesIO
 
-from .serializers import CommentSerializer, UserSerializer, CommentSerializerWithExpandedUsersLiked
+from .serializers import CommentSerializer, UserSerializer, CommentSerializerWithExpandedUsersLiked, CommentSerializerWithAllowedUserId
 from .models import UserModel, CommentModel
 
 
@@ -193,3 +193,27 @@ class PartialUpdateSerializerMixinTest(TestCase):
 
         if get_rest_framework_features()['save_related_serializers']:
             self.assertEqual(fresh_instance.user.name, 'oleg')
+
+    def test_should_not_use_field_attname_for_update_fields__if_attname_not_allowed_in_serializer_fields(self):
+        another_user = UserModel.objects.create(name='vova')
+        data = {
+            'title': 'goodbye',
+            'user_id': another_user.id
+        }
+        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.user_id, self.user.id)
+
+    def test_should_use_field_attname_for_update_fields__if_attname_allowed_in_serializer_fields(self):
+        another_user = UserModel.objects.create(name='vova')
+        data = {
+            'title': 'goodbye',
+            'user_id': another_user.id
+        }
+        serializer = CommentSerializerWithAllowedUserId(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.user_id, another_user.id)

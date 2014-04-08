@@ -30,6 +30,12 @@ class CommentSerializer(drf_serializers.PartialUpdateSerializerMixin,
             'title_from_source'
         )
 
+class CommentSerializerWithAllowedUserId(CommentSerializer):
+    user_id = serializers.IntegerField()
+
+    class Meta(CommentSerializer.Meta):
+        fields = ('user_id',) + CommentSerializer.Meta.fields
+
 
 class CommentSerializerWithExpandedUsersLiked(drf_serializers.PartialUpdateSerializerMixin,
                                               serializers.ModelSerializer):
