@@ -217,3 +217,19 @@ class PartialUpdateSerializerMixinTest(TestCase):
         serializer.save()
         fresh_instance = self.get_comment()
         self.assertEqual(fresh_instance.user_id, another_user.id)
+
+    def test_should_not_use_pk_field_for_update_fields(self):
+        old_pk = self.get_comment().pk
+        data = {
+            'id': old_pk + 1,
+            'title': 'goodbye'
+        }
+        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        self.assertTrue(serializer.is_valid())
+        try:
+            serializer.save()
+        except ValueError:
+            self.fail('Primary key field should be excluded from update_fields list')
+        fresh_instance = self.get_comment()
+        self.assertEqual(fresh_instance.pk, old_pk)
+        self.assertEqual(fresh_instance.title, u'goodbye')

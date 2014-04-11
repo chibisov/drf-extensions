@@ -22,6 +22,7 @@ class CommentSerializer(drf_serializers.PartialUpdateSerializerMixin,
     class Meta:
         model = CommentModel
         fields = (
+            'id',
             'user',
             'users_liked',
             'title',
