@@ -7,11 +7,15 @@ from rest_framework_extensions.settings import extensions_api_settings
 
 
 class KeyConstructor(object):
-    def __init__(self, memoize_for_request=None):
+    def __init__(self, memoize_for_request=None, params=None):
         if memoize_for_request is None:
             self.memoize_for_request = extensions_api_settings.DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST
         else:
             self.memoize_for_request = memoize_for_request
+        if params is None:
+            self.params = {}
+        else:
+            self.params = params
         self.bits = self.get_bits()
 
     def get_bits(self):
@@ -76,10 +80,13 @@ class KeyConstructor(object):
     def get_data_from_bits(self, **kwargs):
         result_dict = {}    
         for bit_name, bit_instance in self.bits.items():
-            try:
-                params = bit_instance.params
-            except AttributeError:
-                params = None
+            if bit_name in self.params:
+                params = self.params[bit_name]
+            else:
+                try:
+                    params = bit_instance.params
+                except AttributeError:
+                    params = None
             result_dict[bit_name] = bit_instance.get_data(params=params, **kwargs)
         return result_dict
 
