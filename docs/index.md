@@ -508,10 +508,29 @@ You can specify cache timeout in seconds, providing first argument:
 
 In the above example, the result of the `get()` view will be cached for 15 minutes.
 
-If you don't specify `cache_timout` argument then value from `REST_FRAMEWORK_EXTENSIONS` settings will be used. By default it's `None`, which means "cache forever". You can change this default in settings:
+If you don't specify `cache_timeout` argument then value from `REST_FRAMEWORK_EXTENSIONS` settings will be used. By default it's `None`, which means "cache forever". You can change this default in settings:
 
     REST_FRAMEWORK_EXTENSIONS = {
         'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+    }
+
+#### Usage of the specific cache
+
+*New in DRF-extensions development version*
+
+`@cache_response` can also take an optional keyword argument, `cache`, which directs the decorator
+to use a specific cache (from your [CACHES](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES) setting) when caching results.
+By default, the `default` cache will be used, but you can specify any cache you want:
+
+    class CityView(views.APIView):
+        @cache_response(60 * 15, cache='special_cache')
+        def get(self, request, *args, **kwargs):
+            ...
+
+You can specify what cache to use by default in settings:
+
+    REST_FRAMEWORK_EXTENSIONS = {
+        'DEFAULT_USE_CACHE': 'special_cache'
     }
 
 #### Cache key
@@ -1586,6 +1605,7 @@ You can read about versioning, deprecation policy and upgrading from
 * Added [PartialUpdateSerializerMixin](#partialupdateserializermixin)
 * Added [Key constructor params](#key-constructor-params)
 * Documented dynamically [constructor's bits list](#constructor-s-bits-list) altering
+* Added ability to [use a specific cache](#usage-of-the-specific-cache) for `@cache_response` decorator
 
 #### 0.2.2
 

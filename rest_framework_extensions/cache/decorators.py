@@ -2,14 +2,14 @@
 from functools import wraps
 
 from django.utils.decorators import available_attrs
-from django.core.cache import cache
+from django.core.cache import get_cache
 
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions.compat import six
 
 
 class CacheResponse(object):
-    def __init__(self, timeout=None, key_func=None):
+    def __init__(self, timeout=None, key_func=None, cache=None):
         if timeout is None:
             self.timeout = extensions_api_settings.DEFAULT_CACHE_RESPONSE_TIMEOUT
         else:
@@ -19,6 +19,8 @@ class CacheResponse(object):
             self.key_func = extensions_api_settings.DEFAULT_CACHE_KEY_FUNC
         else:
             self.key_func = key_func
+
+        self.cache = get_cache(cache or extensions_api_settings.DEFAULT_USE_CACHE)
 
     def __call__(self, func):
         this = self
@@ -46,12 +48,12 @@ class CacheResponse(object):
             args=args,
             kwargs=kwargs
         )
-        response = cache.get(key)
+        response = self.cache.get(key)
         if not response:
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before picklining while storing to cache
-            cache.set(key, response, self.timeout)
+            self.cache.set(key, response, self.timeout)
         return response
 
     def calculate_key(self,
