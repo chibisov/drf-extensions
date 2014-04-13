@@ -1026,6 +1026,53 @@ And that's it. When any model changes then value in cache by key `api_updated_at
 key constructor, that used `UpdatedAtKeyBit`, will construct new keys and `@cache_response` decorator will
 cache data in new places.
 
+#### Key constructor params
+
+*New in DRF-extensions development version*
+
+You can change `params` attribute for specific key bit by providing `params` dict for key constructor initialization
+function. For example, here is custom key constructor, which inherits from [DefaultKeyConstructor](#default-key-constructor)
+and adds geoip key bit:
+
+    class CityKeyConstructor(DefaultKeyConstructor):
+        geoip = bits.RequestMetaKeyBit(params=['GEOIP_CITY'])
+
+If you wanted to use `GEOIP_COUNTRY`, you could create new key constructor:
+
+    class CountryKeyConstructor(DefaultKeyConstructor):
+        geoip = bits.RequestMetaKeyBit(params=['GEOIP_COUNTRY'])
+
+But there is another way. You can send `params` in key constructor initialization method. This is the dict attribute, where
+keys are bit names and values are bit `params` attribute value (look at `CountryView`):
+
+    class CityKeyConstructor(DefaultKeyConstructor):
+        geoip = bits.RequestMetaKeyBit(params=['GEOIP_COUNTRY'])
+
+    class CityView(views.APIView):
+        @cache_response(key_func=CityKeyConstructor())
+        def get(self, request, *args, **kwargs):
+            ...
+
+    class CountryView(views.APIView):
+        @cache_response(key_func=CityKeyConstructor(
+            params={'geoip': ['GEOIP_COUNTRY']}
+        ))
+        def get(self, request, *args, **kwargs):
+            ...
+
+If there is no item provided for key bit then default key bit `params` value will be used.
+
+#### Constructor's bits list
+
+You can dynamically change key constructor's bits list in initialization method by altering `bits` attribute:
+
+    class CustomKeyConstructor(DefaultKeyConstructor):
+        def __init__(self, *args, **kwargs):
+            super(CustomKeyConstructor, self).__init__(*args, **kwargs)
+            self.bits['geoip'] = bits.RequestMetaKeyBit(
+                params=['GEOIP_CITY']
+            )
+
 
 ### Conditional requests
 
@@ -1537,6 +1584,8 @@ You can read about versioning, deprecation policy and upgrading from
 #### Development version
 
 * Added [PartialUpdateSerializerMixin](#partialupdateserializermixin)
+* Added [Key constructor params](#key-constructor-params)
+* Documented dynamically [constructor's bits list](#constructor-s-bits-list) altering
 
 #### 0.2.2
 

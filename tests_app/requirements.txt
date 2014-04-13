@@ -2,4 +2,3 @@ nose
 django-nose
 mock
 ipdb
-django-guardian

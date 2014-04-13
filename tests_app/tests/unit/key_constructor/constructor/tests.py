@@ -128,6 +128,27 @@ class KeyConstructorTest(TestCase):
             MyKeyConstructor_2()(**self.kwargs)
         )
 
+    def test_key_construction__with_bits_with_params__and_with_constructor_with_params(self):
+        class MyKeyConstructor(KeyConstructor):
+            used_kwargs = TestUsedKwargsKeyBit(params={'hello': 'world'})
+
+        with patch.object(json.JSONEncoder, 'default', Mock(return_value='force serializing')):
+            constructor_instance = MyKeyConstructor(params={
+                'used_kwargs': {'goodbye': 'moon'}
+            })
+            response = constructor_instance(**self.kwargs)
+            expected_value = deepcopy(self.kwargs)
+            expected_value['params'] = {'goodbye': 'moon'}
+            expected_data_from_bits = {
+                'used_kwargs': expected_value
+            }
+            msg = 'Data from bits: {data_from_bits}\nExpected data from: {expected_data_from_bits}'.format(
+                data_from_bits=json.dumps(constructor_instance.get_data_from_bits(**self.kwargs)),
+                expected_data_from_bits=json.dumps(expected_data_from_bits)
+            )
+
+            self.assertEqual(response, self.prepare_key(expected_data_from_bits), msg=msg)
+
 
 class KeyConstructorTest___get_memoization_key(TestCase):
     def setUp(self):
