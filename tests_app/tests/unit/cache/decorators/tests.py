@@ -2,13 +2,14 @@
 from mock import Mock, patch
 
 from django.test import TestCase
-from django.core.cache import cache
+from django.core.cache import cache, get_cache
 
 from rest_framework import views
 from rest_framework.response import Response
 
 from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.cache.decorators import cache_response
+from rest_framework_extensions.settings import extensions_api_settings
 
 from tests_app.testutils import override_extensions_api_settings
 
@@ -20,6 +21,7 @@ class CacheResponseTest(TestCase):
     def setUp(self):
         super(CacheResponseTest, self).setUp()
         self.request = factory.get('')
+        self.cache = get_cache(extensions_api_settings.DEFAULT_USE_CACHE)
 
     def test_should_return_response_if_it_is_not_in_cache(self):
         class TestView(views.APIView):
@@ -95,41 +97,85 @@ class CacheResponseTest(TestCase):
         DEFAULT_CACHE_RESPONSE_TIMEOUT=100,
         DEFAULT_CACHE_KEY_FUNC=Mock(return_value='cache_response_key')
     )
-    @patch('django.core.cache.cache.set')
-    def test_should_store_response_in_cache_with_timeout_from_settings(self, cache_mock):
+    def test_should_store_response_in_cache_with_timeout_from_settings(self):
+        cache_response_decorator = cache_response()
+        cache_response_decorator.cache.set = Mock()
+
         class TestView(views.APIView):
-            @cache_response()
+            @cache_response_decorator
             def get(self, request, *args, **kwargs):
                 return Response('Response from method 4')
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(cache_mock.called, 'Cache saving should be performed')
-        self.assertEqual(cache_mock.call_args_list[0][0][2], 100)
+        self.assertTrue(cache_response_decorator.cache.set.called, 'Cache saving should be performed')
+        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 100)
 
-    @patch('django.core.cache.cache.set')
-    def test_should_store_response_in_cache_with_timeout_from_arguments(self, cache_mock):
+    def test_should_store_response_in_cache_with_timeout_from_arguments(self):
+        cache_response_decorator = cache_response(timeout=3)
+        cache_response_decorator.cache.set = Mock()
+
         class TestView(views.APIView):
-            @cache_response(timeout=3)
+            @cache_response_decorator
             def get(self, request, *args, **kwargs):
                 return Response('Response from method 4')
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(cache_mock.called, 'Cache saving should be performed')
-        self.assertEqual(cache_mock.call_args_list[0][0][2], 3)
+        self.assertTrue(cache_response_decorator.cache.set.called, 'Cache saving should be performed')
+        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 3)
 
-    @patch('django.core.cache.cache.set')
-    def test_should_return_response_from_cache_if_it_is_in_it(self, cache_mock):
+    def test_should_return_response_from_cache_if_it_is_in_it(self):
         def key_func(**kwargs):
             return 'cache_response_key'
 
         class TestView(views.APIView):
             @cache_response(key_func=key_func)
             def get(self, request, *args, **kwargs):
-                return Response('Response from method 4')
+                return Response(u'Response from method 4')
 
         view_instance = TestView()
+        view_instance.headers = {}
+        cached_response = Response(u'Cached response from method 4')
+        view_instance.finalize_response(request=self.request, response=cached_response)
+        cached_response.render()
+        self.cache.set('cache_response_key', cached_response)
+
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(cache_mock.called, 'Cache saving should be performed')
-        self.assertEqual(cache_mock.call_args_list[0][0][0], 'cache_response_key')
+        self.assertEqual(response.content.decode('utf-8'), u'"Cached response from method 4"')
+
+    @override_extensions_api_settings(
+        DEFAULT_USE_CACHE='special_cache'
+    )
+    def test_should_use_cache_from_settings_by_default(self):
+        def key_func(**kwargs):
+            return 'cache_response_key'
+
+        class TestView(views.APIView):
+            @cache_response(key_func=key_func)
+            def get(self, request, *args, **kwargs):
+                return Response(u'Response from method 5')
+
+        view_instance = TestView()
+        view_instance.dispatch(request=self.request)
+        data_from_cache = get_cache('special_cache').get('cache_response_key')
+        self.assertTrue(hasattr(data_from_cache, 'content'))
+        self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 5"')
+
+    @override_extensions_api_settings(
+        DEFAULT_USE_CACHE='special_cache'
+    )
+    def test_should_use_cache_from_decorator_if_it_is_specified(self):
+        def key_func(**kwargs):
+            return 'cache_response_key'
+
+        class TestView(views.APIView):
+            @cache_response(key_func=key_func, cache='another_special_cache')
+            def get(self, request, *args, **kwargs):
+                return Response(u'Response from method 6')
+
+        view_instance = TestView()
+        view_instance.dispatch(request=self.request)
+        data_from_cache = get_cache('another_special_cache').get('cache_response_key')
+        self.assertTrue(hasattr(data_from_cache, 'content'))
+        self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')

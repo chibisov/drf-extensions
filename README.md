@@ -48,7 +48,7 @@ Pass custom arguments:
 
 Run with pdb support:
 
-    $ tox -- tests_app --processes=0
+    $ tox -- tests_app --processes=0 --nocapture
 
 Run exact TestCase:
 
