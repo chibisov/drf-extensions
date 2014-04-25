@@ -299,7 +299,7 @@ Extensions for [serializers](http://www.django-rest-framework.org/api-guide/seri
 
 #### PartialUpdateSerializerMixin
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.3*
 
 By default every saving of [ModelSerializer](http://www.django-rest-framework.org/api-guide/serializers#modelserializer)
 saves the whole object. Even partial update just patches model instance. For example:
@@ -516,7 +516,7 @@ If you don't specify `cache_timeout` argument then value from `REST_FRAMEWORK_EX
 
 #### Usage of the specific cache
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.3*
 
 `@cache_response` can also take an optional keyword argument, `cache`, which directs the decorator
 to use a specific cache (from your [CACHES](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES) setting) when caching results.
@@ -1047,7 +1047,7 @@ cache data in new places.
 
 #### Key constructor params
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.3*
 
 You can change `params` attribute for specific key bit by providing `params` dict for key constructor initialization
 function. For example, here is custom key constructor, which inherits from [DefaultKeyConstructor](#default-key-constructor)
@@ -1600,7 +1600,7 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.2.3
 
 * Added [PartialUpdateSerializerMixin](#partialupdateserializermixin)
 * Added [Key constructor params](#key-constructor-params)
