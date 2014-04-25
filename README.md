@@ -65,9 +65,19 @@ Build docs:
 
 ## Publishing new releases
 
-Increment version in `rest_framework_extensions.__init__.py`. For example:
+Increment version in `rest_framework_extensions/__init__.py`. For example:
 
     __version__ = '0.2.2'  # from 0.2.1
+
+Move to new version section all release notes in documentation.
+
+Replace in documentation all `New in DRF-extensions development version` notes to `New in DRF-extensions 0.2.2`
+
+Rebuild documentation.
+
+Run tests.
+
+Commit changes with message "Version 0.2.2"
 
 Add new tag version for commit:
 
