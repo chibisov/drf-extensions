@@ -60,8 +60,7 @@ Run tests from exact module:
 
 Build docs:
 
-    $ cd docs
-    $ python backdoc.py --source index.md --title "Django Rest Framework extensions documentation" > index.html
+    $ make build_docs
 
 ## Publishing new releases
 
