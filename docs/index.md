@@ -979,8 +979,8 @@ At the moment we have API, but it's not cached. Lets cache it and create our cus
 
     class UpdatedAtKeyBit(KeyBitBase):
         def get_data(self, **kwargs):
-            key = 'api_update_at_timestamp'
-            value = cache.get('api_updated_at_timestamp', None)
+            key = 'api_updated_at_timestamp'
+            value = cache.get(key, None)
             if not value:
                 value = datetime.datetime.utcnow()
                 cache.set(key, value=value)
