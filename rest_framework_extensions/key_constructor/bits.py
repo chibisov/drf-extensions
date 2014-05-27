@@ -164,10 +164,12 @@ class PaginationKeyBit(QueryParamsKeyBit):
 
 class ListSqlQueryKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return force_text(
-            view_instance.filter_queryset(view_instance.get_queryset()).query.__str__()
-        )
-
+        try:
+            return force_text(
+                view_instance.filter_queryset(view_instance.get_queryset(self)).query.__str__()
+            )
+        except ValueError:
+            return None
 
 class RetrieveSqlQueryKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
