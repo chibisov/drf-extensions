@@ -130,15 +130,26 @@ class ExtendedActionLinkRouterMixin(object):
 
     def get_dynamic_routes_instances(self, viewset, route, dynamic_routes):
         dynamic_routes_instances = []
+        # keep track of route instances associated with an endpoint
+        endpoints = {}
         for httpmethods, methodname, endpoint, is_for_list in dynamic_routes:
-            initkwargs = route.initkwargs.copy()
-            initkwargs.update(getattr(viewset, methodname).kwargs)
-            dynamic_routes_instances.append(Route(
-                url=replace_methodname(route.url, endpoint),
-                mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, endpoint),
-                initkwargs=initkwargs,
-            ))
+            mapping = dict((httpmethod, methodname) for httpmethod in httpmethods)
+            try:
+                # we already have a route for this endpoint, lets update the mapping
+                route_instance = endpoints[endpoint]
+                route_instance[1].update(mapping)
+            except KeyError:
+                # route with new endpoint
+                initkwargs = route.initkwargs.copy()
+                initkwargs.update(getattr(viewset, methodname).kwargs)
+                route_instance = Route(
+                    url=replace_methodname(route.url, endpoint),
+                    mapping=mapping,
+                    name=replace_methodname(route.name, endpoint),
+                    initkwargs=initkwargs,
+                )
+                dynamic_routes_instances.append(route_instance)
+                endpoints[endpoint] = route_instance
         return dynamic_routes_instances
 
 

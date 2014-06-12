@@ -21,6 +21,12 @@ class ExtendedDefaultRouterTest(TestCase):
         except IndexError:
             return None
 
+    def get_dynamic_routes_by_endpoint(self, endpoint, routes):
+        try:
+            return [i for i in routes if i.name == u'{basename}-%s' % endpoint]
+        except IndexError:
+            return None
+
     def test_dynamic_routes_should_be_first_in_order(self):
         class BasicViewSet(viewsets.ViewSet):
             def list(self, request, *args, **kwargs):
@@ -157,3 +163,25 @@ class ExtendedDefaultRouterTest(TestCase):
 
         self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
+        
+    def test_action_and_link_with_same_endpoint(self):
+        endpoint = 'test-endpoint'
+        class BasicViewSet(viewsets.ViewSet):
+            @link(endpoint=endpoint)
+            def link1(self, request, *args, **kwargs):
+                pass
+
+            @action(methods=['POST', 'PUT'], endpoint=endpoint)
+            def action1(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        routes = self.get_dynamic_routes_by_endpoint(endpoint, routes)
+        self.assertEqual(1, len(routes))
+        route = routes[0]
+        self.assertTrue(route.mapping.has_key('post'))
+        self.assertEqual('action1', route.mapping['post'])
+        self.assertTrue(route.mapping.has_key('put'))
+        self.assertEqual('action1', route.mapping['put'])
+        self.assertTrue(route.mapping.has_key('get'))
+        self.assertEqual('link1', route.mapping['get'])
