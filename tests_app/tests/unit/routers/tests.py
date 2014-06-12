@@ -179,9 +179,15 @@ class ExtendedDefaultRouterTest(TestCase):
         routes = self.get_dynamic_routes_by_endpoint(endpoint, routes)
         self.assertEqual(1, len(routes))
         route = routes[0]
-        self.assertTrue(route.mapping.has_key('post'))
-        self.assertEqual('action1', route.mapping['post'])
-        self.assertTrue(route.mapping.has_key('put'))
-        self.assertEqual('action1', route.mapping['put'])
-        self.assertTrue(route.mapping.has_key('get'))
-        self.assertEqual('link1', route.mapping['get'])
+        try:
+            self.assertEqual('action1', route.mapping['post'])
+        except KeyError:
+            self.fail('Method "post" not found in route mapping')
+        try:
+            self.assertEqual('action1', route.mapping['put'])
+        except KeyError:
+            self.fail('Method "put" not found in route mapping')
+        try:
+            self.assertEqual('link1', route.mapping['get'])
+        except KeyError:
+            self.fail('Method "get" not found in route mapping')
