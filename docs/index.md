@@ -1723,6 +1723,7 @@ You can read about versioning, deprecation policy and upgrading from
 
 * Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
 * Added [Bulk operations](#bulk-operations)
+* Fixed [extended routers](#routers) compatibility issue with [default controller decorators](http://www.django-rest-framework.org/api-guide/viewsets#marking-extra-methods-for-routing)
 
 #### 0.2.3
 
