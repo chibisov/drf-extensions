@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.test import TestCase
-
-from rest_framework_extensions.test import APIRequestFactory
+from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
 
@@ -12,10 +10,7 @@ from .models import CommentForListDestroyModelMixin as Comment
 from tests_app.testutils import override_extensions_api_settings
 
 
-factory = APIRequestFactory()
-
-
-class ListDestroyModelMixinTest(TestCase):
+class ListDestroyModelMixinTest(APITestCase):
     urls = urlpatterns
 
     def setUp(self):
