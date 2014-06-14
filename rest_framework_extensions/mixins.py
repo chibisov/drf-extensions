@@ -2,6 +2,7 @@
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.utils import get_rest_framework_features
+from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin, ListUpdateModelMixin
 
 
 class DetailSerializerMixin(object):

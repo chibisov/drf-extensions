@@ -1565,6 +1565,125 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 * **UpdateETAGMixin** - only for `update` method
 
 
+### Bulk operations
+
+Bulk operations allows you to perform operations over set of objects with one request. There is third-party package
+[django-rest-framework-bulk](django-rest-framework-bulk) with support for all CRUD methods, but it iterates over every
+instance in bulk operation, serializes it and only after that executes operation.
+
+It plays nice with `create` or `update`
+operations, but becomes unacceptable with `partial update` and `delete` methods over the `QuerySet`. Such kind of
+`QuerySet` could contain thousands of objects and should be performed as database query over the set at once.
+
+Please note - DRF-extensions bulk operations applies over `QuerySet`, not over instances. It means that:
+
+* No serializer's `save` or `delete` methods would be called
+* No viewset's `pre_save`, `post_save`, `pre_delete` and `post_delete` would be called
+* No model signals would be called
+
+#### Safety
+
+Bulk operations are very dangerous in case of making stupid mistakes. For example you wanted to delete user instance
+with `DELETE` request from your client application.
+
+    # Request
+    DELETE /users/1/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 204 NO CONTENT
+    Content-Type: application/json; charset=UTF-8
+
+That was example of successful deletion. But there is the common situation when client could not get instance id and sends
+request to endpoint without it:
+
+    # Request
+    DELETE /users/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 204 NO CONTENT
+    Content-Type: application/json; charset=UTF-8
+
+If you used [bulk destroy mixin](#bulk-destroy) for `/users/` endpoint, then all your user objects would be deleted.
+
+To protect from such confusions DRF-extensions asks you to send `X-BULK-OPERATION` header
+for every bulk operation request. With this protection previous example would not delete any user instances:
+
+    # Request
+    DELETE /users/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 400 BAD REQUEST
+    Content-Type: application/json; charset=UTF-8
+
+    {
+      "detail": "Header 'X-BULK-OPERATION' should be provided for bulk operation."
+    }
+
+
+With `X-BULK-OPERATION` header it works as expected - deletes all user instances:
+
+    # Request
+    DELETE /users/ HTTP/1.1
+    Accept: application/json
+    X-BULK-OPERATION: true
+
+    # Response
+    HTTP/1.1 204 NO CONTENT
+    Content-Type: application/json; charset=UTF-8
+
+You can change bulk operation header name in settings:
+
+    REST_FRAMEWORK_EXTENSIONS = {
+        'DEFAULT_BULK_OPERATION_HEADER_NAME': 'X-CUSTOM-BULK-OPERATION'
+    }
+
+To turn off protection you can set `DEFAULT_BULK_OPERATION_HEADER_NAME` as `None`.
+
+#### Bulk destroy
+
+This mixin allows you to delete many instances with one `DELETE` request.
+
+    from rest_framework_extensions.mixins import ListDestroyModelMixin
+
+    class UserViewSet(ListDestroyModelMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+
+Bulk destroy example - delete all users which emails ends with `gmail.com`:
+
+    # Request
+    DELETE /users/?email__endswith=gmail.com HTTP/1.1
+    Accept: application/json
+    X-BULK-OPERATION: true
+
+    # Response
+    HTTP/1.1 204 NO CONTENT
+    Content-Type: application/json; charset=UTF-8
+
+#### Bulk update
+
+This mixin allows you to update many instances with one `PATCH` request. Note, that this mixin works only with partial update.
+
+    from rest_framework_extensions.mixins import ListUpdateModelMixin
+
+    class UserViewSet(ListUpdateModelMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+
+Bulk partial update example - set `email_provider` of every user as `google`, if it's email ends with `gmail.com`:
+
+    # Request
+    PATCH /users/?email__endswith=gmail.com HTTP/1.1
+    Accept: application/json
+    X-BULK-OPERATION: true
+
+    {"email_provider": "google"}
+
+    # Response
+    HTTP/1.1 204 NO CONTENT
+    Content-Type: application/json; charset=UTF-8
+
 ### Settings
 
 DRF-extesions follows Django Rest Framework approach in settings implementation.
@@ -1600,7 +1719,14 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### Development version
+
+* Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
+* Added [Bulk operations](#bulk-operations)
+
 #### 0.2.3
+
+*Apr. 25, 2014*
 
 * Added [PartialUpdateSerializerMixin](#partialupdateserializermixin)
 * Added [Key constructor params](#key-constructor-params)
