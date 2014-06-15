@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from copy import copy
 import json
 
 from django.utils import unittest
@@ -88,7 +87,7 @@ class ListUpdateModelMixinTest(APITestCase):
                 extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME
             )
         }
-        self.assertEqual(json.loads(resp.content), expected_message)
+        self.assertEqual(resp.data, expected_message)
 
     def test_bulk_partial_update__with_protection_header(self):
         resp = self.client.patch('/comments/', data=json.dumps(self.patch_data), content_type='application/json', **self.protection_headers)
@@ -162,7 +161,7 @@ class ListUpdateModelMixinTestBehaviour__serializer_fields(APITestCase):
             expected_message = {
                 'detail': "invalid literal for int() with base 10: 'Not integer value'"
             }
-            self.assertEqual(json.loads(resp.content), expected_message)
+            self.assertEqual(resp.data, expected_message)
 
     def test_should_use_source_if_it_set_in_serializer(self):
         data = {

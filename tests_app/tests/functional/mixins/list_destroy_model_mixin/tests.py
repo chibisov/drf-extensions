@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
@@ -65,7 +63,7 @@ class ListDestroyModelMixinTest(APITestCase):
                 extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME
             )
         }
-        self.assertEqual(json.loads(resp.content), expected_message)
+        self.assertEqual(resp.data, expected_message)
 
     def test_bulk_destroy__with_protection_header(self):
         resp = self.client.delete('/comments/', **self.protection_headers)
