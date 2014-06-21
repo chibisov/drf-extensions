@@ -3,6 +3,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin, ListUpdateModelMixin
+from rest_framework_extensions.settings import extensions_api_settings
 
 
 class DetailSerializerMixin(object):
@@ -49,3 +50,30 @@ class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):
 
 class CacheResponseAndETAGMixin(ETAGMixin, CacheResponseMixin):
     pass
+
+
+class NestedViewSetMixin(object):
+    def get_queryset(self):
+        return self.filter_queryset_by_parents_lookups(
+            super(NestedViewSetMixin, self).get_queryset()
+        )
+
+    def filter_queryset_by_parents_lookups(self, queryset):
+        parents_query_dict = self.get_parents_query_dict()
+        if parents_query_dict:
+            return queryset.filter(**parents_query_dict)
+        else:
+            return queryset
+
+    def get_parents_query_dict(self):
+        result = {}
+        for kwarg_name in self.kwargs:
+            if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX):
+                query_lookup = kwarg_name.replace(
+                    extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
+                    '',
+                    1
+                )
+                query_value = self.kwargs.get(kwarg_name)
+                result[query_lookup] = query_value
+        return result

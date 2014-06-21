@@ -139,6 +139,19 @@ Or `SimpleRouter` with `ExtendedSimpleRouter`:
     )
     router = SimpleRouter()
 
+#### Pluggable router mixins
+
+*New in DRF-extensions development version*
+
+Every feature in extended routers has it's own mixin. That means that you can use the only features you need in your custom
+routers. `ExtendedRouterMixin` has all set of drf-extensions features. For example you can use it with third-party routes:
+
+    from rest_framework_extensions.routers import ExtendedRouterMixin
+    from third_party_app.routers import SomeRouter
+
+    class ExtendedSomeRouter(ExtendedRouterMixin, SomeRouter):
+        pass
+
 #### Collection level controllers
 
 Out of the box Django Rest Framework has controller functionality for detail views. For example:
@@ -246,6 +259,9 @@ Or retrieve data from link collection level controller:
 
     ['a', 'b', 'c']
 
+You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` for adding collection level
+controllers [into your routers](#pluggable-router-mixins).
+
 #### Controller endpoint name
 
 By default function name will be used as name for url routing:
@@ -291,6 +307,134 @@ Change password request:
     Content-Type: application/json; charset=UTF-8
 
     ['password changed']
+
+You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` for adding controller endpoint name feature
+[into your routers](#pluggable-router-mixins).
+
+#### Nested routes
+
+*New in DRF-extensions development version*
+
+Nested routes allows you create nested resources with [viewsets](http://www.django-rest-framework.org/api-guide/viewsets.html).
+
+For example:
+
+    from rest_framework_extensions.routers import ExtendedSimpleRouter
+    from yourapp.views import (
+        UserViewSet,
+        GroupViewSet,
+        PermissionViewSet,
+    )
+
+    router = ExtendedSimpleRouter()
+    (
+        router.register(r'users', UserViewSet, base_name='user')
+              .register(r'groups',
+                        GroupViewSet,
+                        base_name='users-group',
+                        parents_query_lookups=['user_groups'])
+              .register(r'permissions',
+                        PermissionViewSet,
+                        base_name='users-groups-permission',
+                        parents_query_lookups=['group__user', 'group'])
+    )
+    urlpatterns = router.urls
+
+There is one requirement for viewsets which used in nested routers. They should add mixin `NestedViewSetMixin`. That mixins
+adds automatic filtering by parent lookups:
+
+    # yourapp.views
+    from rest_framework_extensions.mixins import NestedViewSetMixin
+
+    class UserViewSet(NestedViewSetMixin, ModelViewSet):
+        model = UseModel
+
+    class GroupViewSet(NestedViewSetMixin, ModelViewSet):
+        model = GroupModel
+
+    class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
+        model = PermissionModel
+
+
+With such kind of router we have next resources:
+
+* `/users/` - list of all users. Resolve name is **user-list**
+* `/users/<pk>/` - user detail. Resolve name is **user-detail**
+* `/users/<parent_lookup_user_groups>/groups/` - list of groups for exact user.
+Resolve name is **users-group-list**
+* `/users/<parent_lookup_user_groups>/groups/<pk>/` - user group detail. If user doesn't have group then resource will
+be not found. Resolve name is **users-group-detail**
+* `/users/<parent_lookup_group__user>/groups/<parent_lookup_group>/permissions/` - list of permissions for user group.
+Resolve name is **users-groups-permission-list**
+* `/users/<parent_lookup_group__user>/groups/<parent_lookup_group>/permissions/<pk>/` - user group permission detail.
+If user doesn't have group or group doesn't have permission then resource will be not found.
+Resolve name is **users-groups-permission-detail**
+
+Every resource is automatically filtered by parent lookups.
+
+    # Request
+    GET /users/1/groups/2/permissions/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset=UTF-8
+
+
+    [
+      {
+        id: 3,
+        name: "read"
+      },
+      {
+        id: 4,
+        name: "update"
+      },
+      {
+        id: 5,
+        name: "delete"
+      }
+    ]
+
+For request above permissions will be filtered by user with pk `1` and group with pk `2`:
+
+    Permission.objects.filter(group__user=1, group=2)
+
+Example with registering more then one nested resource in one depth:
+
+    permissions_routes = router.register(
+        r'permissions',
+        PermissionViewSet,
+        base_name='permission'
+    )
+    permissions_routes.register(
+        r'groups',
+        GroupViewSet,
+        base_name='permissions-group',
+        parents_query_lookups=['permissions']
+    )
+    permissions_routes.register(
+        r'users',
+        UserViewSet,
+        base_name='permissions-user',
+        parents_query_lookups=['groups__permissions']
+    )
+
+With such kind of router we have next resources:
+
+* `/permissions/` - list of all permissions. Resolve name is **permission-list**
+* `/permissions/<pk>/` - permission detail. Resolve name is **permission-detail**
+* `/permissions/<parent_lookup_permissions>/groups/` - list of groups for exact permission.
+Resolve name is **permissions-group-list**
+* `/permissions/<parent_lookup_permissions>/groups/<pk>/` - permission group detail. If group doesn't have
+permission then resource will be not found. Resolve name is **permissions-group-detail**
+* `/permissions/<parent_lookup_groups__permissions>/users/` - list of users for exact permission.
+Resolve name is **permissions-user-list**
+* `/permissions/<parent_lookup_groups__permissions>/user/<pk>/` - permission user detail. If user doesn't have
+permission then resource will be not found. Resolve name is **permissions-user-detail**
+
+You can use `rest_framework_extensions.routers.NestedRouterMixin` for adding nesting feature
+[into your routers](#pluggable-router-mixins).
 
 
 ### Serializers
@@ -1724,6 +1868,8 @@ You can read about versioning, deprecation policy and upgrading from
 * Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
 * Added [Bulk operations](#bulk-operations)
 * Fixed [extended routers](#routers) compatibility issue with [default controller decorators](http://www.django-rest-framework.org/api-guide/viewsets#marking-extra-methods-for-routing)
+* Documented [pluggable router mixins](#pluggable-router-mixins)
+* Added [nested routes](#nested-routes)
 
 #### 0.2.3
 
