@@ -6,9 +6,9 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework_extensions.decorators import action, link
 
 from .models import (
-    NesterRouterMixinUserModel,
-    NesterRouterMixinGroupModel,
-    NesterRouterMixinPermissionModel,
+    NestedRouterMixinUserModel,
+    NestedRouterMixinGroupModel,
+    NestedRouterMixinPermissionModel,
 )
 from .serializers import (
     UserSerializer,
@@ -18,7 +18,7 @@ from .serializers import (
 
 
 class UserViewSet(NestedViewSetMixin, ModelViewSet):
-    model = NesterRouterMixinUserModel
+    model = NestedRouterMixinUserModel
     serializer_class = UserSerializer
 
     @action(endpoint='users-list-action', is_for_list=True)
@@ -31,7 +31,7 @@ class UserViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class GroupViewSet(NestedViewSetMixin, ModelViewSet):
-    model = NesterRouterMixinGroupModel
+    model = NestedRouterMixinGroupModel
     serializer_class = GroupSerializer
 
     @link(endpoint='groups-list-link', is_for_list=True)
@@ -44,7 +44,7 @@ class GroupViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
-    model = NesterRouterMixinPermissionModel
+    model = NestedRouterMixinPermissionModel
     serializer_class = PermissionSerializer
 
     @action(endpoint='permissions-list-action', is_for_list=True)

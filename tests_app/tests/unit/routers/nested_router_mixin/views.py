@@ -2,14 +2,14 @@
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
-    UnitNesterRouterMixinUserModel as UseModel,
-    UnitNesterRouterMixinGroupModel as GroupModel,
-    UnitNesterRouterMixinPermissionModel as PermissionModel,
+    UnitNestedRouterMixinUserModel as UserModel,
+    UnitNestedRouterMixinGroupModel as GroupModel,
+    UnitNestedRouterMixinPermissionModel as PermissionModel,
 )
 
 
 class UserViewSet(ModelViewSet):
-    model = UseModel
+    model = UserModel
 
 
 class GroupViewSet(ModelViewSet):

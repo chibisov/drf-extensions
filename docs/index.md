@@ -340,14 +340,14 @@ For example:
     )
     urlpatterns = router.urls
 
-There is one requirement for viewsets which used in nested routers. They should add mixin `NestedViewSetMixin`. That mixins
+There is one requirement for viewsets which used in nested routers. They should add mixin `NestedViewSetMixin`. That mixin
 adds automatic filtering by parent lookups:
 
     # yourapp.views
     from rest_framework_extensions.mixins import NestedViewSetMixin
 
     class UserViewSet(NestedViewSetMixin, ModelViewSet):
-        model = UseModel
+        model = UserModel
 
     class GroupViewSet(NestedViewSetMixin, ModelViewSet):
         model = GroupModel

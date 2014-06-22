@@ -2,23 +2,23 @@
 from django.db import models
 
 
-class NesterRouterMixinUserModel(models.Model):
+class NestedRouterMixinUserModel(models.Model):
     name = models.CharField(max_length=10)
-    groups = models.ManyToManyField('NesterRouterMixinGroupModel', related_name='user_groups')
+    groups = models.ManyToManyField('NestedRouterMixinGroupModel', related_name='user_groups')
 
     class Meta:
         app_label = 'tests_app'
 
 
-class NesterRouterMixinGroupModel(models.Model):
+class NestedRouterMixinGroupModel(models.Model):
     name = models.CharField(max_length=10)
-    permissions = models.ManyToManyField('NesterRouterMixinPermissionModel')
+    permissions = models.ManyToManyField('NestedRouterMixinPermissionModel')
 
     class Meta:
         app_label = 'tests_app'
 
 
-class NesterRouterMixinPermissionModel(models.Model):
+class NestedRouterMixinPermissionModel(models.Model):
     name = models.CharField(max_length=10)
 
     class Meta:
