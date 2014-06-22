@@ -2,15 +2,15 @@
 from rest_framework import serializers
 
 from .models import (
-    NesterRouterMixinUserModel,
-    NesterRouterMixinGroupModel,
-    NesterRouterMixinPermissionModel,
+    NestedRouterMixinUserModel,
+    NestedRouterMixinGroupModel,
+    NestedRouterMixinPermissionModel,
 )
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NesterRouterMixinUserModel
+        model = NestedRouterMixinUserModel
         fields = (
             'id',
             'name'
@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NesterRouterMixinGroupModel
+        model = NestedRouterMixinGroupModel
         fields = (
             'id',
             'name'
@@ -28,7 +28,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NesterRouterMixinPermissionModel
+        model = NestedRouterMixinPermissionModel
         fields = (
             'id',
             'name'

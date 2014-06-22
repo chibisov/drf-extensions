@@ -6,9 +6,9 @@ from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 from tests_app.testutils import get_url_pattern_by_regex_pattern
 from .models import (
-    NesterRouterMixinUserModel as UserModel,
-    NesterRouterMixinGroupModel as GroupModel,
-    NesterRouterMixinPermissionModel as PermissionModel,
+    NestedRouterMixinUserModel as UserModel,
+    NestedRouterMixinGroupModel as GroupModel,
+    NestedRouterMixinPermissionModel as PermissionModel,
 )
 from .views import (
     UserViewSet,
