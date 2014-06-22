@@ -9,7 +9,7 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 ## Requirements
 
 * Tested for python 2.7 and 3.3 versions
-* Tested for all releases of Django Rest Framework from 2.3.5 to 2.3.13 versions
+* Tested for all releases of Django Rest Framework from 2.3.5 to 2.3.14 versions
 * Tested for Django 1.5.5, 1.6.2 and 1.7
 
 ## Installation:
@@ -62,6 +62,42 @@ Build docs:
 
     $ make build_docs
 
+## Developing new features
+
+Every new feature should be:
+
+* Documented
+* Tested
+* Implemented
+* Pushed to main repository
+
+### How to write documentation
+
+When new feature implementation starts you should place it into `development version` pull. Add `Development version`
+section to `Release notes` and describe every new feature in it. Use `#anchors` to facilitate navigation.
+
+Every feature should have title and information that it was implemented in current development version.
+
+For example if we've just implemented `Usage of the specific cache`:
+
+    ...
+
+    #### Usage of the specific cache
+
+    *New in DRF-extensions development version*
+
+    `@cache_response` can also take...
+
+    ...
+
+    ### Release notes
+
+    ...
+
+    #### Development version
+
+    * Added ability to [use a specific cache](#usage-of-the-specific-cache) for `@cache_response` decorator
+
 ## Publishing new releases
 
 Increment version in `rest_framework_extensions/__init__.py`. For example:
@@ -70,7 +106,9 @@ Increment version in `rest_framework_extensions/__init__.py`. For example:
 
 Move to new version section all release notes in documentation.
 
-Replace in documentation all `New in DRF-extensions development version` notes to `New in DRF-extensions 0.2.2`
+Add date for release note section.
+
+Replace in documentation all `New in DRF-extensions development version` notes to `New in DRF-extensions 0.2.2`.
 
 Rebuild documentation.
 

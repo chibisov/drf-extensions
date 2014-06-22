@@ -12,6 +12,7 @@ from rest_framework_extensions.key_constructor.constructors import (
     DefaultObjectKeyConstructor,
     DefaultListKeyConstructor,
 )
+from rest_framework_extensions.settings import extensions_api_settings
 
 
 def get_rest_framework_features():
@@ -20,7 +21,8 @@ def get_rest_framework_features():
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
         'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
-        'save_related_serializers': get_rest_framework_version() >= (2, 3, 8)  # todo: test me
+        'save_related_serializers': get_rest_framework_version() >= (2, 3, 8),  # todo: test me
+        'write_only_fields': get_rest_framework_version() >= (2, 3, 11)  # todo: test me
     }
 
 
@@ -65,6 +67,13 @@ def get_model_opts_concrete_fields(opts):
     if not hasattr(opts, 'concrete_fields'):
         opts.concrete_fields = [f for f in opts.fields if f.column is not None]
     return opts.concrete_fields
+
+
+def compose_parent_pk_kwarg_name(value):
+    return '{0}{1}'.format(
+        extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
+        value
+    )
 
 
 default_cache_key_func = DefaultKeyConstructor()

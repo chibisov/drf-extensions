@@ -20,7 +20,9 @@ DEFAULTS = {
     'DEFAULT_LIST_ETAG_FUNC': 'rest_framework_extensions.utils.default_list_etag_func',
 
     # other
-    'DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST': False
+    'DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST': False,
+    'DEFAULT_BULK_OPERATION_HEADER_NAME': 'X-BULK-OPERATION',
+    'DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX': 'parent_lookup_'
 }
 
 IMPORT_STRINGS = [
