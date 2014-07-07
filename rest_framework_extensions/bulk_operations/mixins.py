@@ -68,8 +68,8 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
         is_valid, errors = self.is_valid_bulk_operation()
         if is_valid:
             queryset = self.filter_queryset(self.get_queryset())
-            self.pre_save_bulk(queryset)  # todo: test and document me
             update_bulk_dict = self.get_update_bulk_dict(serializer=self.get_serializer_class()(), data=request.DATA)
+            self.pre_save_bulk(queryset, update_bulk_dict)  # todo: test and document me
             try:
                 queryset.update(**update_bulk_dict)
             except ValueError as e:
@@ -77,7 +77,7 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
                     'detail': force_text(e)
                 }
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-            self.post_save_bulk(queryset)  # todo: test and document me
+            self.post_save_bulk(queryset, update_bulk_dict)  # todo: test and document me
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
@@ -89,13 +89,13 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
                 update_bulk_dict[field.source or field_name] = data[field_name]
         return update_bulk_dict
 
-    def pre_save_bulk(self, queryset):
+    def pre_save_bulk(self, queryset, update_bulk_dict):
         """
         Placeholder method for calling before deleting an queryset.
         """
         pass
 
-    def post_save_bulk(self, queryset):
+    def post_save_bulk(self, queryset, update_bulk_dict):
         """
         Placeholder method for calling after deleting an queryset.
         """
