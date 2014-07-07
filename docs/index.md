@@ -141,7 +141,7 @@ Or `SimpleRouter` with `ExtendedSimpleRouter`:
 
 #### Pluggable router mixins
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.4*
 
 Every feature in extended routers has it's own mixin. That means that you can use the only features you need in your custom
 routers. `ExtendedRouterMixin` has all set of drf-extensions features. For example you can use it with third-party routes:
@@ -313,7 +313,7 @@ You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` fo
 
 #### Nested routes
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.4*
 
 Nested routes allows you create nested resources with [viewsets](http://www.django-rest-framework.org/api-guide/viewsets.html).
 
@@ -1711,6 +1711,8 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 
 ### Bulk operations
 
+*New in DRF-extensions 0.2.4*
+
 Bulk operations allows you to perform operations over set of objects with one request. There is third-party package
 [django-rest-framework-bulk](django-rest-framework-bulk) with support for all CRUD methods, but it iterates over every
 instance in bulk operation, serializes it and only after that executes operation.
@@ -1863,7 +1865,7 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.2.4
 
 * Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
 * Added [Bulk operations](#bulk-operations)
