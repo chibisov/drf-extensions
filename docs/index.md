@@ -1865,6 +1865,10 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### 0.2.5
+
+* Fixed [setuptools confusion with pyc files](https://github.com/chibisov/drf-extensions/issues/20)
+
 #### 0.2.4
 
 * Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
