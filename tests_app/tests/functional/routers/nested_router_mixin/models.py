@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 
 
 class NestedRouterMixinUserModel(models.Model):
@@ -20,6 +22,30 @@ class NestedRouterMixinGroupModel(models.Model):
 
 class NestedRouterMixinPermissionModel(models.Model):
     name = models.CharField(max_length=10)
+
+    class Meta:
+        app_label = 'tests_app'
+
+
+class NestedRouterMixinTaskModel(models.Model):
+    title = models.CharField(max_length=30)
+
+    class Meta:
+        app_label = 'tests_app'
+
+
+class NestedRouterMixinBookModel(models.Model):
+    title = models.CharField(max_length=30)
+
+    class Meta:
+        app_label = 'tests_app'
+
+
+class NestedRouterMixinCommentModel(models.Model):
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    content_object = generic.GenericForeignKey()
+    text = models.CharField(max_length=30)
 
     class Meta:
         app_label = 'tests_app'

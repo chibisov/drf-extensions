@@ -9,11 +9,18 @@ from .models import (
     NestedRouterMixinUserModel as UserModel,
     NestedRouterMixinGroupModel as GroupModel,
     NestedRouterMixinPermissionModel as PermissionModel,
+    NestedRouterMixinTaskModel as TaskModel,
+    NestedRouterMixinBookModel as BookModel,
+    NestedRouterMixinCommentModel as CommentModel
 )
 from .views import (
     UserViewSet,
     GroupViewSet,
     PermissionViewSet,
+    TaskViewSet,
+    TaskCommentViewSet,
+    BookViewSet,
+    BookCommentViewSet
 )
 
 
@@ -326,3 +333,111 @@ class NestedRouterMixinTestBehaviour__actions_and_links(NestedRouterMixinTestBeh
         response = self.client.post(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, 'permissions action')
+
+
+class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
+    router = ExtendedSimpleRouter()
+    # tasks route
+    (
+        router.register(r'tasks', TaskViewSet)
+              .register(r'comments', TaskCommentViewSet, 'tasks-comment', parents_query_lookups=['object_id'])
+    )
+    # books route
+    (
+        router.register(r'books', BookViewSet)
+              .register(r'comments', BookCommentViewSet, 'books-comment', parents_query_lookups=['object_id'])
+    )
+
+    urls = router.urls
+
+    def setUp(self):
+        self.tasks = {
+            'one': TaskModel.objects.create(id=1, title='Task one'),
+            'two': TaskModel.objects.create(id=2, title='Task two'),
+        }
+        self.books = {
+            'one': BookModel.objects.create(id=1, title='Book one'),
+            'two': BookModel.objects.create(id=2, title='Book two'),
+        }
+        self.comments = {
+            'for_task_one': CommentModel.objects.create(
+                id=1,
+                content_object=self.tasks['one'],
+                text=u'Comment for task one'
+            ),
+            'for_task_two': CommentModel.objects.create(
+                id=2,
+                content_object=self.tasks['two'],
+                text=u'Comment for task two'
+            ),
+            'for_book_one': CommentModel.objects.create(
+                id=3,
+                content_object=self.books['one'],
+                text=u'Comment for book one'
+            ),
+            'for_book_two': CommentModel.objects.create(
+                id=4,
+                content_object=self.books['two'],
+                text=u'Comment for book two'
+            ),
+        }
+
+    def assertResult(self, response, result):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, result)
+
+    def test_comments_for_tasks(self):
+        url = '/tasks/{0}/comments/'.format(
+            self.tasks['one'].id,
+        )
+        response = self.client.get(url)
+
+        self.assertResult(response, [
+            {
+                'id': self.comments['for_task_one'].id,
+                'content_type': self.comments['for_task_one'].content_type.id,
+                'object_id': self.comments['for_task_one'].object_id,
+                'text': self.comments['for_task_one'].text,
+            }
+        ])
+
+        url = '/tasks/{0}/comments/'.format(
+            self.tasks['two'].id,
+        )
+        response = self.client.get(url)
+        self.assertResult(response, [
+            {
+                'id': self.comments['for_task_two'].id,
+                'content_type': self.comments['for_task_two'].content_type.id,
+                'object_id': self.comments['for_task_two'].object_id,
+                'text': self.comments['for_task_two'].text,
+            }
+        ])
+
+    def test_comments_for_books(self):
+        url = '/books/{0}/comments/'.format(
+            self.books['one'].id,
+        )
+        response = self.client.get(url)
+
+        self.assertResult(response, [
+            {
+                'id': self.comments['for_book_one'].id,
+                'content_type': self.comments['for_book_one'].content_type.id,
+                'object_id': self.comments['for_book_one'].object_id,
+                'text': self.comments['for_book_one'].text,
+            }
+        ])
+
+        url = '/books/{0}/comments/'.format(
+            self.books['two'].id,
+        )
+        response = self.client.get(url)
+        self.assertResult(response, [
+            {
+                'id': self.comments['for_book_two'].id,
+                'content_type': self.comments['for_book_two'].content_type.id,
+                'object_id': self.comments['for_book_two'].object_id,
+                'text': self.comments['for_book_two'].text,
+            }
+        ])

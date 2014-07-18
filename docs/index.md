@@ -311,7 +311,7 @@ Change password request:
 You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` for adding controller endpoint name feature
 [into your routers](#pluggable-router-mixins).
 
-#### Nested routes
+### Nested routes
 
 *New in DRF-extensions 0.2.4*
 
@@ -435,6 +435,121 @@ permission then resource will be not found. Resolve name is **permissions-user-d
 
 You can use `rest_framework_extensions.routers.NestedRouterMixin` for adding nesting feature
 [into your routers](#pluggable-router-mixins).
+
+#### Usage with generic relations
+
+If you want to use nested router for [generic relation](https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#generic-relations)
+fields, you should explicitly filter `QuerySet` by content type.
+
+For example if you have such kind of models:
+
+    class Task(models.Model):
+        title = models.CharField(max_length=30)
+
+    class Book(models.Model):
+        title = models.CharField(max_length=30)
+
+    class Comment(models.Model):
+        content_type = models.ForeignKey(ContentType)
+        object_id = models.PositiveIntegerField()
+        content_object = generic.GenericForeignKey()
+        text = models.CharField(max_length=30)
+
+Lets create viewsets for that models:
+
+    class TaskViewSet(NestedViewSetMixin, ModelViewSet):
+        model = TaskModel
+
+    class BookViewSet(NestedViewSetMixin, ModelViewSet):
+        model = BookModel
+
+    class CommentViewSet(NestedViewSetMixin, ModelViewSet):
+        queryset = CommentModel.objects.all()
+
+And router like this:
+
+    router = ExtendedSimpleRouter()
+    # tasks route
+    (
+        router.register(r'tasks', TaskViewSet)
+              .register(r'comments',
+                        CommentViewSet,
+                        'tasks-comment',
+                        parents_query_lookups=['object_id'])
+    )
+    # books route
+    (
+        router.register(r'books', BookViewSet)
+              .register(r'comments',
+                        CommentViewSet,
+                        'books-comment',
+                        parents_query_lookups=['object_id'])
+    )
+
+As you can see we've added to `parents_query_lookups` only one `object_id` value. But when you make requests to `comments`
+endpoint for both tasks and books routes there is no context for current content type.
+
+    # Request
+    GET /tasks/123/comments/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset=UTF-8
+
+    [
+        {
+            id: 1,
+            content_type: 1,
+            object_id: 123,
+            text: "Good task!"
+        },
+        {
+            id: 2,
+            content_type: 2,  // oops. Wrong content type (for book)
+            object_id: 123,   // task and book has the same id
+            text: "Good book!"
+        },
+    ]
+
+For such kind of cases you should explicitly filter `QuerySets` of nested viewsets by content type:
+
+    from django.contrib.contenttypes.models import ContentType
+
+    class CommentViewSet(NestedViewSetMixin, ModelViewSet):
+        queryset = CommentModel.objects.all()
+
+    class TaskCommentViewSet(CommentViewSet):
+        def get_queryset(self):
+            return super(TaskCommentViewSet, self).get_queryset().filter(
+                content_type=ContentType.objects.get_for_model(TaskModel)
+            )
+
+    class BookCommentViewSet(CommentViewSet):
+        def get_queryset(self):
+            return super(BookCommentViewSet, self).get_queryset().filter(
+                content_type=ContentType.objects.get_for_model(BookModel)
+            )
+
+Lets use new viewsets in router:
+
+    router = ExtendedSimpleRouter()
+    # tasks route
+    (
+        router.register(r'tasks', TaskViewSet)
+              .register(r'comments',
+                        TaskCommentViewSet,
+                        'tasks-comment',
+                        parents_query_lookups=['object_id'])
+    )
+    # books route
+    (
+        router.register(r'books', BookViewSet)
+              .register(r'comments',
+                        BookCommentViewSet,
+                        'books-comment',
+                        parents_query_lookups=['object_id'])
+    )
 
 
 ### Serializers
