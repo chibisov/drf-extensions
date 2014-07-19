@@ -23,10 +23,10 @@ class DetailSerializerMixin(object):
 
     def get_object(self, queryset=None):
         if queryset is None:
-            queryset = self.filter_queryset(self._get_queryset(is_for_detail=True))
+            queryset = self.filter_queryset(self.get_queryset(is_for_detail=True))
         return super(DetailSerializerMixin, self).get_object(queryset=queryset)
 
-    def _get_queryset(self, is_for_detail=False):
+    def get_queryset(self, is_for_detail=False):
         if self.queryset_detail is not None and is_for_detail:
             return self.queryset_detail._clone()  # todo: test _clone()
         else:

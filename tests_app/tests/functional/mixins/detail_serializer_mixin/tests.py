@@ -40,7 +40,7 @@ class DetailSerializerMixinTest_serializer_detail_class(TestCase):
         }
         self.assertEqual(resp.data, expected)
 
-    def test_view_with_mixin_and_withou__serializer_detail_class__should_raise_exception(self):
+    def test_view_with_mixin_and_without__serializer_detail_class__should_raise_exception(self):
         msg = "'CommentWithoutDetailSerializerClassViewSet' should include a 'serializer_detail_class' attribute"
         self.assertRaisesMessage(AssertionError, msg, self.client.get, '/comments-2/')
 
@@ -102,4 +102,14 @@ class DetailSerializerMixin_queryset_detail(TestCase):
             'email': 'example@ya.ru',
             'content': 'Hello world',
         }
+        self.assertEqual(resp.data, expected)
+
+    def test_nested_model_view_with_mixin_should_use_get_detail_queryset(self):
+        resp = self.client.get('/comments-5/1/')
+        expected = {
+            'id': 1,
+            'email': 'example@ya.ru',
+            'content': 'Hello world',
+        }
+        self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data, expected)
