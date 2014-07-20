@@ -105,6 +105,9 @@ class DetailSerializerMixin_queryset_detail(TestCase):
         self.assertEqual(resp.data, expected)
 
     def test_nested_model_view_with_mixin_should_use_get_detail_queryset(self):
+        """
+        Regression tests for https://github.com/chibisov/drf-extensions/pull/24
+        """
         resp = self.client.get('/comments-5/1/')
         expected = {
             'id': 1,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework import viewsets
-from rest_framework_extensions.mixins import DetailSerializerMixin, NestedViewSetMixin
+from rest_framework_extensions.mixins import DetailSerializerMixin
 
 from .models import Comment
 from .serializers import CommentSerializer, CommentDetailSerializer
@@ -30,9 +30,14 @@ class CommentWithIdTwoAndIdOneForDetailViewSet(DetailSerializerMixin, viewsets.R
     queryset_detail = Comment.objects.filter(id=1)
 
 
-class CommentNestedModelViewSet(NestedViewSetMixin, DetailSerializerMixin, viewsets.ModelViewSet):
+class CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet(DetailSerializerMixin, viewsets.ModelViewSet):
+    """
+    For regression tests https://github.com/chibisov/drf-extensions/pull/24
+    """
     serializer_class = CommentSerializer
     serializer_detail_class = CommentDetailSerializer
     queryset = Comment.objects.all()
     queryset_detail = Comment.objects.filter(id=1)
 
+    def get_queryset(self):
+        return super(CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet, self).get_queryset()
