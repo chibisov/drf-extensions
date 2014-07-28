@@ -28,3 +28,16 @@ class CommentWithIdTwoAndIdOneForDetailViewSet(DetailSerializerMixin, viewsets.R
     serializer_detail_class = CommentDetailSerializer
     queryset = Comment.objects.filter(id=2)
     queryset_detail = Comment.objects.filter(id=1)
+
+
+class CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet(DetailSerializerMixin, viewsets.ModelViewSet):
+    """
+    For regression tests https://github.com/chibisov/drf-extensions/pull/24
+    """
+    serializer_class = CommentSerializer
+    serializer_detail_class = CommentDetailSerializer
+    queryset = Comment.objects.all()
+    queryset_detail = Comment.objects.filter(id=1)
+
+    def get_queryset(self):
+        return super(CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet, self).get_queryset()

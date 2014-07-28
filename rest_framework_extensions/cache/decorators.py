@@ -2,8 +2,8 @@
 from functools import wraps
 
 from django.utils.decorators import available_attrs
-from django.core.cache import get_cache
 
+from rest_framework_extensions.utils import get_cache
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions.compat import six
 

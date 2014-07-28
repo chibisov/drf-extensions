@@ -3,6 +3,7 @@ from mock import Mock, patch
 
 from django.test import TestCase
 from django.core.cache import cache, get_cache
+from django.utils import unittest
 
 from rest_framework import views
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
+from rest_framework_extensions.utils import get_django_features
 
 from tests_app.testutils import override_extensions_api_settings
 
@@ -179,3 +181,16 @@ class CacheResponseTest(TestCase):
         data_from_cache = get_cache('another_special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
+
+    @unittest.skipUnless(
+        get_django_features()['caches_singleton'],
+        "Current django version doesn't support caches singleton"
+    )
+    def test_should_reuse_cache_singleton(self):
+        """
+        https://github.com/chibisov/drf-extensions/issues/26
+        https://docs.djangoproject.com/en/dev/topics/cache/#django.core.cache.caches
+        """
+        cache_response_instance = cache_response()
+        another_cache_response_instance = cache_response()
+        self.assertTrue(cache_response_instance.cache is another_cache_response_instance.cache)
