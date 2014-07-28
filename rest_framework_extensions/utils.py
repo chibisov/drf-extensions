@@ -29,7 +29,8 @@ def get_rest_framework_features():
 def get_django_features():
     # todo: test me
     return {
-        'has_odd_space_in_sql_query': django_version < (1, 7, 0)
+        'has_odd_space_in_sql_query': django_version < (1, 7, 0),
+        'caches_singleton': django_version >= (1, 7, 0),  # https://docs.djangoproject.com/en/dev/releases/1.7/#cache
     }
 
 
@@ -74,6 +75,15 @@ def compose_parent_pk_kwarg_name(value):
         extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
         value
     )
+
+def get_cache(alias):
+    # todo: test me
+    if get_django_features()['caches_singleton']:
+        from django.core.cache import caches
+        return caches[alias]
+    else:
+        from django.core.cache import get_cache as _get_cache
+        return _get_cache(alias)
 
 
 default_cache_key_func = DefaultKeyConstructor()
