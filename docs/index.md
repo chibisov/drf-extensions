@@ -1987,9 +1987,13 @@ django >= 1.7
 
 #### 0.2.5
 
+*July 9, 2014*
+
 * Fixed [setuptools confusion with pyc files](https://github.com/chibisov/drf-extensions/issues/20)
 
 #### 0.2.4
+
+*July 7, 2014*
 
 * Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
 * Added [Bulk operations](#bulk-operations)

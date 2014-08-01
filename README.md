@@ -65,6 +65,11 @@ Build docs:
 
     $ make build_docs
 
+Automatically build docs by watching changes:
+
+    $ pip install watchdog
+    $ make watch_docs
+
 ## Developing new features
 
 Every new feature should be:
