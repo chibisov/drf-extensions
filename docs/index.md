@@ -697,7 +697,7 @@ Now lets see request response for user that has no permissions for viewing `Comm
 
 ### Caching
 
-To cache something is to save the result of an expensive calculation so that you don’t have to perform the calculation next time. Here’s some pseudocode explaining how this would work for a dynamically generated api response:
+To cache something is to save the result of an expensive calculation so that you don't have to perform the calculation next time. Here's some pseudocode explaining how this would work for a dynamically generated api response:
 
     given a URL, try finding that API response in the cache
     if the response is in the cache:
@@ -1824,6 +1824,82 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 * **UpdateETAGMixin** - only for `update` method
 
 
+#### Gzipped ETags
+
+If you use [GZipMiddleware](https://docs.djangoproject.com/en/dev/ref/middleware/#module-django.middleware.gzip)
+and your client accepts Gzipped response, then you should return different ETags for compressed and not compressed responses.
+That's what `GZipMiddleware` does by default while processing response -
+it adds `;gzip` postfix to ETag response header if client requests compressed response.
+Lets see it in example. First request without compression:
+
+    # Request
+    GET /cities/ HTTP/1.1
+    Accept: application/json
+
+    # Response
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset=UTF-8
+    ETag: "e7b50490dc"
+
+    ['Moscow', 'London', 'Paris']
+
+Second request with compression:
+
+    # Request
+    GET /cities/ HTTP/1.1
+    Accept: application/json
+    Accept-Encoding: gzip
+
+    # Response
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 675
+    Content-Encoding: gzip
+    ETag: "e7b50490dc;gzip"
+
+    wS?n?0?_%o?cc?Ҫ?Eʒ?Cժʻ?a\1?a?^T*7q<>[Nvh?[?^9?x:/Ms?79?Fd/???ۦjES?ڽ?&??c%^?C[K۲%N?w{?졭2?m?}?Q&Egz??
+
+As you can see there is `;gzip` postfix in ETag response header.
+That's ok but there is one caveat - drf-extension doesn't know how you post-processed calculated ETag value.
+And your clients could have next problem with conditional request:
+
+* Client sends request to retrieve compressed data about cities to `/cities/`
+* DRF-extensions decorator calculates ETag header for response equals, for example, `123`
+* `GZipMiddleware` adds `;gzip` postfix to ETag header response, and now it equals `123;gzip`
+* Client retrieves response with ETag equals `123;gzip`
+* Client again makes request to retrieve compressed data about cities,
+but now it's conditional request with `If-None-Match` header equals `123;gzip`
+* DRF-extensions decorator calculates ETag value for processing conditional request.
+But it doesn't know, that `GZipMiddleware` added `;gzip` postfix for previous response.
+DRF-extensions decorator calculates ETag equals `123`, compares it with `123;gzip` and returns
+response with status code 200, because `123` != `123;gzip`
+
+You can solve this problem by stripping `;gzip` postfix on client side.
+
+But there are so many libraries that just magically uses ETag response header without allowing to
+pre-process conditional requests (for example, browser). If that's you case then you could add custom middleware which removes `;gzip`
+postfix from header:
+
+    # yourapp/middleware.py
+
+    class RemoveEtagGzipPostfix(object):
+        def process_response(self, request, response):
+            if response.has_header('ETag') and response['ETag'][-6:] == ';gzip"':
+                response['ETag'] = response['ETag'][:-6] + '"'
+            return response
+
+Don't forget to add this middleware in your settings before `GZipMiddleware`:
+
+    # settings.py
+    MIDDLEWARE_CLASSES = (
+        ...
+        'yourapp.RemoveEtagGzipPostfix',
+        'django.middleware.gzip.GZipMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        ...
+    )
+
+
 ### Bulk operations
 
 *New in DRF-extensions 0.2.4*
@@ -1984,6 +2060,7 @@ You can read about versioning, deprecation policy and upgrading from
 
 * Usage of [django.core.cache.caches](https://docs.djangoproject.com/en/dev/topics/cache/#django.core.cache.caches) for
 django >= 1.7
+* [Documented ETag usage with GZipMiddleware](#gzipped-etags)
 
 #### 0.2.5
 
