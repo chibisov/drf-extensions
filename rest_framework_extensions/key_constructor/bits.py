@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.utils.encoding import force_text
 from django.utils.translation import get_language
-from django.db.models.sql.datastructures import EmptyResultSet
+from django.db.models.query import EmptyQuerySet
 
 
 class KeyBitBase(object):
@@ -165,22 +165,23 @@ class PaginationKeyBit(QueryParamsKeyBit):
 
 class ListSqlQueryKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        try:
-            return force_text(
-                view_instance.filter_queryset(view_instance.get_queryset()).query.__str__()
-            )
-        except EmptyResultSet:
+        queryset = view_instance.filter_queryset(view_instance.get_queryset())
+        if isinstance(queryset, EmptyQuerySet):
             return None
+        else:
+            return force_text(queryset.query.__str__())
 
 
 class RetrieveSqlQueryKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
         try:
-            return force_text(
-                view_instance.filter_queryset(view_instance.get_queryset()).filter(
-                    **{view_instance.lookup_field: lookup_value}
-                ).query.__str__()
+            queryset = view_instance.filter_queryset(view_instance.get_queryset()).filter(
+                **{view_instance.lookup_field: lookup_value}
             )
-        except (ValueError, EmptyResultSet):
+            if isinstance(queryset, EmptyQuerySet):
+                return None
+            else:
+                return force_text(queryset.query.__str__())
+        except ValueError:
             return None
