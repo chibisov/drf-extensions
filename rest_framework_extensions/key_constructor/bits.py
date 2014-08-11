@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.utils.encoding import force_text
 from django.utils.translation import get_language
+from django.db.models.sql.datastructures import EmptyResultSet
 
 
 class KeyBitBase(object):
@@ -164,9 +165,12 @@ class PaginationKeyBit(QueryParamsKeyBit):
 
 class ListSqlQueryKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return force_text(
-            view_instance.filter_queryset(view_instance.get_queryset()).query.__str__()
-        )
+        try:
+            return force_text(
+                view_instance.filter_queryset(view_instance.get_queryset()).query.__str__()
+            )
+        except EmptyResultSet:
+            return None
 
 
 class RetrieveSqlQueryKeyBit(KeyBitBase):
@@ -178,5 +182,5 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
                     **{view_instance.lookup_field: lookup_value}
                 ).query.__str__()
             )
-        except ValueError:
+        except (ValueError, EmptyResultSet):
             return None

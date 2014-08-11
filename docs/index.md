@@ -2061,6 +2061,8 @@ You can read about versioning, deprecation policy and upgrading from
 * Usage of [django.core.cache.caches](https://docs.djangoproject.com/en/dev/topics/cache/#django.core.cache.caches) for
 django >= 1.7
 * [Documented ETag usage with GZipMiddleware](#gzipped-etags)
+* Fixed `ListSqlQueryKeyBit` and `RetrieveSqlQueryKeyBit` [problems](https://github.com/chibisov/drf-extensions/issues/28)
+with `EmptyResultSet`.
 
 #### 0.2.5
 
