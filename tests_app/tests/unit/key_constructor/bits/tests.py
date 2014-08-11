@@ -384,6 +384,11 @@ class ListSqlQueryKeyBitTest(TestCase):
         response = ListSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
 
+    def test_should_return_none_if_empty_queryset(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
+        response = ListSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
 
 class RetrieveSqlQueryKeyBitTest(TestCase):
     def setUp(self):
@@ -415,5 +420,10 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
 
     def test_with_bad_lookup_value(self):
         self.kwargs['view_instance'].kwargs = {'id': "I'm ganna hack u are!"}
+        response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+    def test_should_return_none_if_empty_queryset(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, None)
