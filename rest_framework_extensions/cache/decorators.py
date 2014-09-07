@@ -48,12 +48,13 @@ class CacheResponse(object):
             args=args,
             kwargs=kwargs
         )
-        response = self.cache.get(key)
+        response = self.cache.get(key) if key is not None else None
         if not response:
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before picklining while storing to cache
-            self.cache.set(key, response, self.timeout)
+            if key is not None:
+                self.cache.set(key, response, self.timeout)
         return response
 
     def calculate_key(self,
