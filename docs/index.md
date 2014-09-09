@@ -2056,7 +2056,9 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.2.6
+
+*Sep 9, 2014*
 
 * Usage of [django.core.cache.caches](https://docs.djangoproject.com/en/dev/topics/cache/#django.core.cache.caches) for
 django >= 1.7
