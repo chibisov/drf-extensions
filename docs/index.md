@@ -2063,6 +2063,8 @@ django >= 1.7
 * [Documented ETag usage with GZipMiddleware](#gzipped-etags)
 * Fixed `ListSqlQueryKeyBit` and `RetrieveSqlQueryKeyBit` [problems](https://github.com/chibisov/drf-extensions/issues/28)
 with `EmptyResultSet`.
+* Fixed [cache response](#cache-response) compatibility [issue](https://github.com/chibisov/drf-extensions/issues/32)
+with DRF 2.4.x
 
 #### 0.2.5
 
