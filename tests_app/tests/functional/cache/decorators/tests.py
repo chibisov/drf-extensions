@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+import datetime
+
+from django.test import TestCase
+
+from .urls import urlpatterns
+
+
+class TestCacheResponseFunctionally(TestCase):
+    urls = urlpatterns
+
+    def test_should_return_response(self):
+        resp = self.client.get('/hello/')
+        self.assertEqual(resp.content, '"Hello world"')
+
+    def test_should_return_same_response_if_cached(self):
+        resp_1 = self.client.get('/hello/')
+        resp_2 = self.client.get('/hello/')
+        self.assertEqual(resp_1.content, resp_2.content)

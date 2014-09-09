@@ -54,6 +54,8 @@ class CacheResponse(object):
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before picklining while storing to cache
             self.cache.set(key, response, self.timeout)
+        if not hasattr(response, '_closable_objects'):
+            response._closable_objects = []
         return response
 
     def calculate_key(self,
