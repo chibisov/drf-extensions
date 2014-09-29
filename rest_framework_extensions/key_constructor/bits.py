@@ -185,3 +185,13 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
                 return force_text(queryset.query.__str__())
         except ValueError:
             return None
+
+
+class ArgsKeyBit(KeyBitBase):
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        return u'.'.join(args)
+
+
+class KwargsKeyBit(KeyBitBase):
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        return kwargs
