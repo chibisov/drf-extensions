@@ -7,6 +7,6 @@ from .models import KeyConstructorUserModel as UserModel
 
 
 class UserModelViewSet(ListETAGMixin, RetrieveETAGMixin, viewsets.ModelViewSet):
-    model = UserModel
+    queryset = UserModel.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('property',)
