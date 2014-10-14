@@ -1,2 +1,7 @@
+include LICENSE
+include README.md
+include tox.ini
+recursive-include docs *.md *.html *.txt *.py
+recursive-include tests_app requirements.txt *.py
 recursive-exclude * __pycache__
 global-exclude *pyc
