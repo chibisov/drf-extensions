@@ -23,6 +23,8 @@ from rest_framework_extensions.key_constructor.bits import (
     PaginationKeyBit,
     ListSqlQueryKeyBit,
     RetrieveSqlQueryKeyBit,
+    ArgsKeyBit,
+    KwargsKeyBit,
 )
 
 from .models import BitTestModel
@@ -427,3 +429,52 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, None)
+
+
+class ArgsKeyBitTest(TestCase):
+
+    def setUp(self):
+        self.test_args = ['abc', 'foobar', 'xyz']
+        self.kwargs = {
+            'params': None,
+            'view_instance': None,
+            'view_method': None,
+            'request': None,
+            'args': self.test_args,
+            'kwargs': None
+        }
+
+    def test_with_all_args(self):
+        self.assertEqual(ArgsKeyBit().get_data(**self.kwargs), self.test_args)
+
+    def test_with_specified_args(self):
+        test_arg_idx = [0, 2]
+        expected_args = [self.test_args[i] for i in test_arg_idx]
+        self.assertEqual(ArgsKeyBit(test_arg_idx).get_data(**self.kwargs), expected_args)
+
+
+class KwargsKeyBitTest(TestCase):
+
+    def setUp(self):
+        self.test_kwargs = {
+            'one': '1',
+            'city': 'London',
+        }
+        self.kwargs = {
+            'params': None,
+            'view_instance': None,
+            'view_method': None,
+            'request': None,
+            'args': None,
+            'kwargs': self.test_kwargs,
+        }
+
+    def test_resulting_dict_all_kwargs(self):
+        self.kwargs['params'] = self.test_kwargs.keys()
+        self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), self.test_kwargs)
+
+    def test_resulting_dict_specified_kwargs(self):
+        keys = ['one', 'not_existing_param']
+        expected_kwargs = {'one': self.test_kwargs['one']}
+        self.kwargs['params'] = keys
+        self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), expected_kwargs)

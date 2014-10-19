@@ -189,9 +189,11 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
 
 class ArgsKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return u'.'.join(args)
+        if self.params is not None:
+            return [args[i] for i in self.params]
+        return args
 
 
-class KwargsKeyBit(KeyBitBase):
-    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+class KwargsKeyBit(KeyBitDictBase):
+    def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
         return kwargs
