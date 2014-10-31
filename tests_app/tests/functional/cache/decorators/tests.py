@@ -18,3 +18,10 @@ class TestCacheResponseFunctionally(TestCase):
         resp_1 = self.client.get('/hello/')
         resp_2 = self.client.get('/hello/')
         self.assertEqual(resp_1.content, resp_2.content)
+
+    def test_cache_key_should_differ_with_query_param(self):
+        resp = self.client.get('/hello-param/?param=world')
+        self.assertEqual(force_text(resp.content), '"Hello world"')
+
+        resp = self.client.get('/hello-param/?param=everyone')
+        self.assertEqual(force_text(resp.content), '"Hello everyone"')

@@ -9,3 +9,10 @@ class HelloView(views.APIView):
     @cache_response()
     def get(self, request, *args, **kwargs):
         return Response('Hello world')
+
+
+class HelloParamView(views.APIView):
+    @cache_response()
+    def get(self, request, *args, **kwargs):
+        param = request.GET.get("param")
+        return Response('Hello ' + param)
