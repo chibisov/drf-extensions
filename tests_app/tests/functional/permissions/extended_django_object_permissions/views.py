@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework import authentication
 
 try:
@@ -29,12 +29,17 @@ class CommentObjectPermissions(ExtendedDjangoObjectPermissions):
     }
 
 
+class PermissionsCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PermissionsComment
+
 class CommentObjectPermissionsWithoutHidingForbiddenObjects(CommentObjectPermissions):
     hide_forbidden_for_read_objects = False
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    model = PermissionsComment
+    queryset = PermissionsComment.objects.all()
+    serializer_class = PermissionsCommentSerializer
     authentication_classes = [authentication.BasicAuthentication]
     permission_classes = (CommentObjectPermissions,)
 

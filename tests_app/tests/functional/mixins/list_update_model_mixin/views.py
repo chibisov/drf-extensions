@@ -9,7 +9,7 @@ from .models import (
     CommentForListUpdateModelMixin as Comment,
     UserForListUpdateModelMixin as User
 )
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CommentSerializer
 
 
 class CommentFilter(django_filters.FilterSet):
@@ -21,8 +21,8 @@ class CommentFilter(django_filters.FilterSet):
 
 
 class CommentViewSet(ListUpdateModelMixin, viewsets.ModelViewSet):
-    model = Comment
     queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = CommentFilter
 

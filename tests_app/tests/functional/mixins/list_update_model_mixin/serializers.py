@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
-from .models import UserForListUpdateModelMixin as User
+from .models import (
+    UserForListUpdateModelMixin as User,
+    CommentForListUpdateModelMixin as Comment,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -17,3 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
             'surname',
             'password'
         ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment

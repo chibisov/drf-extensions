@@ -20,6 +20,7 @@ env:
   - TOX_ENV=py27-drf2.4.0
   - TOX_ENV=py27-drf2.4.1
   - TOX_ENV=py27-drf2.4.2
+  - TOX_ENV=py27-drf3.0
   - TOX_ENV=py3
   - TOX_ENV=django1.5
   - TOX_ENV=django1.6

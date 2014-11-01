@@ -16,21 +16,23 @@ class DetailSerializerMixin(object):
     def get_serializer_class(self):
         error_message = "'{0}' should include a 'serializer_detail_class' attribute".format(self.__class__.__name__)
         assert self.serializer_detail_class is not None, error_message
-        if getattr(self, 'object', None):
+        if self._is_request_to_detail_endpoint():
             return self.serializer_detail_class
         else:
             return super(DetailSerializerMixin, self).get_serializer_class()
 
-    def get_object(self, queryset=None):
-        if queryset is None:
-            queryset = self.get_queryset_detail()
-        return super(DetailSerializerMixin, self).get_object(queryset=queryset)
-
-    def get_queryset_detail(self):
-        if self.queryset_detail is not None:
-            return self.queryset_detail._clone()  # todo: test _clone()
+    def get_queryset(self, *args, **kwargs):
+        if self._is_request_to_detail_endpoint() and self.queryset_detail is not None:
+            return self.queryset_detail.all()  # todo: test all()
         else:
-            return self.get_queryset()
+            return super(DetailSerializerMixin, self).get_queryset(*args, **kwargs)
+
+    def _is_request_to_detail_endpoint(self):
+        if hasattr(self, 'lookup_url_kwarg'):
+            kwarg_name = self.lookup_url_kwarg or self.lookup_field
+        else:
+            kwarg_name = self.pk_url_kwarg or self.slug_url_kwarg
+        return kwarg_name and kwarg_name in self.kwargs
 
 
 class PaginateByMaxMixin(object):
