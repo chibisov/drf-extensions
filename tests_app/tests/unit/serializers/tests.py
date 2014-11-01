@@ -62,16 +62,27 @@ class PartialUpdateSerializerMixinTest(TestCase):
         # instance from arguments
         serializer_one = CommentSerializer(instance=self.get_comment(), data={'title': 'goodbye'}, partial=True)
         serializer_two = CommentSerializer(instance=self.get_comment(), data={'text': 'moon'}, partial=True)
-        serializer_three = CommentSerializer(instance=self.get_comment(),
-                                             data={},
-                                             files={'attachment': self.files[1]},
-                                             partial=True)
+        serializer_three_kwargs = {
+            'instance': self.get_comment(),
+            'partial': True
+        }
+        if get_rest_framework_features()['uses_single_request_data_in_serializers']:
+            serializer_three_kwargs['data'] = {'attachment': self.files[1]}
+        else:
+            serializer_three_kwargs.update({
+                'data': {},
+                'files': {'attachment': self.files[1]}
+            })
+        serializer_three = CommentSerializer(**serializer_three_kwargs)
         self.assertTrue(serializer_one.is_valid())
         self.assertTrue(serializer_two.is_valid())
         self.assertTrue(serializer_three.is_valid())
+
+        # saving three serializers expecting they don't affect each other's saving
         serializer_one.save()
         serializer_two.save()
         serializer_three.save()
+
         fresh_instance = self.get_comment()
         self.assertEqual(fresh_instance.attachment.read(), u'file two'.encode('utf-8'))
         self.assertEqual(fresh_instance.text, 'moon')
@@ -181,6 +192,10 @@ class PartialUpdateSerializerMixinTest(TestCase):
         self.assertEqual(fresh_instance.title, 'goodbye')
         self.assertEqual(fresh_instance.text, 'world')
 
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_auto_writable_nested_serialization'],
+        "This version of DRF doesn't have automatic writable nested serialization"
+    )
     def test_should_not_use_update_fields_when_related_objects_are_saving(self):
         data = {
             'title': 'goodbye',
@@ -194,7 +209,7 @@ class PartialUpdateSerializerMixinTest(TestCase):
         self.assertTrue(serializer.is_valid())
         try:
             serializer.save()
-        except ValueError:
+        except ValueError as exc:
             self.fail('If serializer has expanded related serializer, then it should not use update_fields while '
                       'saving related object')
         fresh_instance = self.get_comment()

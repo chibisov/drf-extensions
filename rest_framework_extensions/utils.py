@@ -24,7 +24,9 @@ def get_rest_framework_features():
         'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
         'save_related_serializers': get_rest_framework_version() >= (2, 3, 8),  # todo: test me
         'write_only_fields': get_rest_framework_version() >= (2, 3, 11),  # todo: test me
-        'get_object_has_queryset_argument': get_rest_framework_version() < (3, 0)  # todo: test me
+        'has_action_and_link_decorators': get_rest_framework_version() < (3, 0),  # todo: test me
+        'has_auto_writable_nested_serialization': get_rest_framework_version() < (3, 0),  # todo: test me
+        'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),  # todo: test me
     }
 
 

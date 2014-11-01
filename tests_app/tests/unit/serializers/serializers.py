@@ -41,7 +41,7 @@ class CommentSerializerWithAllowedUserId(CommentSerializer):
 
 class CommentSerializerWithExpandedUsersLiked(drf_serializers.PartialUpdateSerializerMixin,
                                               serializers.ModelSerializer):
-    user = UserSerializer(source='user')
+    user = UserSerializer()
 
     class Meta:
         model = CommentModel
