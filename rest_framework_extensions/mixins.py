@@ -29,10 +29,10 @@ class DetailSerializerMixin(object):
 
     def _is_request_to_detail_endpoint(self):
         if hasattr(self, 'lookup_url_kwarg'):
-            kwarg_name = self.lookup_url_kwarg or self.lookup_field
-        else:
-            kwarg_name = self.pk_url_kwarg or self.slug_url_kwarg
-        return kwarg_name and kwarg_name in self.kwargs
+            lookup = self.lookup_url_kwarg or self.lookup_field
+        else: # DRF 2 compatibility
+            lookup = self.pk_url_kwarg or self.slug_url_kwarg
+        return lookup and lookup in self.kwargs
 
 
 class PaginateByMaxMixin(object):
