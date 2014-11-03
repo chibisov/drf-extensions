@@ -4,9 +4,11 @@ from rest_framework_extensions.etag.mixins import ListETAGMixin, RetrieveETAGMix
 from rest_framework.filters import DjangoFilterBackend
 
 from .models import KeyConstructorUserModel as UserModel
+from .serializers import UserModelSerializer
 
 
 class UserModelViewSet(ListETAGMixin, RetrieveETAGMixin, viewsets.ModelViewSet):
-    model = UserModel
+    queryset = UserModel.objects.all()
+    serializer_class = UserModelSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('property',)

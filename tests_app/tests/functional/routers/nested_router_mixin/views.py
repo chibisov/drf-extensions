@@ -26,7 +26,7 @@ from .serializers import (
 
 
 class UserViewSet(NestedViewSetMixin, ModelViewSet):
-    model = UserModel
+    queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
     @action(endpoint='users-list-action', is_for_list=True)
@@ -39,7 +39,7 @@ class UserViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class GroupViewSet(NestedViewSetMixin, ModelViewSet):
-    model = GroupModel
+    queryset = GroupModel.objects.all()
     serializer_class = GroupSerializer
 
     @link(endpoint='groups-list-link', is_for_list=True)
@@ -52,7 +52,7 @@ class GroupViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
-    model = PermissionModel
+    queryset = PermissionModel.objects.all()
     serializer_class = PermissionSerializer
 
     @action(endpoint='permissions-list-action', is_for_list=True)
@@ -65,12 +65,12 @@ class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class TaskViewSet(NestedViewSetMixin, ModelViewSet):
-    model = TaskModel
+    queryset = TaskModel.objects.all()
     serializer_class = TaskSerializer
 
 
 class BookViewSet(NestedViewSetMixin, ModelViewSet):
-    model = BookModel
+    queryset = BookModel.objects.all()
     serializer_class = BookSerializer
 
 

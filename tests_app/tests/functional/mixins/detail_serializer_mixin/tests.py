@@ -38,7 +38,7 @@ class DetailSerializerMixinTest_serializer_detail_class(TestCase):
             'email': 'example@ya.ru',
             'content': 'Hello world',
         }
-        self.assertEqual(resp.data, expected)
+        self.assertEqual(resp.data, expected, 'should use detail serializer for detail endpoint')
 
     def test_view_with_mixin_and_without__serializer_detail_class__should_raise_exception(self):
         msg = "'CommentWithoutDetailSerializerClassViewSet' should include a 'serializer_detail_class' attribute"
