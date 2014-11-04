@@ -1103,6 +1103,29 @@ Combines data about view module, view class name and view method name.
     class MyKeyConstructor(KeyConstructor):
         unique_view_id = bits.UniqueMethodIdKeyBit()
 
+**ArgsKeyBit**
+
+*New in DRF-extensions development version*
+
+Retrieves data from the method's or function's positional arguments. A list of position indices can be passed to indicate which arguments to use. Otherwise, all arguments will be used.
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit()
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit([0, 2])
+
+**KwargsKeyBit**
+
+*New in DRF-extensions development version*
+
+Retrieves data from the method's or function's keyword arguments. A list of keyword argument names can be passed to indicate which kwargs to use. Otherwise, all kwargs will be used.
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit()
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit(['user_id', 'city'])
 
 #### Default key constructor
 

@@ -106,6 +106,8 @@ For example if we've just implemented `Usage of the specific cache`:
 
     * Added ability to [use a specific cache](#usage-of-the-specific-cache) for `@cache_response` decorator
 
+    * Added [ArgsKeyBit and KwargsKeyBit](#default-key-bits) default key bits
+
 ## Publishing new releases
 
 Increment version in `rest_framework_extensions/__init__.py`. For example:
