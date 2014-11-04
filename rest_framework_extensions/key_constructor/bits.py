@@ -185,3 +185,21 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
                 return force_text(queryset.query.__str__())
         except ValueError:
             return None
+
+
+class ArgsKeyBit(KeyBitBase):
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        if self.params is not None:
+            return [args[i] for i in self.params]
+        return args
+
+
+class KwargsKeyBit(KeyBitDictBase):
+
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        # if no parameters specified, then get data for all kwargs
+        return super(KwargsKeyBit, self).get_data(params or kwargs, view_instance,
+                                                  view_method, request, args, kwargs)
+
+    def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
+        return kwargs
