@@ -478,3 +478,6 @@ class KwargsKeyBitTest(TestCase):
         expected_kwargs = {'one': self.test_kwargs['one']}
         self.kwargs['params'] = keys
         self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), expected_kwargs)
+
+    def test_resulting_dict_no_kwargs(self):
+        self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), self.test_kwargs)
