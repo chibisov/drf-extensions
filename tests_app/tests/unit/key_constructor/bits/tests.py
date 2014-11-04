@@ -432,7 +432,6 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
 
 
 class ArgsKeyBitTest(TestCase):
-
     def setUp(self):
         self.test_args = ['abc', 'foobar', 'xyz']
         self.kwargs = {
@@ -454,7 +453,6 @@ class ArgsKeyBitTest(TestCase):
 
 
 class KwargsKeyBitTest(TestCase):
-
     def setUp(self):
         self.test_kwargs = {
             'one': '1',
