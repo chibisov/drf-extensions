@@ -2086,13 +2086,10 @@ You can read about versioning, deprecation policy and upgrading from
 
 #### Development version
 
-<<<<<<< HEAD
 * Started process of refactoring for [DRF 3.x compatibility](https://github.com/chibisov/drf-extensions/issues/39)
 * [DetailSerializerMixin](#detailserializermixin) is now [compatible with DRF 3.0](https://github.com/chibisov/drf-extensions/issues/46)
-=======
 * Added [ArgsKeyBit](#argskeybit)
 * Added [KwargsKeyBit](#kwargskeybit)
->>>>>>> master
 
 #### 0.2.6
 
