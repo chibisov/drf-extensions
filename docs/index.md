@@ -967,7 +967,7 @@ That's cool now - we have different responses for different formats with differe
 * Pagination. We should show different data for different pages;
 * Etc...
 
-Ofcourse we can use custom `calculate_cache_key` methods and reuse them for different API methods, but we can't reuse just parts of them. For example, one method depends on user id and language, but another only on user id. How to be more DRYish? Let's see some magic:
+Of course we can use custom `calculate_cache_key` methods and reuse them for different API methods, but we can't reuse just parts of them. For example, one method depends on user id and language, but another only on user id. How to be more DRYish? Let's see some magic:
 
     from rest_framework_extensions.key_constructor.constructors import (
         KeyConstructor
@@ -1011,98 +1011,7 @@ The second method `head` has the same `unique_method_id`, `format` and `language
 * **user** - key would be different for different users. As you can see in response calculation we use `request.user` instance. For different users we need different responses.
 * **request_meta** - key would be different for different ip addresses. As you can see in response calculation we are falling back to getting city from ip address if couldn't get it from authorized user model.
 
-#### Default key bits
-
-Out of the box DRF-extensions has some basic key bits. They are all located in `rest_framework_extensions.key_constructor.bits` module.
-
-**FormatKeyBit**
-
-Retrieves format info from request. Usage example:
-
-    class MyKeyConstructor(KeyConstructor):
-        format = FormatKeyBit()
-
-**LanguageKeyBit**
-
-Retrieves active language for request. Usage example:
-
-    class MyKeyConstructor(KeyConstructor):
-        user = LanguageKeyBit()
-
-**UserKeyBit**
-
-Retrieves user id from request. If it is anonymous then returnes *"anonymous"* string. Usage example:
-
-    class MyKeyConstructor(KeyConstructor):
-        user = UserKeyBit()
-
-**RequestMetaKeyBit**
-
-Retrieves data from [request.META](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.META) dict.
-Usage example:
-
-    class MyKeyConstructor(KeyConstructor):
-        ip_address_and_user_agent = RequestMetaKeyBit(
-            ['REMOTE_ADDR', 'HTTP_USER_AGENT']
-        )
-
-**HeadersKeyBit**
-
-Same as `RequestMetaKeyBit` retrieves data from [request.META](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.META) dict.
-The difference is that `HeadersKeyBit` allows to use normal header names:
-
-    class MyKeyConstructor(KeyConstructor):
-        user_agent_and_geobase_id = HeadersKeyBit(
-            ['user-agent', 'x-geobase-id']
-        )
-        # will process request.META['HTTP_USER_AGENT'] and
-        #              request.META['HTTP_X_GEOBASE_ID']
-
-**QueryParamsKeyBit**
-
-Retrieves data from [request.GET](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.GET) dict.
-Usage example:
-
-    class MyKeyConstructor(KeyConstructor):
-        part_and_callback = bits.QueryParamsKeyBit(
-            ['part', 'callback']
-        )
-
-**PaginationKeyBit**
-
-Inherits from `QueryParamsKeyBit` and returns data from used pagination params.
-
-    class MyKeyConstructor(KeyConstructor):
-        pagination = bits.PaginationKeyBit()
-
-**ListSqlQueryKeyBit**
-
-Retrieves sql query for `view.filter_queryset(view.get_queryset())` filtering.
-
-    class MyKeyConstructor(KeyConstructor):
-        list_sql_query = bits.ListSqlQueryKeyBit()
-
-**RetrieveSqlQueryKeyBit**
-
-Retrieves sql query for retrieving exact object.
-
-    class MyKeyConstructor(KeyConstructor):
-        retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
-
-**UniqueViewIdKeyBit**
-
-Combines data about view module and view class name.
-
-    class MyKeyConstructor(KeyConstructor):
-        unique_view_id = bits.UniqueViewIdKeyBit()
-
-**UniqueMethodIdKeyBit**
-
-Combines data about view module, view class name and view method name.
-
-    class MyKeyConstructor(KeyConstructor):
-        unique_view_id = bits.UniqueMethodIdKeyBit()
-
+All default key bits are listed in [this section](#default-key-bits).
 
 #### Default key constructor
 
@@ -1350,6 +1259,125 @@ You can dynamically change key constructor's bits list in initialization method 
             self.bits['geoip'] = bits.RequestMetaKeyBit(
                 params=['GEOIP_CITY']
             )
+
+
+### Default key bits
+
+Out of the box DRF-extensions has some basic key bits. They are all located in `rest_framework_extensions.key_constructor.bits` module.
+
+#### FormatKeyBit
+
+Retrieves format info from request. Usage example:
+
+    class MyKeyConstructor(KeyConstructor):
+        format = FormatKeyBit()
+
+#### LanguageKeyBit
+
+Retrieves active language for request. Usage example:
+
+    class MyKeyConstructor(KeyConstructor):
+        user = LanguageKeyBit()
+
+#### UserKeyBit
+
+Retrieves user id from request. If it is anonymous then returnes *"anonymous"* string. Usage example:
+
+    class MyKeyConstructor(KeyConstructor):
+        user = UserKeyBit()
+
+#### RequestMetaKeyBit
+
+Retrieves data from [request.META](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.META) dict.
+Usage example:
+
+    class MyKeyConstructor(KeyConstructor):
+        ip_address_and_user_agent = RequestMetaKeyBit(
+            ['REMOTE_ADDR', 'HTTP_USER_AGENT']
+        )
+
+#### HeadersKeyBit
+
+Same as `RequestMetaKeyBit` retrieves data from [request.META](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.META) dict.
+The difference is that `HeadersKeyBit` allows to use normal header names:
+
+    class MyKeyConstructor(KeyConstructor):
+        user_agent_and_geobase_id = HeadersKeyBit(
+            ['user-agent', 'x-geobase-id']
+        )
+        # will process request.META['HTTP_USER_AGENT'] and
+        #              request.META['HTTP_X_GEOBASE_ID']
+
+#### ArgsKeyBit
+
+*New in DRF-extensions development version*
+
+Retrieves data from the view's positional arguments.
+A list of position indices can be passed to indicate which arguments to use. Otherwise, all arguments will be used.
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit()  # will use all positional arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit([0, 2])
+
+#### KwargsKeyBit
+
+*New in DRF-extensions development version*
+
+Retrieves data from the views's keyword arguments.
+A list of keyword argument names can be passed to indicate which kwargs to use. Otherwise, all kwargs will be used.
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit()  # will use all keyword arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit(['user_id', 'city'])
+
+#### QueryParamsKeyBit
+
+Retrieves data from [request.GET](https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.GET) dict.
+Usage example:
+
+    class MyKeyConstructor(KeyConstructor):
+        part_and_callback = bits.QueryParamsKeyBit(
+            ['part', 'callback']
+        )
+
+#### PaginationKeyBit
+
+Inherits from `QueryParamsKeyBit` and returns data from used pagination params.
+
+    class MyKeyConstructor(KeyConstructor):
+        pagination = bits.PaginationKeyBit()
+
+#### ListSqlQueryKeyBit
+
+Retrieves sql query for `view.filter_queryset(view.get_queryset())` filtering.
+
+    class MyKeyConstructor(KeyConstructor):
+        list_sql_query = bits.ListSqlQueryKeyBit()
+
+#### RetrieveSqlQueryKeyBit
+
+Retrieves sql query for retrieving exact object.
+
+    class MyKeyConstructor(KeyConstructor):
+        retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
+
+#### UniqueViewIdKeyBit
+
+Combines data about view module and view class name.
+
+    class MyKeyConstructor(KeyConstructor):
+        unique_view_id = bits.UniqueViewIdKeyBit()
+
+#### UniqueMethodIdKeyBit
+
+Combines data about view module, view class name and view method name.
+
+    class MyKeyConstructor(KeyConstructor):
+        unique_view_id = bits.UniqueMethodIdKeyBit()
 
 
 ### Conditional requests
@@ -2058,8 +2086,13 @@ You can read about versioning, deprecation policy and upgrading from
 
 #### Development version
 
+<<<<<<< HEAD
 * Started process of refactoring for [DRF 3.x compatibility](https://github.com/chibisov/drf-extensions/issues/39)
 * [DetailSerializerMixin](#detailserializermixin) is now [compatible with DRF 3.0](https://github.com/chibisov/drf-extensions/issues/46)
+=======
+* Added [ArgsKeyBit](#argskeybit)
+* Added [KwargsKeyBit](#kwargskeybit)
+>>>>>>> master
 
 #### 0.2.6
 
