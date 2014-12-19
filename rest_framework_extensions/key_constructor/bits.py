@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.utils.encoding import force_text
 from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
+from rest_framework_extensions.compat import force_text
 
 
 class KeyBitBase(object):
