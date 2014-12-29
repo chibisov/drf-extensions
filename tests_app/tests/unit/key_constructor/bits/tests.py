@@ -318,6 +318,21 @@ class QueryParamsKeyBitTest(TestCase):
         }
         self.assertEqual(QueryParamsKeyBit().get_data(**self.kwargs), expected)
 
+    def test_resulting_dict_all_params(self):
+        self.kwargs = {
+            'params': '*',
+            'view_instance': None,
+            'view_method': None,
+            'request': factory.get('?part=Londo&callback=jquery_callback'),
+            'args': None,
+            'kwargs': None
+        }
+        expected = {
+            'part': u'Londo',
+            'callback': u'jquery_callback'
+        }
+        self.assertEqual(QueryParamsKeyBit().get_data(**self.kwargs), expected)
+
 
 class PaginationKeyBitTest(TestCase):
     def setUp(self):

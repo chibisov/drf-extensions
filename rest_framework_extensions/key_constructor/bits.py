@@ -32,6 +32,10 @@ class KeyBitDictBase(KeyBitBase):
             args=args,
             kwargs=kwargs
         )
+
+        if params == '*':
+            params = source_dict.keys()
+
         for key in params:
             value = source_dict.get(self.prepare_key_for_value_retrieving(key))
             if value is not None:
