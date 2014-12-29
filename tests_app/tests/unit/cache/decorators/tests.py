@@ -197,7 +197,6 @@ class CacheResponseTest(TestCase):
 
     def test_dont_cache_response_with_error_if_cache_error_false(self):
         cache_response_decorator = cache_response(cache_errors=False)
-        cache_response_decorator.cache.set = Mock()
 
         class TestView(views.APIView):
 
@@ -209,15 +208,15 @@ class CacheResponseTest(TestCase):
             def get(self, request, *args, **kwargs):
                 return Response(status=self.status)
 
-        for status in (400, 500):
-            view_instance = TestView(status=status)
-            view_instance.dispatch(request=self.request)
+        with patch.object(cache_response_decorator.cache, 'set'):
+            for status in (400, 500):
+                view_instance = TestView(status=status)
+                view_instance.dispatch(request=self.request)
 
-            self.assertFalse(cache_response_decorator.cache.set.called)
+                self.assertFalse(cache_response_decorator.cache.set.called)
 
     def test_cache_response_with_error_if_cache_error_true(self):
         cache_response_decorator = cache_response()
-        cache_response_decorator.cache.set = Mock()
 
         class TestView(views.APIView):
 
@@ -229,8 +228,9 @@ class CacheResponseTest(TestCase):
             def get(self, request, *args, **kwargs):
                 return Response(status=self.status)
 
-        for status in (400, 500):
-            view_instance = TestView(status=status)
-            view_instance.dispatch(request=self.request)
+        with patch.object(cache_response_decorator.cache, 'set'):
+            for status in (400, 500):
+                view_instance = TestView(status=status)
+                view_instance.dispatch(request=self.request)
 
-            self.assertTrue(cache_response_decorator.cache.set.called)
+                self.assertTrue(cache_response_decorator.cache.set.called)
