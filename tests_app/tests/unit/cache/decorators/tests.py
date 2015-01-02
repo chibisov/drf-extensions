@@ -215,7 +215,7 @@ class CacheResponseTest(TestCase):
 
                 self.assertFalse(cache_response_decorator.cache.set.called)
 
-    def test_cache_response_with_error_if_cache_error_true(self):
+    def test_cache_response_with_error_by_default(self):
         cache_response_decorator = cache_response()
 
         class TestView(views.APIView):
