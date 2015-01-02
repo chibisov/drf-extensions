@@ -302,15 +302,18 @@ class RequestMetaKeyBitTest(TestCase):
 
 
 class QueryParamsKeyBitTest(TestCase):
-    def test_resulting_dict(self):
+    def setUp(self):
         self.kwargs = {
-            'params': ['part', 'callback', 'not_existing_param'],
+            'params': None,
             'view_instance': None,
             'view_method': None,
             'request': factory.get('?part=Londo&callback=jquery_callback'),
             'args': None,
             'kwargs': None
         }
+
+    def test_resulting_dict(self):
+        self.kwargs['params'] = ['part', 'callback', 'not_existing_param']
         expected = {
             'part': u'Londo',
             'callback': u'jquery_callback'
@@ -318,14 +321,7 @@ class QueryParamsKeyBitTest(TestCase):
         self.assertEqual(QueryParamsKeyBit().get_data(**self.kwargs), expected)
 
     def test_resulting_dict_all_params(self):
-        self.kwargs = {
-            'params': '*',
-            'view_instance': None,
-            'view_method': None,
-            'request': factory.get('?part=Londo&callback=jquery_callback'),
-            'args': None,
-            'kwargs': None
-        }
+        self.kwargs['params'] = '*'
         expected = {
             'part': u'Londo',
             'callback': u'jquery_callback'
