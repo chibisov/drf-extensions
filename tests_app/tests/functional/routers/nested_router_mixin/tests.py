@@ -441,3 +441,54 @@ class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
                 'text': self.comments['for_book_two'].text,
             }
         ])
+
+
+# class NestedRouterMixinTestBehaviour__generic_relations1(APITestCase):
+#     router = ExtendedSimpleRouter()
+#     # tasks route
+#     (
+#         router.register(r'tasks', TaskViewSet)
+#               .register(r'', TaskCommentViewSet, 'tasks-comment', parents_query_lookups=['object_id'])
+#     )
+#     # books route
+#     (
+#         router.register(r'books', BookViewSet)
+#               .register(r'', BookCommentViewSet, 'books-comment', parents_query_lookups=['object_id'])
+#     )
+#
+#     urls = router.urls
+#
+#     def setUp(self):
+#         self.tasks = {
+#             'one': TaskModel.objects.create(id=1, title='Task one'),
+#             'two': TaskModel.objects.create(id=2, title='Task two'),
+#         }
+#         self.books = {
+#             'one': BookModel.objects.create(id=1, title='Book one'),
+#             'two': BookModel.objects.create(id=2, title='Book two'),
+#         }
+#         self.comments = {
+#             'for_task_one': CommentModel.objects.create(
+#                 id=1,
+#                 content_object=self.tasks['one'],
+#                 text=u'Comment for task one'
+#             ),
+#             'for_task_two': CommentModel.objects.create(
+#                 id=2,
+#                 content_object=self.tasks['two'],
+#                 text=u'Comment for task two'
+#             ),
+#             'for_book_one': CommentModel.objects.create(
+#                 id=3,
+#                 content_object=self.books['one'],
+#                 text=u'Comment for book one'
+#             ),
+#             'for_book_two': CommentModel.objects.create(
+#                 id=4,
+#                 content_object=self.books['two'],
+#                 text=u'Comment for book two'
+#             ),
+#         }
+#
+#     def test_me(self):
+#         print 'hell'

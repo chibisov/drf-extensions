@@ -9,7 +9,11 @@ from rest_framework_extensions.compat import six
 
 
 class CacheResponse(object):
-    def __init__(self, timeout=None, key_func=None, cache=None):
+    def __init__(self,
+                 timeout=None,
+                 key_func=None,
+                 cache=None,
+                 cache_errors=None):
         if timeout is None:
             self.timeout = extensions_api_settings.DEFAULT_CACHE_RESPONSE_TIMEOUT
         else:
@@ -19,6 +23,11 @@ class CacheResponse(object):
             self.key_func = extensions_api_settings.DEFAULT_CACHE_KEY_FUNC
         else:
             self.key_func = key_func
+
+        if cache_errors is None:
+            self.cache_errors = extensions_api_settings.DEFAULT_CACHE_ERRORS
+        else:
+            self.cache_errors = cache_errors
 
         self.cache = get_cache(cache or extensions_api_settings.DEFAULT_USE_CACHE)
 
@@ -53,9 +62,13 @@ class CacheResponse(object):
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before picklining while storing to cache
-            self.cache.set(key, response, self.timeout)
+
+            if not response.status_code >= 400 or self.cache_errors:
+                self.cache.set(key, response, self.timeout)
+
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
+
         return response
 
     def calculate_key(self,

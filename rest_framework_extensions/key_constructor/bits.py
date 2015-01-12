@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.utils.encoding import force_text
 from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
+from rest_framework_extensions.compat import force_text
 
 
 class KeyBitBase(object):
@@ -24,18 +24,25 @@ class KeyBitDictBase(KeyBitBase):
 
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         data = {}
-        source_dict = self.get_source_dict(
-            params=params,
-            view_instance=view_instance,
-            view_method=view_method,
-            request=request,
-            args=args,
-            kwargs=kwargs
-        )
-        for key in params:
-            value = source_dict.get(self.prepare_key_for_value_retrieving(key))
-            if value is not None:
-                data[self.prepare_key_for_value_assignment(key)] = force_text(value)
+
+        if params is not None:
+            source_dict = self.get_source_dict(
+                params=params,
+                view_instance=view_instance,
+                view_method=view_method,
+                request=request,
+                args=args,
+                kwargs=kwargs
+            )
+
+            if params == '*':
+                params = source_dict.keys()
+
+            for key in params:
+                value = source_dict.get(self.prepare_key_for_value_retrieving(key))
+                if value is not None:
+                    data[self.prepare_key_for_value_assignment(key)] = force_text(value)
+
         return data
 
     def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
@@ -189,22 +196,14 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
 
 class ArgsKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        if self.params is not None:
-            return [args[i] for i in self.params]
-        return args
+        if params == '*':
+            return args
+        elif params is not None:
+            return [args[i] for i in params]
+        else:
+            return []
 
 
 class KwargsKeyBit(KeyBitDictBase):
-    def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        # if no parameters specified, then get data for all kwargs
-        return super(KwargsKeyBit, self).get_data(
-            params=params or kwargs.keys(),
-            view_instance=view_instance,
-            view_method=view_method,
-            request=request,
-            args=args,
-            kwargs=kwargs
-        )
-
     def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
         return kwargs
