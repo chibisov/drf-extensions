@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
 
-import django
 from django.test import TestCase
 from django.utils.translation import override
 
@@ -303,15 +302,26 @@ class RequestMetaKeyBitTest(TestCase):
 
 
 class QueryParamsKeyBitTest(TestCase):
-    def test_resulting_dict(self):
+    def setUp(self):
         self.kwargs = {
-            'params': ['part', 'callback', 'not_existing_param'],
+            'params': None,
             'view_instance': None,
             'view_method': None,
             'request': factory.get('?part=Londo&callback=jquery_callback'),
             'args': None,
             'kwargs': None
         }
+
+    def test_resulting_dict(self):
+        self.kwargs['params'] = ['part', 'callback', 'not_existing_param']
+        expected = {
+            'part': u'Londo',
+            'callback': u'jquery_callback'
+        }
+        self.assertEqual(QueryParamsKeyBit().get_data(**self.kwargs), expected)
+
+    def test_resulting_dict_all_params(self):
+        self.kwargs['params'] = '*'
         expected = {
             'part': u'Londo',
             'callback': u'jquery_callback'
@@ -443,13 +453,17 @@ class ArgsKeyBitTest(TestCase):
             'kwargs': None
         }
 
+    def test_with_no_args(self):
+        self.assertEqual(ArgsKeyBit().get_data(**self.kwargs), [])
+
     def test_with_all_args(self):
+        self.kwargs['params'] = '*'
         self.assertEqual(ArgsKeyBit().get_data(**self.kwargs), self.test_args)
 
     def test_with_specified_args(self):
-        test_arg_idx = [0, 2]
+        self.kwargs['params'] = test_arg_idx = [0, 2]
         expected_args = [self.test_args[i] for i in test_arg_idx]
-        self.assertEqual(ArgsKeyBit(test_arg_idx).get_data(**self.kwargs), expected_args)
+        self.assertEqual(ArgsKeyBit().get_data(**self.kwargs), expected_args)
 
 
 class KwargsKeyBitTest(TestCase):
@@ -468,7 +482,7 @@ class KwargsKeyBitTest(TestCase):
         }
 
     def test_resulting_dict_all_kwargs(self):
-        self.kwargs['params'] = self.test_kwargs.keys()
+        self.kwargs['params'] = '*'
         self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), self.test_kwargs)
 
     def test_resulting_dict_specified_kwargs(self):
@@ -478,4 +492,4 @@ class KwargsKeyBitTest(TestCase):
         self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), expected_kwargs)
 
     def test_resulting_dict_no_kwargs(self):
-        self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), self.test_kwargs)
+        self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), {})
