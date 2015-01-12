@@ -194,3 +194,43 @@ class CacheResponseTest(TestCase):
         cache_response_instance = cache_response()
         another_cache_response_instance = cache_response()
         self.assertTrue(cache_response_instance.cache is another_cache_response_instance.cache)
+
+    def test_dont_cache_response_with_error_if_cache_error_false(self):
+        cache_response_decorator = cache_response(cache_errors=False)
+
+        class TestView(views.APIView):
+
+            def __init__(self, status, *args, **kwargs):
+                self.status = status
+                super(TestView, self).__init__(*args, **kwargs)
+
+            @cache_response_decorator
+            def get(self, request, *args, **kwargs):
+                return Response(status=self.status)
+
+        with patch.object(cache_response_decorator.cache, 'set'):
+            for status in (400, 500):
+                view_instance = TestView(status=status)
+                view_instance.dispatch(request=self.request)
+
+                self.assertFalse(cache_response_decorator.cache.set.called)
+
+    def test_cache_response_with_error_by_default(self):
+        cache_response_decorator = cache_response()
+
+        class TestView(views.APIView):
+
+            def __init__(self, status, *args, **kwargs):
+                self.status = status
+                super(TestView, self).__init__(*args, **kwargs)
+
+            @cache_response_decorator
+            def get(self, request, *args, **kwargs):
+                return Response(status=self.status)
+
+        with patch.object(cache_response_decorator.cache, 'set'):
+            for status in (400, 500):
+                view_instance = TestView(status=status)
+                view_instance.dispatch(request=self.request)
+
+                self.assertTrue(cache_response_decorator.cache.set.called)
