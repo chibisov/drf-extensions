@@ -234,3 +234,15 @@ class CacheResponseTest(TestCase):
                 view_instance.dispatch(request=self.request)
 
                 self.assertTrue(cache_response_decorator.cache.set.called)
+
+    @override_extensions_api_settings(
+        DEFAULT_CACHE_ERRORS=False
+    )
+    def test_should_use_cache_error_from_settings_by_default(self):
+        self.assertFalse(cache_response().cache_errors)
+
+    @override_extensions_api_settings(
+        DEFAULT_CACHE_ERRORS=False
+    )
+    def test_should_use_cache_error_from_decorator_if_it_is_specified(self):
+        self.assertTrue(cache_response(cache_errors=True).cache_errors)

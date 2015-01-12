@@ -13,7 +13,7 @@ class CacheResponse(object):
                  timeout=None,
                  key_func=None,
                  cache=None,
-                 cache_errors=True):
+                 cache_errors=None):
         if timeout is None:
             self.timeout = extensions_api_settings.DEFAULT_CACHE_RESPONSE_TIMEOUT
         else:
@@ -24,7 +24,11 @@ class CacheResponse(object):
         else:
             self.key_func = key_func
 
-        self.cache_errors = cache_errors
+        if cache_errors is None:
+            # todo: test me
+            self.cache_errors = extensions_api_settings.DEFAULT_CACHE_ERRORS
+        else:
+            self.cache_errors = cache_errors
 
         self.cache = get_cache(cache or extensions_api_settings.DEFAULT_USE_CACHE)
 

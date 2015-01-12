@@ -10,6 +10,7 @@ DEFAULTS = {
     # caching
     'DEFAULT_USE_CACHE': 'default',
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': None,
+    'DEFAULT_CACHE_ERRORS': True,
     'DEFAULT_CACHE_KEY_FUNC': 'rest_framework_extensions.utils.default_cache_key_func',
     'DEFAULT_OBJECT_CACHE_KEY_FUNC': 'rest_framework_extensions.utils.default_object_cache_key_func',
     'DEFAULT_LIST_CACHE_KEY_FUNC': 'rest_framework_extensions.utils.default_list_cache_key_func',

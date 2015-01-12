@@ -845,6 +845,33 @@ settings:
 
 `default_cache_key_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for key calculation.
 
+#### Caching errors
+
+*New in DRF-extensions development version*
+
+By default every response is cached, even failed. For example:
+
+    class CityView(views.APIView):
+        @cache_response()
+        def get(self, request, *args, **kwargs):
+            raise Exception("500 error comes from here")
+
+First request to `CityView.get` will fail with `500` status code error and next requests to this endpoint will
+return `500` error from cache.
+
+You can change this behaviour by turning off caching error responses:
+
+    class CityView(views.APIView):
+        @cache_response(cache_errors=False)
+        def get(self, request, *args, **kwargs):
+            raise Exception("500 error comes from here")
+
+You can change default behaviour by changing `DEFAULT_CACHE_ERRORS` setting:
+
+    REST_FRAMEWORK_EXTENSIONS = {
+        'DEFAULT_CACHE_ERRORS': False
+    }
+
 #### CacheResponseMixin
 
 It is common to cache standard [viewset](http://www.django-rest-framework.org/api-guide/viewsets) `retrieve` and `list`
@@ -2091,6 +2118,7 @@ You can read about versioning, deprecation policy and upgrading from
 * Added [ArgsKeyBit](#argskeybit)
 * Added [KwargsKeyBit](#kwargskeybit)
 * Fixed [PartialUpdateSerializerMixin](#partialupdateserializermixin) [compatibility issue with DRF 3.x](https://github.com/chibisov/drf-extensions/issues/66)
+* Added [cache_errors](#caching-errors) attribute for switching caching for error responses
 
 #### 0.2.6
 
