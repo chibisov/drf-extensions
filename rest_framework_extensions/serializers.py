@@ -1,31 +1,51 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-
 from rest_framework_extensions.compat import get_concrete_model
-from rest_framework_extensions.utils import get_model_opts_concrete_fields
+from rest_framework_extensions.utils import get_model_opts_concrete_fields, get_rest_framework_features
 
 
-class PartialUpdateSerializerMixin(object):
-    def save_object(self, obj, **kwargs):
-        if self.partial and 'update_fields' not in kwargs and isinstance(obj, self.opts.model):
-            kwargs['update_fields'] = self._get_fields_for_partial_update()
+def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
+    opts = get_concrete_model(opts.model)._meta
+    partial_fields = list((init_data or {}).keys()) + list((init_files or {}).keys())
+    concrete_field_names = []
+    for field in get_model_opts_concrete_fields(opts):
+        if not field.primary_key:
+            concrete_field_names.append(field.name)
+            if field.name != field.attname:
+                concrete_field_names.append(field.attname)
+    update_fields = []
+    for field_name in partial_fields:
+        if field_name in fields:
+            model_field_name = getattr(fields[field_name], 'source') or field_name
+            if model_field_name in concrete_field_names:
+                update_fields.append(model_field_name)
+    return update_fields
 
-        return super(PartialUpdateSerializerMixin, self).save_object(obj, **kwargs)
 
-    def _get_fields_for_partial_update(self):
-        cls = self.opts.model
-        opts = get_concrete_model(cls)._meta
-        partial_fields = list((self.init_data or {}).keys()) + list((self.init_files or {}).keys())
-        concrete_field_names = []
-        for field in get_model_opts_concrete_fields(opts):
-            if not field.primary_key:
-                concrete_field_names.append(field.name)
-                if field.name != field.attname:
-                    concrete_field_names.append(field.attname)
-        update_fields = []
-        for field_name in partial_fields:
-            if field_name in self.fields:
-                model_field_name = getattr(self.fields[field_name], 'source') or field_name
-                if model_field_name in concrete_field_names:
-                    update_fields.append(model_field_name)
-        return update_fields
+if get_rest_framework_features()['single_step_object_creation_in_serializers']:
+    class PartialUpdateSerializerMixin(object):
+        def update(self, instance, validated_attrs):
+            for attr, value in validated_attrs.items():
+                setattr(instance, attr, value)
+            if self.partial and isinstance(instance, self.Meta.model):
+                instance.save(
+                    update_fields=get_fields_for_partial_update(
+                        opts=self.Meta,
+                        init_data=self.get_initial(),
+                        fields=self.fields.fields
+                    )
+                )
+            else:
+                instance.save()
+            return instance
+else:
+    class PartialUpdateSerializerMixin(object):
+        def save_object(self, obj, **kwargs):
+            if self.partial and 'update_fields' not in kwargs and isinstance(obj, self.opts.model):
+                kwargs['update_fields'] = get_fields_for_partial_update(
+                    opts=self.opts,
+                    init_data=self.init_data,
+                    fields=self.fields,
+                    init_files=self.init_files
+                )
+
+            return super(PartialUpdateSerializerMixin, self).save_object(obj, **kwargs)
