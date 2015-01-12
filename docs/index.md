@@ -2090,6 +2090,7 @@ You can read about versioning, deprecation policy and upgrading from
 * [DetailSerializerMixin](#detailserializermixin) is now [compatible with DRF 3.0](https://github.com/chibisov/drf-extensions/issues/46)
 * Added [ArgsKeyBit](#argskeybit)
 * Added [KwargsKeyBit](#kwargskeybit)
+* Fixed [PartialUpdateSerializerMixin](#partialupdateserializermixin) [compatibility issue with DRF 3.x](https://github.com/chibisov/drf-extensions/issues/66)
 
 #### 0.2.6
 
