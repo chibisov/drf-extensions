@@ -200,10 +200,10 @@ class ArgsKeyBit(KeyBitBase):
             return args
         elif params is not None:
             return [args[i] for i in params]
-
-        return []
+        else:
+            return []
 
 
 class KwargsKeyBit(KeyBitDictBase):
     def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
-        return [] if params is None else kwargs
+        return kwargs

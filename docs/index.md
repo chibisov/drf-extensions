@@ -1319,9 +1319,16 @@ Retrieves data from [request.META](https://docs.djangoproject.com/en/dev/ref/req
 Usage example:
 
     class MyKeyConstructor(KeyConstructor):
-        ip_address_and_user_agent = RequestMetaKeyBit(
+        ip_address_and_user_agent = bits.RequestMetaKeyBit(
             ['REMOTE_ADDR', 'HTTP_USER_AGENT']
         )
+
+You can use `*` for retrieving all meta data to key bit:
+
+*New in DRF-extensions development version*
+
+    class MyKeyConstructor(KeyConstructor):
+        all_request_meta = bits.RequestMetaKeyBit('*')
 
 #### HeadersKeyBit
 
@@ -1329,21 +1336,28 @@ Same as `RequestMetaKeyBit` retrieves data from [request.META](https://docs.djan
 The difference is that `HeadersKeyBit` allows to use normal header names:
 
     class MyKeyConstructor(KeyConstructor):
-        user_agent_and_geobase_id = HeadersKeyBit(
+        user_agent_and_geobase_id = bits.HeadersKeyBit(
             ['user-agent', 'x-geobase-id']
         )
         # will process request.META['HTTP_USER_AGENT'] and
         #              request.META['HTTP_X_GEOBASE_ID']
+
+You can use `*` for retrieving all headers to key bit:
+
+*New in DRF-extensions development version*
+
+    class MyKeyConstructor(KeyConstructor):
+        all_headers = bits.HeadersKeyBit('*')
 
 #### ArgsKeyBit
 
 *New in DRF-extensions development version*
 
 Retrieves data from the view's positional arguments.
-A list of position indices can be passed to indicate which arguments to use. Otherwise, all arguments will be used.
+A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*`:
 
     class MyKeyConstructor(KeyConstructor):
-        args = bits.ArgsKeyBit()  # will use all positional arguments
+        args = bits.ArgsKeyBit('*')  # will use all positional arguments
 
     class MyKeyConstructor(KeyConstructor):
         args = bits.ArgsKeyBit([0, 2])
@@ -1353,10 +1367,10 @@ A list of position indices can be passed to indicate which arguments to use. Oth
 *New in DRF-extensions development version*
 
 Retrieves data from the views's keyword arguments.
-A list of keyword argument names can be passed to indicate which kwargs to use. Otherwise, all kwargs will be used.
+A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*`:
 
     class MyKeyConstructor(KeyConstructor):
-        kwargs = bits.KwargsKeyBit()  # will use all keyword arguments
+        kwargs = bits.KwargsKeyBit('*')  # will use all keyword arguments
 
     class MyKeyConstructor(KeyConstructor):
         kwargs = bits.KwargsKeyBit(['user_id', 'city'])
@@ -1370,6 +1384,13 @@ Usage example:
         part_and_callback = bits.QueryParamsKeyBit(
             ['part', 'callback']
         )
+
+You can use `*` for retrieving all query params to key bit:
+
+*New in DRF-extensions development version*
+
+    class MyKeyConstructor(KeyConstructor):
+        all_query_params = bits.QueryParamsKeyBit('*')
 
 #### PaginationKeyBit
 
@@ -2119,6 +2140,8 @@ You can read about versioning, deprecation policy and upgrading from
 * Added [KwargsKeyBit](#kwargskeybit)
 * Fixed [PartialUpdateSerializerMixin](#partialupdateserializermixin) [compatibility issue with DRF 3.x](https://github.com/chibisov/drf-extensions/issues/66)
 * Added [cache_errors](#caching-errors) attribute for switching caching for error responses
+* Added ability to specify usage of all items for [RequestMetaKeyBit](#requestmetakeybit), [HeadersKeyBit](#headerskeybit)
+and [QueryParamsKeyBit](#queryparamskeybit) providing `params='*'`
 
 #### 0.2.6
 

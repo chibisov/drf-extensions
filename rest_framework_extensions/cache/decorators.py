@@ -25,7 +25,6 @@ class CacheResponse(object):
             self.key_func = key_func
 
         if cache_errors is None:
-            # todo: test me
             self.cache_errors = extensions_api_settings.DEFAULT_CACHE_ERRORS
         else:
             self.cache_errors = cache_errors
