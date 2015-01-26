@@ -154,6 +154,8 @@ routers. `ExtendedRouterMixin` has all set of drf-extensions features. For examp
 
 #### Collection level controllers
 
+*Pending deprecation due to [extra link and actions](http://www.django-rest-framework.org/api-guide/routers/#extra-link-and-actions).*
+
 Out of the box Django Rest Framework has controller functionality for detail views. For example:
 
     from django.contrib.auth.models import User
@@ -263,6 +265,8 @@ You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` fo
 controllers [into your routers](#pluggable-router-mixins).
 
 #### Controller endpoint name
+
+*Pending deprecation due to [extra link and actions](http://www.django-rest-framework.org/api-guide/routers/#extra-link-and-actions).*
 
 By default function name will be used as name for url routing:
 
@@ -2142,6 +2146,8 @@ You can read about versioning, deprecation policy and upgrading from
 * Added [cache_errors](#caching-errors) attribute for switching caching for error responses
 * Added ability to specify usage of all items for [RequestMetaKeyBit](#requestmetakeybit), [HeadersKeyBit](#headerskeybit)
 and [QueryParamsKeyBit](#queryparamskeybit) providing `params='*'`
+* [Collection level controllers](#collection-level-controllers) is in pending deprecation
+* [Controller endpoint name](#controller-endpoint-name) is in pending deprecation
 
 #### 0.2.6
 
