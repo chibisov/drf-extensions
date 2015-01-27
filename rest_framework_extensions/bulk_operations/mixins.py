@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.utils.text import force_text
+from rest_framework_extensions.compat import force_text
 
 from rest_framework import status
 from rest_framework.response import Response
