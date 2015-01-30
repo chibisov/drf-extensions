@@ -4,6 +4,12 @@ from django.db.models.query import EmptyQuerySet
 from rest_framework_extensions.compat import force_text
 
 
+class AllArgsMixin(object):
+
+    def __init__(self, params='*'):
+        super(AllArgsMixin, self).__init__(params)
+
+
 class KeyBitBase(object):
     def __init__(self, params=None):
         self.params = params
@@ -144,7 +150,7 @@ class RequestMetaKeyBit(KeyBitDictBase):
         return request.META
 
 
-class QueryParamsKeyBit(KeyBitDictBase):
+class QueryParamsKeyBit(AllArgsMixin, KeyBitDictBase):
     """
     Return example:
         {'part': 'Londo', 'callback': 'jquery_callback'}
@@ -194,7 +200,8 @@ class RetrieveSqlQueryKeyBit(KeyBitBase):
             return None
 
 
-class ArgsKeyBit(KeyBitBase):
+class ArgsKeyBit(AllArgsMixin, KeyBitBase):
+
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         if params == '*':
             return args
@@ -204,6 +211,7 @@ class ArgsKeyBit(KeyBitBase):
             return []
 
 
-class KwargsKeyBit(KeyBitDictBase):
+class KwargsKeyBit(AllArgsMixin, KeyBitDictBase):
+
     def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
         return kwargs

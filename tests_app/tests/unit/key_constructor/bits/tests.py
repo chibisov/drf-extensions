@@ -328,6 +328,9 @@ class QueryParamsKeyBitTest(TestCase):
         }
         self.assertEqual(QueryParamsKeyBit().get_data(**self.kwargs), expected)
 
+    def test_default_params_is_all_args(self):
+        self.assertEqual(QueryParamsKeyBit().params, '*')
+
 
 class PaginationKeyBitTest(TestCase):
     def setUp(self):
@@ -465,6 +468,9 @@ class ArgsKeyBitTest(TestCase):
         expected_args = [self.test_args[i] for i in test_arg_idx]
         self.assertEqual(ArgsKeyBit().get_data(**self.kwargs), expected_args)
 
+    def test_default_params_is_all_args(self):
+        self.assertEqual(ArgsKeyBit().params, '*')
+
 
 class KwargsKeyBitTest(TestCase):
     def setUp(self):
@@ -493,3 +499,6 @@ class KwargsKeyBitTest(TestCase):
 
     def test_resulting_dict_no_kwargs(self):
         self.assertEqual(KwargsKeyBit().get_data(**self.kwargs), {})
+
+    def test_default_params_is_all_args(self):
+        self.assertEqual(KwargsKeyBit().params, '*')
