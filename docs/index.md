@@ -877,7 +877,7 @@ settings:
 
 #### Caching errors
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
 By default every response is cached, even failed. For example:
 
@@ -1355,7 +1355,7 @@ Usage example:
 
 You can use `*` for retrieving all meta data to key bit:
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
     class MyKeyConstructor(KeyConstructor):
         all_request_meta = bits.RequestMetaKeyBit('*')
@@ -1374,14 +1374,14 @@ The difference is that `HeadersKeyBit` allows to use normal header names:
 
 You can use `*` for retrieving all headers to key bit:
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
     class MyKeyConstructor(KeyConstructor):
         all_headers = bits.HeadersKeyBit('*')
 
 #### ArgsKeyBit
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
 Retrieves data from the view's positional arguments.
 A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*`:
@@ -1394,7 +1394,7 @@ A list of position indices can be passed to indicate which arguments to use. For
 
 #### KwargsKeyBit
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
 Retrieves data from the views's keyword arguments.
 A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*`:
@@ -1417,7 +1417,7 @@ Usage example:
 
 You can use `*` for retrieving all query params to key bit:
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.2.7*
 
     class MyKeyConstructor(KeyConstructor):
         all_query_params = bits.QueryParamsKeyBit('*')
@@ -2161,9 +2161,9 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.2.7
 
-* Started process of refactoring for [DRF 3.x compatibility](https://github.com/chibisov/drf-extensions/issues/39)
+* [DRF 3.x compatibility](https://github.com/chibisov/drf-extensions/issues/39)
 * [DetailSerializerMixin](#detailserializermixin) is now [compatible with DRF 3.0](https://github.com/chibisov/drf-extensions/issues/46)
 * Added [ArgsKeyBit](#argskeybit)
 * Added [KwargsKeyBit](#kwargskeybit)
