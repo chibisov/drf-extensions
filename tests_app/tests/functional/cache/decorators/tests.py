@@ -2,7 +2,7 @@
 import datetime
 
 from django.test import TestCase
-from django.utils.encoding import force_text
+from rest_framework_extensions.compat import force_text
 
 from .urls import urlpatterns
 
