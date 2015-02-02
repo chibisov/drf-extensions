@@ -3,7 +3,6 @@
 DRF-extensions is a collection of custom extensions for [Django REST Framework](https://github.com/tomchristie/django-rest-framework).
 Source repository is available at [https://github.com/chibisov/drf-extensions](https://github.com/chibisov/drf-extensions).
 
-
 ### Viewsets
 
 Extensions for [viewsets](http://django-rest-framework.org/api-guide/viewsets.html).
@@ -156,6 +155,8 @@ routers. `ExtendedRouterMixin` has all set of drf-extensions features. For examp
 
 *Pending deprecation due to [extra link and actions](http://www.django-rest-framework.org/api-guide/routers/#extra-link-and-actions).*
 
+*Compatible only with Django Rest Framework < 2.4*
+
 Out of the box Django Rest Framework has controller functionality for detail views. For example:
 
     from django.contrib.auth.models import User
@@ -262,11 +263,21 @@ Or retrieve data from link collection level controller:
     ['a', 'b', 'c']
 
 You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` for adding collection level
-controllers [into your routers](#pluggable-router-mixins).
+controllers into your routers.
+
+    from rest_framework_extensions.routers import (
+        ExtendedActionLinkRouterMixin
+    )
+    from rest_framework.routers import SimpleRouter
+
+    class CustomSimpleRouter(ExtendedActionLinkRouterMixin, SimpleRouter):
+        pass
 
 #### Controller endpoint name
 
 *Pending deprecation due to [extra link and actions](http://www.django-rest-framework.org/api-guide/routers/#extra-link-and-actions).*
+
+*Compatible only with Django Rest Framework < 2.4*
 
 By default function name will be used as name for url routing:
 
@@ -313,7 +324,15 @@ Change password request:
     ['password changed']
 
 You can use `rest_framework_extensions.routers.ExtendedActionLinkRouterMixin` for adding controller endpoint name feature
-[into your routers](#pluggable-router-mixins).
+into your routers.
+
+    from rest_framework_extensions.routers import (
+        ExtendedActionLinkRouterMixin
+    )
+    from rest_framework.routers import SimpleRouter
+
+    class CustomSimpleRouter(ExtendedActionLinkRouterMixin, SimpleRouter):
+        pass
 
 ### Nested routes
 
@@ -437,8 +456,15 @@ Resolve name is **permissions-user-list**
 * `/permissions/<parent_lookup_groups__permissions>/user/<pk>/` - permission user detail. If user doesn't have
 permission then resource will be not found. Resolve name is **permissions-user-detail**
 
-You can use `rest_framework_extensions.routers.NestedRouterMixin` for adding nesting feature
-[into your routers](#pluggable-router-mixins).
+#### Nested router mixin
+
+You can use `rest_framework_extensions.routers.NestedRouterMixin` for adding nesting feature into your routers:
+
+    from rest_framework_extensions.routers import NestedRouterMixin
+    from rest_framework.routers import SimpleRouter
+
+    class SimpleRouterWithNesting(NestedRouterMixin, SimpleRouter):
+        pass
 
 #### Usage with generic relations
 
@@ -2129,7 +2155,6 @@ If you need to access the values of DRF-exteinsions API settings in your project
     from rest_framework_extensions.settings import extensions_api_settings
 
     print extensions_api_settings.DEFAULT_CACHE_RESPONSE_TIMEOUT
-
 
 ### Release notes
 
