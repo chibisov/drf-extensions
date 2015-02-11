@@ -196,14 +196,14 @@ User groups request:
     # Request
     GET /users/1/groups/ HTTP/1.1
     Accept: application/json
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
 
     ['user groups']
 
-But what if you want to add custom controller to collection level? 
+But what if you want to add custom controller to collection level?
 
 DRF-extensions `action` and `link` decorators will help you with it. These decorators behaves exactly as default, but can receive additional parameter `is_for_list`:
 
@@ -240,9 +240,9 @@ Now you can post to collection level controller:
     POST /users/confirm_email/ HTTP/1.1
     Accept: application/json
     Content-Type: application/json
-    
+
     {"code": 123456}
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
@@ -254,7 +254,7 @@ Or retrieve data from link collection level controller:
     # Request
     GET /users/surname_first_letters/ HTTP/1.1
     Accept: application/json
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
@@ -803,7 +803,7 @@ with [DefaultKeyConstructor](#default-key-constructor).
 
 You can change cache key by providing `key_func` argument, which must be callable:
 
-    def calculate_cache_key(view_instance, view_method, 
+    def calculate_cache_key(view_instance, view_method,
                             request, args, kwargs):
         return '.'.join([
             len(args),
@@ -964,7 +964,7 @@ By the moment all goes fine - response returned and cached. Let's make the same 
 
 What is that? Oh, we forgot about format negotiations. We can add format to key bits:
 
-    def calculate_cache_key(view_instance, view_method, 
+    def calculate_cache_key(view_instance, view_method,
                             request, args, kwargs):
         return '.'.join([
             len(args),
@@ -1472,7 +1472,7 @@ You can define custom function for Etag value calculation with `etag_func` argum
 
     from rest_framework_extensions.etag.decorators import etag
 
-    def calculate_etag(view_instance, view_method, 
+    def calculate_etag(view_instance, view_method,
                        request, args, kwargs):
         return '.'.join([
             len(args),
