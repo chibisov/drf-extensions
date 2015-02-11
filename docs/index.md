@@ -1358,10 +1358,13 @@ You can use `*` for retrieving all headers to key bit:
 *New in DRF-extensions development version*
 
 Retrieves data from the view's positional arguments.
-A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*`:
+A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*` which is also the default value:
 
     class MyKeyConstructor(KeyConstructor):
-        args = bits.ArgsKeyBit('*')  # will use all positional arguments
+        args = bits.ArgsKeyBit()  # will use all positional arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit('*')  # same as above
 
     class MyKeyConstructor(KeyConstructor):
         args = bits.ArgsKeyBit([0, 2])
@@ -1371,10 +1374,13 @@ A list of position indices can be passed to indicate which arguments to use. For
 *New in DRF-extensions development version*
 
 Retrieves data from the views's keyword arguments.
-A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*`:
+A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*` which is also the default value:
 
     class MyKeyConstructor(KeyConstructor):
-        kwargs = bits.KwargsKeyBit('*')  # will use all keyword arguments
+        kwargs = bits.KwargsKeyBit()  # will use all keyword arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit('*')  # same as above
 
     class MyKeyConstructor(KeyConstructor):
         kwargs = bits.KwargsKeyBit(['user_id', 'city'])
@@ -1389,12 +1395,15 @@ Usage example:
             ['part', 'callback']
         )
 
-You can use `*` for retrieving all query params to key bit:
+You can use `*` for retrieving all query params to key bit which is also the default value:
 
 *New in DRF-extensions development version*
 
     class MyKeyConstructor(KeyConstructor):
-        all_query_params = bits.QueryParamsKeyBit('*')
+        all_query_params = bits.QueryParamsKeyBit('*')  # all qs parameters
+
+    class MyKeyConstructor(KeyConstructor):
+        all_query_params = bits.QueryParamsKeyBit()  # same as above
 
 #### PaginationKeyBit
 
