@@ -25,6 +25,8 @@ def get_rest_framework_features():
         'save_related_serializers': get_rest_framework_version() >= (2, 3, 8),  # todo: test me
         'write_only_fields': get_rest_framework_version() >= (2, 3, 11),  # todo: test me
         'has_action_and_link_decorators': get_rest_framework_version() < (3, 0),  # todo: test me
+        'has_detail_and_list_route_decorators': get_rest_framework_version() >= (2, 4, 0),
+        'has_url_path_decorator_kwarg': get_rest_framework_version() >= (3, 0, 3),
         'has_auto_writable_nested_serialization': get_rest_framework_version() < (3, 0),  # todo: test me
         'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),  # todo: test me
         'allows_to_send_custom_kwargs_for_saving_object_in_serializers': get_rest_framework_version() <= (3, 0),  # todo: test me
