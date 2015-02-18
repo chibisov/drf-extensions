@@ -8,7 +8,8 @@ from rest_framework.response import Response
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 from rest_framework_extensions.decorators import link, action
-from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
+from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed, get_lookup_allowed_symbols
+from tests_app.testutils import get_url_pattern_by_regex_pattern
 
 
 class ExtendedDefaultRouterTest(TestCase):
@@ -161,8 +162,8 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
 
-    @unittest.skipIf(
-        not get_rest_framework_features()['has_action_and_link_decorators'],
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_action_and_link_decorators'],
         "Current DRF version has removed 'action' and 'link' decorators"
     )
     def test_with_default_controllers(self):
@@ -193,3 +194,96 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(link_default_route.name, u'{basename}-link-default')
         self.assertEqual(action_route.name, u'{basename}-action')
         self.assertEqual(action_default_route.name, u'{basename}-action-default')
+
+
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_detail_and_list_route_decorators'],
+        "Current DRF version does not support list_route decorator"
+    )
+    def test_list_route_decorator(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @decorators.list_route()
+            def list_controller(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        list_controller_route = self.get_dynamic_route_by_def_name('list_controller', routes)
+
+        msg = '@list_route should map methods to def name'
+        self.assertEqual(list_controller_route.mapping, {'get': 'list_controller'}, msg)
+
+        msg = '@list_route should not include pk lookup'
+        self.assertEqual(list_controller_route.url, add_trailing_slash_if_needed(u'^{prefix}/list_controller/$'), msg)
+
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_detail_and_list_route_decorators'],
+        "Current DRF version does not support detail_route decorator"
+    )
+    def test_detail_route_decorator(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @decorators.detail_route()
+            def detail_controller(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        detail_controller_route = self.get_dynamic_route_by_def_name('detail_controller', routes)
+
+        msg = '@detail_route should map methods to def name'
+        self.assertEqual(detail_controller_route.mapping, {'get': 'detail_controller'}, msg)
+
+        msg = '@detail_route should include pk lookup'
+        self.assertEqual(
+            detail_controller_route.url,
+            add_trailing_slash_if_needed(u'^{prefix}/{lookup}/detail_controller/$'),
+            msg
+        )
+
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_url_path_decorator_kwarg'],
+        "Current DRF Version does not support url_path kwargs"
+    )
+    def test_detail_route_with_url_path_kwarg_in_decorator(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @decorators.detail_route(url_path='detail-controller-with-dash')
+            def detail_controller(self, request, *args, **kwargs):
+                pass
+
+        router = ExtendedDefaultRouter()
+        router.register(r'router-viewset', BasicViewSet, base_name='router-test-model')
+        urls = router.urls
+
+        lookup_allowed_symbols = get_lookup_allowed_symbols()
+
+        for url in urls:
+            print(url)
+
+        for exp in ['^router-viewset/$',
+                    '^router-viewset/{0}/$'.format(lookup_allowed_symbols),
+                    '^router-viewset/{0}/detail-controller-with-dash/$'.format(lookup_allowed_symbols)]:
+            msg = 'Should find url pattern with regexp %s' % exp
+            self.assertIsNotNone(get_url_pattern_by_regex_pattern(urls, exp), msg=msg)
+
+    @unittest.skipUnless(
+        get_rest_framework_features()['has_url_path_decorator_kwarg'],
+        "Current DRF Version does not support url_path kwargs"
+    )
+    def test_list_route_with_url_path_kwarg_in_decorator(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @decorators.list_route(url_path='detail-controller-with-dash')
+            def detail_controller(self, request, *args, **kwargs):
+                pass
+
+        router = ExtendedDefaultRouter()
+        router.register(r'router-viewset', BasicViewSet, base_name='router-test-model')
+        urls = router.urls
+
+        lookup_allowed_symbols = get_lookup_allowed_symbols()
+
+        for url in urls:
+            print(url)
+
+        for exp in ['^router-viewset/$',
+                    '^router-viewset/{0}/$'.format(lookup_allowed_symbols),
+                    '^router-viewset/list-controller-with-dash/$']:
+            msg = 'Should find url pattern with regexp %s' % exp
+            self.assertIsNotNone(get_url_pattern_by_regex_pattern(urls, exp), msg=msg)
