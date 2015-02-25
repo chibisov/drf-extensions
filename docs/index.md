@@ -197,14 +197,14 @@ User groups request:
     # Request
     GET /users/1/groups/ HTTP/1.1
     Accept: application/json
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
 
     ['user groups']
 
-But what if you want to add custom controller to collection level? 
+But what if you want to add custom controller to collection level?
 
 DRF-extensions `action` and `link` decorators will help you with it. These decorators behaves exactly as default, but can receive additional parameter `is_for_list`:
 
@@ -241,9 +241,9 @@ Now you can post to collection level controller:
     POST /users/confirm_email/ HTTP/1.1
     Accept: application/json
     Content-Type: application/json
-    
+
     {"code": 123456}
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
@@ -255,7 +255,7 @@ Or retrieve data from link collection level controller:
     # Request
     GET /users/surname_first_letters/ HTTP/1.1
     Accept: application/json
-    
+
     # Response
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
@@ -829,7 +829,7 @@ with [DefaultKeyConstructor](#default-key-constructor).
 
 You can change cache key by providing `key_func` argument, which must be callable:
 
-    def calculate_cache_key(view_instance, view_method, 
+    def calculate_cache_key(view_instance, view_method,
                             request, args, kwargs):
         return '.'.join([
             len(args),
@@ -990,7 +990,7 @@ By the moment all goes fine - response returned and cached. Let's make the same 
 
 What is that? Oh, we forgot about format negotiations. We can add format to key bits:
 
-    def calculate_cache_key(view_instance, view_method, 
+    def calculate_cache_key(view_instance, view_method,
                             request, args, kwargs):
         return '.'.join([
             len(args),
@@ -1384,10 +1384,13 @@ You can use `*` for retrieving all headers to key bit:
 *New in DRF-extensions 0.2.7*
 
 Retrieves data from the view's positional arguments.
-A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*`:
+A list of position indices can be passed to indicate which arguments to use. For retrieving all arguments you can use `*` which is also the default value:
 
     class MyKeyConstructor(KeyConstructor):
-        args = bits.ArgsKeyBit('*')  # will use all positional arguments
+        args = bits.ArgsKeyBit()  # will use all positional arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        args = bits.ArgsKeyBit('*')  # same as above
 
     class MyKeyConstructor(KeyConstructor):
         args = bits.ArgsKeyBit([0, 2])
@@ -1397,10 +1400,13 @@ A list of position indices can be passed to indicate which arguments to use. For
 *New in DRF-extensions 0.2.7*
 
 Retrieves data from the views's keyword arguments.
-A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*`:
+A list of keyword argument names can be passed to indicate which kwargs to use. For retrieving all kwargs you can use `*` which is also the default value:
 
     class MyKeyConstructor(KeyConstructor):
-        kwargs = bits.KwargsKeyBit('*')  # will use all keyword arguments
+        kwargs = bits.KwargsKeyBit()  # will use all keyword arguments
+
+    class MyKeyConstructor(KeyConstructor):
+        kwargs = bits.KwargsKeyBit('*')  # same as above
 
     class MyKeyConstructor(KeyConstructor):
         kwargs = bits.KwargsKeyBit(['user_id', 'city'])
@@ -1415,12 +1421,15 @@ Usage example:
             ['part', 'callback']
         )
 
-You can use `*` for retrieving all query params to key bit:
+You can use `*` for retrieving all query params to key bit which is also the default value:
 
 *New in DRF-extensions 0.2.7*
 
     class MyKeyConstructor(KeyConstructor):
-        all_query_params = bits.QueryParamsKeyBit('*')
+        all_query_params = bits.QueryParamsKeyBit('*')  # all qs parameters
+
+    class MyKeyConstructor(KeyConstructor):
+        all_query_params = bits.QueryParamsKeyBit()  # same as above
 
 #### PaginationKeyBit
 
@@ -1498,7 +1507,7 @@ You can define custom function for Etag value calculation with `etag_func` argum
 
     from rest_framework_extensions.etag.decorators import etag
 
-    def calculate_etag(view_instance, view_method, 
+    def calculate_etag(view_instance, view_method,
                        request, args, kwargs):
         return '.'.join([
             len(args),
@@ -2161,7 +2170,13 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### Development version
+
+* All items are now by default in [ArgsKeyBit](#argskeybit), [KwargsKeyBit](#kwargskeybit) and [QueryParamsKeyBit](#queryparamskeybit)
+
 #### 0.2.7
+
+*Feb 2, 2015*
 
 * [DRF 3.x compatibility](https://github.com/chibisov/drf-extensions/issues/39)
 * [DetailSerializerMixin](#detailserializermixin) is now [compatible with DRF 3.0](https://github.com/chibisov/drf-extensions/issues/46)
