@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
+from django.db.models.sql.datastructures import EmptyResultSet
+
 from rest_framework_extensions.compat import force_text
 
 
@@ -176,26 +178,31 @@ class PaginationKeyBit(QueryParamsKeyBit):
         return super(PaginationKeyBit, self).get_data(**kwargs)
 
 
-class ListSqlQueryKeyBit(KeyBitBase):
-    def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        queryset = view_instance.filter_queryset(view_instance.get_queryset())
+class SqlQueryKeyBitBase(KeyBitBase):
+    def _get_queryset_query_string(self, queryset):
         if isinstance(queryset, EmptyQuerySet):
             return None
         else:
-            return force_text(queryset.query.__str__())
+            try:
+                return force_text(queryset.query.__str__())
+            except EmptyResultSet:
+                return None
 
 
-class RetrieveSqlQueryKeyBit(KeyBitBase):
+class ListSqlQueryKeyBit(SqlQueryKeyBitBase):
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        queryset = view_instance.filter_queryset(view_instance.get_queryset())
+        return self._get_queryset_query_string(queryset)
+
+
+class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
         try:
             queryset = view_instance.filter_queryset(view_instance.get_queryset()).filter(
                 **{view_instance.lookup_field: lookup_value}
             )
-            if isinstance(queryset, EmptyQuerySet):
-                return None
-            else:
-                return force_text(queryset.query.__str__())
+            return self._get_queryset_query_string(queryset)
         except ValueError:
             return None
 
