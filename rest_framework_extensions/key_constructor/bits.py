@@ -202,9 +202,10 @@ class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
             queryset = view_instance.filter_queryset(view_instance.get_queryset()).filter(
                 **{view_instance.lookup_field: lookup_value}
             )
-            return self._get_queryset_query_string(queryset)
         except ValueError:
             return None
+        else:
+            return self._get_queryset_query_string(queryset)
 
 
 class ArgsKeyBit(AllArgsMixin, KeyBitBase):
