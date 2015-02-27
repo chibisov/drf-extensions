@@ -153,6 +153,11 @@ class NestedRegistryItem(object):
         self.parent_item = parent_item
 
     def register(self, prefix, viewset, base_name, parents_query_lookups):
+        """
+        Registers a nested route, returns the child `NestedRegistryItem`.
+        Only same level nested routes are registered here, deeper level nested
+        routes are registered by the corresponding level nested registry item.
+        """
         self.router._register(
             prefix=self.get_prefix(current_prefix=prefix, parents_query_lookups=parents_query_lookups),
             viewset=viewset,
@@ -173,14 +178,12 @@ class NestedRegistryItem(object):
     def get_parent_prefix(self, parents_query_lookups):
         prefix = '/'
         current_item = self
-        i = len(parents_query_lookups) - 1
-        while current_item:
+        for parents_query_lookup in reversed(parents_query_lookups):
             prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>[^/.]+)/{prefix}'.format(
-                parent_prefix=current_item.parent_prefix,
-                parent_pk_kwarg_name=compose_parent_pk_kwarg_name(parents_query_lookups[i]),
-                prefix=prefix
+                    parent_prefix=current_item.parent_prefix,
+                    parent_pk_kwarg_name=compose_parent_pk_kwarg_name(parents_query_lookup),
+                    prefix=prefix
             )
-            i -= 1
             current_item = current_item.parent_item
         return prefix.strip('/')
 
@@ -190,6 +193,11 @@ class NestedRouterMixin(object):
         return super(NestedRouterMixin, self).register(*args, **kwargs)
 
     def register(self, *args, **kwargs):
+        """
+        Registers a root route and returns the root `NestedRegistryItem`.
+        Only root routes are registered here, nested routes are
+        registered by the corresponding nested registry item.
+        """
         self._register(*args, **kwargs)
         return NestedRegistryItem(
             router=self,
