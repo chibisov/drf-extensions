@@ -404,6 +404,11 @@ class ListSqlQueryKeyBitTest(TestCase):
         response = ListSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, None)
 
+    def test_should_return_none_if_empty_result_set_raised(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(pk__in=[])
+        response = ListSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
 
 class RetrieveSqlQueryKeyBitTest(TestCase):
     def setUp(self):
@@ -440,6 +445,11 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
 
     def test_should_return_none_if_empty_queryset(self):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
+        response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+    def test_should_return_none_if_empty_result_set_raised(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(pk__in=[])
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, None)
 
