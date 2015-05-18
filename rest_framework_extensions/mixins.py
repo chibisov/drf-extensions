@@ -4,6 +4,7 @@ from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin, ListUpdateModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
+from django.http import Http404
 
 
 class DetailSerializerMixin(object):
@@ -63,7 +64,10 @@ class NestedViewSetMixin(object):
     def filter_queryset_by_parents_lookups(self, queryset):
         parents_query_dict = self.get_parents_query_dict()
         if parents_query_dict:
-            return queryset.filter(**parents_query_dict)
+            try:
+                return queryset.filter(**parents_query_dict)
+            except ValueError:
+                raise Http404
         else:
             return queryset
 
