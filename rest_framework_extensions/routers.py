@@ -147,10 +147,11 @@ class ExtendedActionLinkRouterMixin(object):
 
 
 class NestedRegistryItem(object):
-    def __init__(self, router, parent_prefix, parent_item=None):
+    def __init__(self, router, parent_prefix, parent_item=None, parent_viewset=None):
         self.router = router
         self.parent_prefix = parent_prefix
         self.parent_item = parent_item
+        self.parent_viewset = parent_viewset
 
     def register(self, prefix, viewset, base_name, parents_query_lookups):
         self.router._register(
@@ -161,7 +162,8 @@ class NestedRegistryItem(object):
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,
-            parent_item=self
+            parent_item=self,
+            parent_viewset=viewset
         )
 
     def get_prefix(self, current_prefix, parents_query_lookups):
@@ -174,10 +176,12 @@ class NestedRegistryItem(object):
         prefix = '/'
         current_item = self
         i = len(parents_query_lookups) - 1
+        parent_lookup_value_regex = getattr(self.parent_viewset, 'lookup_value_regex', '[^/.]+')
         while current_item:
-            prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>[^/.]+)/{prefix}'.format(
+            prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>{parent_lookup_value_regex})/{prefix}'.format(
                 parent_prefix=current_item.parent_prefix,
                 parent_pk_kwarg_name=compose_parent_pk_kwarg_name(parents_query_lookups[i]),
+                parent_lookup_value_regex=parent_lookup_value_regex,
                 prefix=prefix
             )
             i -= 1
@@ -193,7 +197,8 @@ class NestedRouterMixin(object):
         self._register(*args, **kwargs)
         return NestedRegistryItem(
             router=self,
-            parent_prefix=self.registry[-1][0]
+            parent_prefix=self.registry[-1][0],
+            parent_viewset = self.registry[-1][1]
         )
 
     def get_api_root_view(self):
