@@ -147,10 +147,11 @@ class ExtendedActionLinkRouterMixin(object):
 
 
 class NestedRegistryItem(object):
-    def __init__(self, router, parent_prefix, parent_item=None):
+    def __init__(self, router, parent_prefix, parent_item=None, parent_viewset=None):
         self.router = router
         self.parent_prefix = parent_prefix
         self.parent_item = parent_item
+        self.parent_viewset = parent_viewset
 
     def register(self, prefix, viewset, base_name, parents_query_lookups):
         self.router._register(
@@ -161,7 +162,8 @@ class NestedRegistryItem(object):
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,
-            parent_item=self
+            parent_item=self,
+            parent_viewset=viewset
         )
 
     def get_prefix(self, current_prefix, parents_query_lookups):
@@ -193,7 +195,8 @@ class NestedRouterMixin(object):
         self._register(*args, **kwargs)
         return NestedRegistryItem(
             router=self,
-            parent_prefix=self.registry[-1][0]
+            parent_prefix=self.registry[-1][0],
+            parent_viewset = self.registry[-1][1]
         )
 
     def get_api_root_view(self):
