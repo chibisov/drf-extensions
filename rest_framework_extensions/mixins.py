@@ -2,7 +2,7 @@
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.utils import get_rest_framework_features
-from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin, ListUpdateModelMixin
+from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 
 
@@ -30,7 +30,7 @@ class DetailSerializerMixin(object):
     def _is_request_to_detail_endpoint(self):
         if hasattr(self, 'lookup_url_kwarg'):
             lookup = self.lookup_url_kwarg or self.lookup_field
-        else: # DRF 2 compatibility
+        else:  # DRF 2 compatibility
             lookup = self.pk_url_kwarg or self.slug_url_kwarg
         return lookup and lookup in self.kwargs
 
