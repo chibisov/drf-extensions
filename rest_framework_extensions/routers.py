@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from distutils.version import StrictVersion
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
 
+import rest_framework
 from rest_framework.routers import (
     DefaultRouter,
     SimpleRouter,
@@ -204,7 +206,10 @@ class NestedRouterMixin(object):
     def get_api_root_view(self):
         """
         Return a view to use as the API root.
+        Can be deleted once support of DRF < 2.4.3 is dropped.
         """
+        if StrictVersion(rest_framework.VERSION) >= StrictVersion('2.4.3'):
+            return super(NestedRouterMixin, self).get_api_root_view()
         api_root_dict = {}
         list_name = self.routes[0].name
         for prefix, viewset, basename in self.registry:
