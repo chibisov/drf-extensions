@@ -137,10 +137,11 @@ class ExtendedActionLinkRouterMixin(object):
         for httpmethods, methodname, endpoint, is_for_list in dynamic_routes:
             initkwargs = route.initkwargs.copy()
             initkwargs.update(getattr(viewset, methodname).kwargs)
+            url_path = initkwargs.pop('url_path', endpoint)
             dynamic_routes_instances.append(Route(
-                url=replace_methodname(route.url, endpoint),
+                url=replace_methodname(route.url, url_path),
                 mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, endpoint),
+                name=replace_methodname(route.name, url_path),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
