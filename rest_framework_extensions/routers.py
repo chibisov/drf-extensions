@@ -109,7 +109,7 @@ class ExtendedActionLinkRouterMixin(object):
             httpmethods = getattr(attr, 'bind_to_methods', None)
             if httpmethods:
                 endpoint = getattr(attr, 'endpoint', methodname)
-                is_for_list = getattr(attr, 'is_for_list', False)
+                is_for_list = getattr(attr, 'is_for_list', not getattr(attr, 'detail', True))
                 if endpoint in known_actions:
                     raise ImproperlyConfigured('Cannot use @action or @link decorator on '
                                                'method "%s" as %s is an existing route'
