@@ -68,7 +68,7 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
         is_valid, errors = self.is_valid_bulk_operation()
         if is_valid:
             queryset = self.filter_queryset(self.get_queryset())
-            update_bulk_dict = self.get_update_bulk_dict(serializer=self.get_serializer_class()(), data=request.DATA)
+            update_bulk_dict = self.get_update_bulk_dict(serializer=self.get_serializer_class()(), data=request.data)
             self.pre_save_bulk(queryset, update_bulk_dict)  # todo: test and document me
             try:
                 queryset.update(**update_bulk_dict)

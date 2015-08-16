@@ -6,7 +6,7 @@ from .models import RouterTestModel
 
 
 class RouterViewSet(viewsets.ModelViewSet):
-    model = RouterTestModel
+    queryset = RouterTestModel.objects.all()
 
     @action()
     def detail_controller(self):

@@ -36,14 +36,14 @@ class DetailSerializerMixin(object):
 
 
 class PaginateByMaxMixin(object):
-    def get_paginate_by(self, *args, **kwargs):
+
+    def get_page_size(self, request):
         if (get_rest_framework_features()['max_paginate_by'] and
-            self.paginate_by_param and
-            self.max_paginate_by and
-            self.request.QUERY_PARAMS.get(self.paginate_by_param) == 'max'):
-            return self.max_paginate_by
-        else:
-            return super(PaginateByMaxMixin, self).get_paginate_by(*args, **kwargs)
+            self.page_size_query_param and
+            self.max_page_size and
+            request.query_params.get(self.page_size_query_param) == 'max'):
+            return self.max_page_size
+        return super(PaginateByMaxMixin, self).get_page_size(request)
 
 
 class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.utils import unittest
+import unittest
 
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings

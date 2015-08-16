@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
+import unittest
 
 from django.test import TestCase
-from django.utils import unittest
 
 from rest_framework_extensions.utils import get_rest_framework_features
 
@@ -30,15 +30,15 @@ class PaginateByMaxMixinTest(TestCase):
         self.assertEqual(len(resp.data['results']), 10)
 
     def test_custom_page_size__less_then_maximum(self):
-        resp = self.client.get('/comments/?page_size=15')
+        resp = self.client.get('/comments/?limit=15')
         self.assertEqual(len(resp.data['results']), 15)
 
     def test_custom_page_size__more_then_maximum(self):
-        resp = self.client.get('/comments/?page_size=25')
+        resp = self.client.get('/comments/?limit=25')
         self.assertEqual(len(resp.data['results']), 20)
 
     def test_custom_page_size_with_max_value(self):
-        resp = self.client.get('/comments/?page_size=max')
+        resp = self.client.get('/comments/?limit=max')
         self.assertEqual(len(resp.data['results']), 20)
 
     def test_custom_page_size_with_max_value__for_view_without__paginate_by_param__attribute(self):
@@ -70,13 +70,13 @@ class PaginateByMaxMixinTestBehavior__should_not_affect_view_if_DRF_does_not_sup
         self.assertEqual(len(resp.data['results']), 10)
 
     def test_custom_page_size__less_then_maximum(self):
-        resp = self.client.get('/comments/?page_size=15')
+        resp = self.client.get('/comments/?limit=15')
         self.assertEqual(len(resp.data['results']), 15)
 
     def test_custom_page_size__more_then_maximum(self):
-        resp = self.client.get('/comments/?page_size=25')
+        resp = self.client.get('/comments/?limit=25')
         self.assertEqual(len(resp.data['results']), 25)
 
     def test_custom_page_size_with_max_value(self):
-        resp = self.client.get('/comments/?page_size=max')
+        resp = self.client.get('/comments/?limit=max')
         self.assertEqual(len(resp.data['results']), 10)

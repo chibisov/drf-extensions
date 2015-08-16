@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
 from rest_framework import viewsets
-from rest_framework_extensions.mixins import PaginateByMaxMixin
 
+from .pagination import WithMaxPagination, FixedPagination, FlexiblePagination
 from .models import CommentForPaginateByMaxMixin
 from .serializers import CommentSerializer
 
 
-class CommentViewSet(PaginateByMaxMixin, viewsets.ReadOnlyModelViewSet):
-    paginate_by_param = 'page_size'
-    paginate_by = 10
-    max_paginate_by = 20
+class CommentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CommentSerializer
+    pagination_class = WithMaxPagination
     queryset = CommentForPaginateByMaxMixin.objects.all()
 
 
-class CommentWithoutPaginateByParamViewSet(PaginateByMaxMixin, viewsets.ReadOnlyModelViewSet):
-    paginate_by = 10
-    max_paginate_by = 20
+class CommentWithoutPaginateByParamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CommentSerializer
+    pagination_class = FixedPagination
     queryset = CommentForPaginateByMaxMixin.objects.all()
 
 
-class CommentWithoutMaxPaginateByAttributeViewSet(PaginateByMaxMixin, viewsets.ReadOnlyModelViewSet):
-    paginate_by_param = 'page_size'
-    paginate_by = 10
+class CommentWithoutMaxPaginateByAttributeViewSet(viewsets.ReadOnlyModelViewSet):
+    pagination_class = FlexiblePagination
     serializer_class = CommentSerializer
     queryset = CommentForPaginateByMaxMixin.objects.all()
