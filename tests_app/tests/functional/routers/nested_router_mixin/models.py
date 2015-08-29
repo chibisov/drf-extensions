@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 
 class NestedRouterMixinUserModel(models.Model):
+    email = models.EmailField(blank=True, null=True)
     name = models.CharField(max_length=10)
     groups = models.ManyToManyField('NestedRouterMixinGroupModel', related_name='user_groups')
 

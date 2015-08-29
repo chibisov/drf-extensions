@@ -198,7 +198,7 @@ class NestedRouterMixin(object):
         return NestedRegistryItem(
             router=self,
             parent_prefix=self.registry[-1][0],
-            parent_viewset = self.registry[-1][1]
+            parent_viewset=self.registry[-1][1]
         )
 
     def get_api_root_view(self):
