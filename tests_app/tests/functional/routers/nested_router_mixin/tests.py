@@ -15,6 +15,7 @@ from .models import (
 )
 from .views import (
     UserViewSet,
+    UserViewSetWithEmailLookup,
     GroupViewSet,
     PermissionViewSet,
     TaskViewSet,
@@ -441,6 +442,90 @@ class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
                 'text': self.comments['for_book_two'].text,
             }
         ])
+
+
+class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
+    router = ExtendedSimpleRouter()
+    # main routes
+    (
+        router.register(r'users', UserViewSetWithEmailLookup)
+              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups__email'])
+    )
+
+    urls = router.urls
+
+    def setUp(self):
+        self.users = {
+            'vova': UserModel.objects.create(id=1, name='vova', email='vova@example.com'),
+            'gena': UserModel.objects.create(id=2, name='gena', email='gena@example.com'),
+        }
+        self.groups = {
+            'users': GroupModel.objects.create(id=3, name='users'),
+            'admins': GroupModel.objects.create(id=4, name='admins'),
+            'super_admins': GroupModel.objects.create(id=5, name='super_admins'),
+        }
+
+        # add groups to users
+        self.users['vova'].groups = [
+            self.groups['users']
+        ]
+
+        self.users['gena'].groups = [
+            self.groups['admins'],
+            self.groups['super_admins'],
+        ]
+
+    def test_users_detail(self):
+        url = '/users/{0}/'.format(self.users['gena'].email)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        expected = {
+            'id': self.users['gena'].id,
+            'name': self.users['gena'].name
+        }
+        self.assertEqual(response.data, expected)
+
+    def test_users_groups(self):
+        url = '/users/{0}/groups/'.format(self.users['gena'].email)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        expected = [
+            {
+                'id': self.groups['admins'].id,
+                'name': self.groups['admins'].name
+            },
+            {
+                'id': self.groups['super_admins'].id,
+                'name': self.groups['super_admins'].name
+            }
+        ]
+        msg = 'Groups should be filtered by user'
+        self.assertEqual(response.data, expected, msg=msg)
+
+    def test_users_groups_detail(self):
+        url = '/users/{user_email}/groups/{group_pk}/'.format(
+            user_email=self.users['gena'].email,
+            group_pk=self.groups['admins'].id
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        expected = {
+            'id': self.groups['admins'].id,
+            'name': self.groups['admins'].name
+        }
+        self.assertEqual(response.data, expected)
+
+    def test_users_groups_detail__if_user_has_no_such_group(self):
+        url = '/users/{user_email}/groups/{group_pk}/'.format(
+            user_email=self.users['gena'].email,
+            group_pk=self.groups['users'].id
+        )
+        response = self.client.get(url)
+        msg = 'If user has no requested group it should return 404'
+        self.assertEqual(response.status_code, 404, msg=msg)
 
 
 # class NestedRouterMixinTestBehaviour__generic_relations1(APITestCase):
