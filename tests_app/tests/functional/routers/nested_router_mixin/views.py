@@ -91,3 +91,10 @@ class BookCommentViewSet(CommentViewSet):
         return super(BookCommentViewSet, self).get_queryset().filter(
             content_type=ContentType.objects.get_for_model(BookModel)
         )
+
+
+class UserViewSetWithEmailLookup(NestedViewSetMixin, ModelViewSet):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'email'
+    lookup_value_regex = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'

@@ -2174,6 +2174,7 @@ You can read about versioning, deprecation policy and upgrading from
 
 * Fixed `ListSqlQueryKeyBit` and `RetrieveSqlQueryKeyBit` [problems](https://github.com/chibisov/drf-extensions/issues/28) with `EmptyResultSet` exception ([pull](https://github.com/chibisov/drf-extensions/pull/75/)).
 * All items are now by default in [ArgsKeyBit](#argskeybit), [KwargsKeyBit](#kwargskeybit) and [QueryParamsKeyBit](#queryparamskeybit)
+* Respect parent lookup regex value for [Nested routes](#nested-routes) ([issue](https://github.com/chibisov/drf-extensions/pull/87)).
 
 #### 0.2.7
 
