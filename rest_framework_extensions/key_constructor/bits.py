@@ -197,7 +197,7 @@ class ListSqlQueryKeyBit(SqlQueryKeyBitBase):
 
 class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        lookup_value = view_instance.kwargs[view_instance.lookup_field]
+        lookup_value = view_instance.kwargs[view_instance.lookup_url_kwarg]
         try:
             queryset = view_instance.filter_queryset(view_instance.get_queryset()).filter(
                 **{view_instance.lookup_field: lookup_value}
