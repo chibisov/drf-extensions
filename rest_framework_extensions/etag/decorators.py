@@ -67,6 +67,7 @@ class ETAGProcessor(object):
                     view_instance=view_instance,
                     view_method=view_method,
                     request=request,
+                    response=response,
                     args=args,
                     kwargs=kwargs,
                 )
