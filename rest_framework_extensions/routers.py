@@ -201,29 +201,6 @@ class NestedRouterMixin(object):
             parent_viewset=self.registry[-1][1]
         )
 
-    def get_api_root_view(self):
-        """
-        Return a view to use as the API root.
-        """
-        api_root_dict = {}
-        list_name = self.routes[0].name
-        for prefix, viewset, basename in self.registry:
-            api_root_dict[prefix] = list_name.format(basename=basename)
-
-        class APIRoot(views.APIView):
-            _ignore_model_permissions = True
-
-            def get(self, request, format=None):
-                ret = {}
-                for key, url_name in api_root_dict.items():
-                    try:
-                        ret[key] = reverse(url_name, request=request, format=format)
-                    except NoReverseMatch:
-                        pass
-                return Response(ret)
-
-        return APIRoot.as_view()
-
 
 class ExtendedRouterMixin(ExtendedActionLinkRouterMixin, NestedRouterMixin):
     pass
