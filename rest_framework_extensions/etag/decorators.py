@@ -49,6 +49,7 @@ class ETAGProcessor(object):
             view_instance=view_instance,
             view_method=view_method,
             request=request,
+            response=None,
             args=args,
             kwargs=kwargs,
         )
@@ -99,6 +100,7 @@ class ETAGProcessor(object):
                        view_instance,
                        view_method,
                        request,
+                       response,
                        args,
                        kwargs):
         if isinstance(self.etag_func, six.string_types):
@@ -109,6 +111,7 @@ class ETAGProcessor(object):
             view_instance=view_instance,
             view_method=view_method,
             request=request,
+            response=response,
             args=args,
             kwargs=kwargs,
         )
