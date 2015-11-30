@@ -3,7 +3,7 @@ import django_filters
 from rest_framework import viewsets, serializers
 from rest_framework import filters
 from rest_framework.permissions import DjangoModelPermissions
-from rest_framework_extensions.mixins import ListDestroyModelMixin
+from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin
 
 from .models import CommentForListDestroyModelMixin as Comment
 

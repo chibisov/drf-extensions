@@ -23,7 +23,7 @@ class BulkOperationBaseMixin(object):
                 )
             }
         else:
-            return True,  {}
+            return True, {}
 
 
 class ListDestroyModelMixin(BulkOperationBaseMixin):
