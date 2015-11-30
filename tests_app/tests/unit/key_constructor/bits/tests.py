@@ -336,7 +336,7 @@ class PaginationKeyBitTest(TestCase):
     def setUp(self):
         self.kwargs = {
             'params': None,
-            'view_instance': Mock(spec_set=['page_kwarg', 'paginate_by_param']),
+            'view_instance': Mock(spec_set=['paginator']),
             'view_method': None,
             'request': factory.get('?page_size=10&page=1'),
             'args': None,
@@ -348,28 +348,28 @@ class PaginationKeyBitTest(TestCase):
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {})
 
     def test_view_with_empty_pagination_arguments(self):
-        self.kwargs['view_instance'].page_kwarg = None
-        self.kwargs['view_instance'].paginate_by_param = None
+        self.kwargs['view_instance'].paginator.page_query_param = None
+        self.kwargs['view_instance'].paginator.page_size_query_param = None
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {})
 
     def test_view_with_page_kwarg(self):
-        self.kwargs['view_instance'].page_kwarg = 'page'
-        self.kwargs['view_instance'].paginate_by_param = None
+        self.kwargs['view_instance'].paginator.page_query_param = 'page'
+        self.kwargs['view_instance'].paginator.page_size_query_param = None
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page': u'1'})
 
     def test_view_with_paginate_by_param(self):
-        self.kwargs['view_instance'].page_kwarg = None
-        self.kwargs['view_instance'].paginate_by_param = 'page_size'
+        self.kwargs['view_instance'].paginator.page_query_param = None
+        self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': u'10'})
 
     def test_view_with_all_pagination_attrs(self):
-        self.kwargs['view_instance'].page_kwarg = 'page'
-        self.kwargs['view_instance'].paginate_by_param = 'page_size'
+        self.kwargs['view_instance'].paginator.page_query_param = 'page'
+        self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': u'10', 'page': u'1'})
 
     def test_view_with_all_pagination_attrs__without_query_params(self):
-        self.kwargs['view_instance'].page_kwarg = 'page'
-        self.kwargs['view_instance'].paginate_by_param = 'page_size'
+        self.kwargs['view_instance'].paginator.page_query_param = 'page'
+        self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
         self.kwargs['request'] = factory.get('')
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {})
 
