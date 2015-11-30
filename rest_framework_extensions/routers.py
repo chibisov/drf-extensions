@@ -109,7 +109,7 @@ class ExtendedActionLinkRouterMixin(object):
             httpmethods = getattr(attr, 'bind_to_methods', None)
             if httpmethods:
                 endpoint = getattr(attr, 'endpoint', methodname)
-                is_for_list = getattr(attr, 'is_for_list', False)
+                is_for_list = getattr(attr, 'is_for_list', not getattr(attr, 'detail', True))
                 if endpoint in known_actions:
                     raise ImproperlyConfigured('Cannot use @action or @link decorator on '
                                                'method "%s" as %s is an existing route'
@@ -137,10 +137,11 @@ class ExtendedActionLinkRouterMixin(object):
         for httpmethods, methodname, endpoint, is_for_list in dynamic_routes:
             initkwargs = route.initkwargs.copy()
             initkwargs.update(getattr(viewset, methodname).kwargs)
+            url_path = initkwargs.pop('url_path', endpoint)
             dynamic_routes_instances.append(Route(
-                url=replace_methodname(route.url, endpoint),
+                url=replace_methodname(route.url, url_path),
                 mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, endpoint),
+                name=replace_methodname(route.name, url_path),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
