@@ -80,7 +80,7 @@ class KeyConstructorTest(TestCase):
         self.assertEqual(constructor_instance.prepare_key(one), constructor_instance.prepare_key(two))
 
     def prepare_key(self, key_dict):
-        return hashlib.sha256(json.dumps(key_dict, sort_keys=True).encode('utf-8')).hexdigest()
+        return hashlib.md5(json.dumps(key_dict, sort_keys=True).encode('utf-8')).hexdigest()
 
     def test_key_construction__with_bits_without_params(self):
         class MyKeyConstructor(KeyConstructor):

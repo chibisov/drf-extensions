@@ -17,7 +17,7 @@ from tests_app.testutils import (
 
 
 factory = APIRequestFactory()
-UNSAFE_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH']
+UNSAFE_METHODS = ('POST', 'PUT', 'DELETE', 'PATCH')
 
 
 def default_etag_func(**kwargs):
@@ -319,6 +319,6 @@ class ETAGProcessorTestBehavior_if_match(ETAGProcessorTestBehaviorMixin, TestCas
 
     def test_for_all_methods(self):
         self.run_for_methods(
-            SAFE_METHODS + UNSAFE_METHODS,
+            tuple(SAFE_METHODS) + UNSAFE_METHODS,
             condition_failed_status=status.HTTP_412_PRECONDITION_FAILED
         )
