@@ -7,11 +7,11 @@ install:
   - pip install tox
 
 env:
-  - latest3.5,
-  - latest3.4,
-  - latest2.7,
-  - django.1.8.lts,
-  - django.1.7
+  - TOX_ENV=latest3.5,
+  - TOX_ENV=latest3.4,
+  - TOX_ENV=latest2.7,
+  - TOX_ENV=django.1.8.lts,
+  - TOX_ENV=django.1.7
 
 script:
   - tox -e $TOX_ENV -- tests_app
