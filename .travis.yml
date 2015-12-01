@@ -9,9 +9,7 @@ install:
   - pip install tox
 
 env:
-  - TOX_ENV=latest3.5,
-  - TOX_ENV=latest3.4,
-  - TOX_ENV=latest2.7,
+  - TOX_ENV=latest,
   - TOX_ENV=django.1.8.lts,
   - TOX_ENV=django.1.7
 
