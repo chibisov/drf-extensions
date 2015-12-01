@@ -5,6 +5,11 @@ python:
   - "3.4"
   - "2.7"
 
+matrix:
+  allow_failures:
+    - env: DJANGO="Django<1.8,>=1.7"
+      python: "3.5"
+
 install:
   - pip install tox
 
