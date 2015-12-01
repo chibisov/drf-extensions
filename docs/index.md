@@ -1118,7 +1118,7 @@ Then constructor dumps resulting dict to json:
 
     '{"unique_method_id": "your_app.views.SometView.get", "language": "en", "format": "json"}'
 
-And finally compresses json with **sha256** and returns hash value:
+And finally compresses json with **md5** and returns hash value:
 
     'b04f8f03c89df824e0ecd25230a90f0e0ebe184cf8c0114342e9471dd2275baa'
 

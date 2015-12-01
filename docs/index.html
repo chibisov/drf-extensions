@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-Backdoc is a tool for backbone-like documentation generation. 
+Backdoc is a tool for backbone-like documentation generation.
 Backdoc main goal is to help to generate one page documentation from one markdown source file.
 
 https://github.com/chibisov/backdoc
@@ -103,7 +103,7 @@ var Zepto=function(){function G(a){return a==null?String(a):z[A.call(a)]||"objec
         }
 
         .sidebar ul ul li:before {
-            content: "- "; 
+            content: "- ";
         }
         .sidebar ul ul li {
             margin-bottom: 3px;
@@ -155,7 +155,7 @@ var Zepto=function(){function G(a){return a==null?String(a):z[A.call(a)]||"objec
             font-size: 13px;
             line-height: 18px;
             padding-left: 15px;
-        }        
+        }
 
         pre {
             font-size: 12px;
@@ -218,7 +218,7 @@ var Zepto=function(){function G(a){return a==null?String(a):z[A.call(a)]||"objec
                 padding-left: 10px;
                 padding-right: 10px;
             }
-            .main_container > ul, 
+            .main_container > ul,
             .main_container > ol {
                 padding-left: 27px;
             }
@@ -235,7 +235,7 @@ var Zepto=function(){function G(a){return a==null?String(a):z[A.call(a)]||"objec
             .force_show_sidebar .toggle_sidebar_button {
                 right: 0;
             }
-            .force_show_sidebar .toggle_sidebar_button .line:first-child, 
+            .force_show_sidebar .toggle_sidebar_button .line:first-child,
             .force_show_sidebar .toggle_sidebar_button .line:last-child {
                 visibility: hidden;
             }
@@ -1617,7 +1617,7 @@ key bits used like form fields. Lets go through key construction steps for <a hr
 <pre><code>'{"unique_method_id": "your_app.views.SometView.get", "language": "en", "format": "json"}'
 </code></pre>
 
-<p>And finally compresses json with <strong>sha256</strong> and returns hash value:</p>
+<p>And finally compresses json with <strong>md5</strong> and returns hash value:</p>
 
 <pre><code>'b04f8f03c89df824e0ecd25230a90f0e0ebe184cf8c0114342e9471dd2275baa'
 </code></pre>
