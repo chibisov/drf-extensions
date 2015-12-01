@@ -2170,10 +2170,13 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.2.8
+
+*Sep 21, 2015*
 
 * Fixed `ListSqlQueryKeyBit` and `RetrieveSqlQueryKeyBit` [problems](https://github.com/chibisov/drf-extensions/issues/28) with `EmptyResultSet` exception ([pull](https://github.com/chibisov/drf-extensions/pull/75/)).
 * All items are now by default in [ArgsKeyBit](#argskeybit), [KwargsKeyBit](#kwargskeybit) and [QueryParamsKeyBit](#queryparamskeybit)
+* Respect parent lookup regex value for [Nested routes](#nested-routes) ([issue](https://github.com/chibisov/drf-extensions/pull/87)).
 
 #### 0.2.7
 

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from distutils.version import StrictVersion
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
 
+import rest_framework
 from rest_framework.routers import (
     DefaultRouter,
     SimpleRouter,
@@ -109,7 +111,7 @@ class ExtendedActionLinkRouterMixin(object):
             httpmethods = getattr(attr, 'bind_to_methods', None)
             if httpmethods:
                 endpoint = getattr(attr, 'endpoint', methodname)
-                is_for_list = getattr(attr, 'is_for_list', False)
+                is_for_list = getattr(attr, 'is_for_list', not getattr(attr, 'detail', True))
                 if endpoint in known_actions:
                     raise ImproperlyConfigured('Cannot use @action or @link decorator on '
                                                'method "%s" as %s is an existing route'
@@ -137,20 +139,22 @@ class ExtendedActionLinkRouterMixin(object):
         for httpmethods, methodname, endpoint, is_for_list in dynamic_routes:
             initkwargs = route.initkwargs.copy()
             initkwargs.update(getattr(viewset, methodname).kwargs)
+            url_path = initkwargs.pop('url_path', endpoint)
             dynamic_routes_instances.append(Route(
-                url=replace_methodname(route.url, endpoint),
+                url=replace_methodname(route.url, url_path),
                 mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, endpoint),
+                name=replace_methodname(route.name, url_path),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
 
 
 class NestedRegistryItem(object):
-    def __init__(self, router, parent_prefix, parent_item=None):
+    def __init__(self, router, parent_prefix, parent_item=None, parent_viewset=None):
         self.router = router
         self.parent_prefix = parent_prefix
         self.parent_item = parent_item
+        self.parent_viewset = parent_viewset
 
     def register(self, prefix, viewset, base_name, parents_query_lookups):
         self.router._register(
@@ -161,7 +165,8 @@ class NestedRegistryItem(object):
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,
-            parent_item=self
+            parent_item=self,
+            parent_viewset=viewset
         )
 
     def get_prefix(self, current_prefix, parents_query_lookups):
@@ -174,10 +179,12 @@ class NestedRegistryItem(object):
         prefix = '/'
         current_item = self
         i = len(parents_query_lookups) - 1
+        parent_lookup_value_regex = getattr(self.parent_viewset, 'lookup_value_regex', '[^/.]+')
         while current_item:
-            prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>[^/.]+)/{prefix}'.format(
+            prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>{parent_lookup_value_regex})/{prefix}'.format(
                 parent_prefix=current_item.parent_prefix,
                 parent_pk_kwarg_name=compose_parent_pk_kwarg_name(parents_query_lookups[i]),
+                parent_lookup_value_regex=parent_lookup_value_regex,
                 prefix=prefix
             )
             i -= 1
@@ -193,13 +200,17 @@ class NestedRouterMixin(object):
         self._register(*args, **kwargs)
         return NestedRegistryItem(
             router=self,
-            parent_prefix=self.registry[-1][0]
+            parent_prefix=self.registry[-1][0],
+            parent_viewset=self.registry[-1][1]
         )
 
     def get_api_root_view(self):
         """
         Return a view to use as the API root.
+        Can be deleted once support of DRF < 2.4.3 is dropped.
         """
+        if StrictVersion(rest_framework.VERSION) >= StrictVersion('2.4.3'):
+            return super(NestedRouterMixin, self).get_api_root_view()
         api_root_dict = {}
         list_name = self.routes[0].name
         for prefix, viewset, basename in self.registry:

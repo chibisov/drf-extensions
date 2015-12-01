@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+# Try to import six from Django, fallback to included `six`.
+try:
+    from django.utils import six
+except ImportError:
+    from rest_framework import six
+
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.utils import get_rest_framework_features
-from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin, ListUpdateModelMixin
+from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
+from django.http import Http404
 
 
 class DetailSerializerMixin(object):
@@ -30,7 +37,7 @@ class DetailSerializerMixin(object):
     def _is_request_to_detail_endpoint(self):
         if hasattr(self, 'lookup_url_kwarg'):
             lookup = self.lookup_url_kwarg or self.lookup_field
-        else: # DRF 2 compatibility
+        else:  # DRF 2 compatibility
             lookup = self.pk_url_kwarg or self.slug_url_kwarg
         return lookup and lookup in self.kwargs
 
@@ -63,19 +70,22 @@ class NestedViewSetMixin(object):
     def filter_queryset_by_parents_lookups(self, queryset):
         parents_query_dict = self.get_parents_query_dict()
         if parents_query_dict:
-            return queryset.filter(**parents_query_dict)
+            try:
+                return queryset.filter(**parents_query_dict)
+            except ValueError:
+                raise Http404
         else:
             return queryset
 
     def get_parents_query_dict(self):
         result = {}
-        for kwarg_name in self.kwargs:
+        for kwarg_name, kwarg_value in six.iteritems(self.kwargs):
             if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX):
                 query_lookup = kwarg_name.replace(
                     extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
                     '',
                     1
                 )
-                query_value = self.kwargs.get(kwarg_name)
+                query_value = kwarg_value
                 result[query_lookup] = query_value
         return result
