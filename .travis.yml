@@ -7,30 +7,11 @@ install:
   - pip install tox
 
 env:
-  - TOX_ENV=py27-drf2.3.5
-  - TOX_ENV=py27-drf2.3.6
-  - TOX_ENV=py27-drf2.3.7
-  - TOX_ENV=py27-drf2.3.8
-  - TOX_ENV=py27-drf2.3.9
-  - TOX_ENV=py27-drf2.3.10
-  - TOX_ENV=py27-drf2.3.11
-  - TOX_ENV=py27-drf2.3.12
-  - TOX_ENV=py27-drf2.3.13
-  - TOX_ENV=py27-drf2.3.14
-  - TOX_ENV=py27-drf2.4.0
-  - TOX_ENV=py27-drf2.4.1
-  - TOX_ENV=py27-drf2.4.2
-  - TOX_ENV=py27-drf2.4.3
-  - TOX_ENV=py27-drf2.4.4
-  - TOX_ENV=py27-drf3.0
-  - TOX_ENV=py27-drf3.0.1
-  - TOX_ENV=py27-drf3.0.2
-  - TOX_ENV=py27-drf3.0.3
-  - TOX_ENV=py27-drf3.0.4
-  - TOX_ENV=py3
-  - TOX_ENV=django1.5
-  - TOX_ENV=django1.6
-  - TOX_ENV=django1.7
+  - latest3.5,
+  - latest3.4,
+  - latest2.7,
+  - django.1.8.lts,
+  - django.1.7
 
 script:
   - tox -e $TOX_ENV -- tests_app
