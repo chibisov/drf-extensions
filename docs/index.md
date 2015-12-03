@@ -666,6 +666,29 @@ Request example:
       name: "Serpuhov"
     }
 
+#### MappingField
+
+A field that converts value with given mapping dict.
+
+Example:
+
+    from rest_framework_extensions.fields import MappingField
+
+    class ProductSerializer(serializers.ModelSerializer):
+        status = MappingField(mapping={0: 'Unavailable', 1: 'Available'})
+
+        class Meta:
+            model = Product
+
+    product = Product.objects.create(status=0)
+    product_serializer = ProductSerializer(product)
+    product_serializer.data # {'status': 'Unavailable'}
+
+    product_serializer = ProductSerializer(product, {'status': 'Available'})
+    if product_serializer.is_valid():
+        product_serializer.save()
+    product.status # will give: 1
+
 
 ### Permissions
 
@@ -2169,6 +2192,12 @@ If you need to access the values of DRF-exteinsions API settings in your project
 
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
+
+#### 0.3.0
+
+*Dec 4, 2015*
+
+* Added [MappingField](#mappingfield)([pull]https://github.com/chibisov/drf-extensions/pull/118)
 
 #### 0.2.8
 
