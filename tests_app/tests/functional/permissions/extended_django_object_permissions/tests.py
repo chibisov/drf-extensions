@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.test import TestCase
-from django.utils import unittest
+import django.test
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.management import create_permissions
 from django.db.models import get_app, get_models

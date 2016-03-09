@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-from django.utils import unittest
+import django.test
+
 
 from rest_framework_extensions.compat_drf import get_lookup_allowed_symbols
 from rest_framework_extensions.utils import get_rest_framework_features
