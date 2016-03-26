@@ -182,6 +182,21 @@ class PaginationKeyBit(QueryParamsKeyBit):
         return super(PaginationKeyBit, self).get_data(**kwargs)
 
 
+class PageNoPaginationKeyBit(QueryParamsKeyBit):
+    """
+    Used to distinguish different pages in the api.
+    That is to distinguish api/news from api/news?page=2.
+
+    Return example:
+        {'page': '1'}
+
+    """
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        kwargs['params'] = []
+        kwargs['params'].append({'page': request.GET.get('page')})
+        return super(PaginationKeyBit, self).get_data(params, view_instance, view_method, request, args, kwargs)
+
+
 class SqlQueryKeyBitBase(KeyBitBase):
     def _get_queryset_query_string(self, queryset):
         if isinstance(queryset, EmptyQuerySet):
