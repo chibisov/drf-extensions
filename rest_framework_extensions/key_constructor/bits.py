@@ -188,7 +188,7 @@ class PageNoPaginationKeyBit(QueryParamsKeyBit):
     That is to distinguish api/news from api/news?page=2.
 
     Return example:
-        {'page': '1'}
+        {'page': '2'}
 
     """
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
