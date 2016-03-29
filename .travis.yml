@@ -6,16 +6,14 @@ python:
   - "2.7"
 
 matrix:
-  exclude:
-    - env: TOX_ENV=django.1.7
-      python: "3.5"
+
 
 install:
   - pip install tox
 
 env:
   - TOX_ENV=django.1.8.lts,
-  - TOX_ENV=django.1.7
+
 
 script:
   - tox -e $TOX_ENV -- tests_app
