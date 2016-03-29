@@ -12,6 +12,7 @@ install:
   - pip install tox
 
 env:
+  - TOX_ENV=django.1.9
   - TOX_ENV=django.1.8.lts,
 
 
