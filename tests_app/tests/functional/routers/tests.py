@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import django.test
+
+from django.test import TestCase
 
 
 from rest_framework_extensions.compat_drf import get_lookup_allowed_symbols
@@ -26,10 +27,7 @@ class TestTrailingSlashIncluded(TestCase):
             self.assertIsNotNone(get_url_pattern_by_regex_pattern(urls, exp), msg=msg)
 
 
-@unittest.skipUnless(
-    get_rest_framework_features()['router_trailing_slash'],
-    "Current DRF version doesn't support Router trailing_slash"
-)
+
 class TestTrailingSlashRemoved(TestCase):
     def test_urls_can_have_trailing_slash_removed(self):
         router = ExtendedSimpleRouter(trailing_slash=False)
