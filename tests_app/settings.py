@@ -108,7 +108,7 @@ INSTALLED_APPS = (
     'django_nose',
     'guardian',
     'rest_framework_extensions',
-    'tests_app',
+    'tests_app.apps.TestsApp',
 )
 
 STATIC_URL = '/static/'
