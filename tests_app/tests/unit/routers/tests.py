@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.utils import unittest
 
 from rest_framework import viewsets
 from rest_framework import decorators
 from rest_framework.response import Response
-from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 from rest_framework_extensions.decorators import link, action
 from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
@@ -161,10 +159,6 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
 
-    @unittest.skipIf(
-        not get_rest_framework_features()['has_action_and_link_decorators'],
-        "Current DRF version has removed 'action' and 'link' decorators"
-    )
     def test_with_default_controllers(self):
         class BasicViewSet(viewsets.ViewSet):
             @link()
