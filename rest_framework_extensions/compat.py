@@ -10,6 +10,7 @@ import django
 import inspect
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 
 # Try to import six from Django, fallback to included `six`.
 from django.utils import six
@@ -98,11 +99,6 @@ def get_concrete_model(model_cls):
 
 
 
-# PATCH method is not implemented by Django
-if 'patch' not in View.http_method_names:
-    View.http_method_names = View.http_method_names + ['patch']
-
-
 # PUT, DELETE do not require CSRF until 1.4. They should.Make it better.
 if django.VERSION >= (1, 4):
     from django.middleware.csrf import CsrfViewMiddleware
@@ -129,12 +125,7 @@ from django.utils.html import smart_urlquote
 
 from django.test.client import RequestFactory
 from django.test.client import FakePayload
-try:
-    # In 1.5 the test client uses force_bytes
-    from django.utils.encoding import force_bytes as force_bytes_or_smart_bytes
-except ImportError:
-    # In 1.3 and 1.4 the test client just uses smart_str
-    from django.utils.encoding import smart_str as force_bytes_or_smart_bytes
+
 
 
 # Markdown is optional
@@ -230,5 +221,3 @@ else:
     def is_non_str_iterable(obj):
         return hasattr(obj, '__iter__')
 
-
-from django.utils.encoding import python_2_unicode_compatible
