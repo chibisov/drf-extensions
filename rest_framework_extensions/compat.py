@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils import six
 
 
-# location of patterns, url, include changes in 1.4 onwards
+# location of patterns, url, include changes in 1.8 onwards
 
 from django.conf.urls import url, include
 
@@ -34,10 +34,9 @@ except ImportError:
 
 
 # HttpResponseBase only exists from 1.5 onwards
-try:
-    from django.http.response import HttpResponseBase
-except ImportError:
-    from django.http import HttpResponse as HttpResponseBase
+
+from django.http.response import HttpResponseBase
+
 
 # django-filter is optional
 try:
@@ -101,56 +100,13 @@ def get_concrete_model(model_cls):
         return model_cls
 
 
-if django.VERSION >= (1, 5):
-    from django.views.generic import View
-else:
-    from django.views.generic import View as _View
-    from django.utils.decorators import classonlymethod
-    from django.utils.functional import update_wrapper
-
-    class View(_View):
-        # 1.3 does not include head method in base View class
-        # See: https://code.djangoproject.com/ticket/15668
-        @classonlymethod
-        def as_view(cls, **initkwargs):
-            """
-            Main entry point for a request-response process.
-            """
-            # sanitize keyword arguments
-            for key in initkwargs:
-                if key in cls.http_method_names:
-                    raise TypeError("You tried to pass in the %s method name as a "
-                                    "keyword argument to %s(). Don't do that."
-                                    % (key, cls.__name__))
-                if not hasattr(cls, key):
-                    raise TypeError("%s() received an invalid keyword %r" % (
-                        cls.__name__, key))
-
-            def view(request, *args, **kwargs):
-                self = cls(**initkwargs)
-                if hasattr(self, 'get') and not hasattr(self, 'head'):
-                    self.head = self.get
-                return self.dispatch(request, *args, **kwargs)
-
-            # take name and docstring from class
-            update_wrapper(view, cls, updated=())
-
-            # and possible attributes set by decorators
-            # like csrf_exempt from dispatch
-            update_wrapper(view, cls.dispatch, assigned=())
-            return view
-
-        # _allowed_methods only present from 1.5 onwards
-        def _allowed_methods(self):
-            return [m.upper() for m in self.http_method_names if hasattr(self, m)]
-
 
 # PATCH method is not implemented by Django
 if 'patch' not in View.http_method_names:
     View.http_method_names = View.http_method_names + ['patch']
 
 
-# PUT, DELETE do not require CSRF until 1.4.  They should.  Make it better.
+# PUT, DELETE do not require CSRF until 1.4. They should.Make it better.
 if django.VERSION >= (1, 4):
     from django.middleware.csrf import CsrfViewMiddleware
 else:
