@@ -3,7 +3,6 @@ import json
 
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.management import create_permissions
-from django.db.models import get_app
 from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import status

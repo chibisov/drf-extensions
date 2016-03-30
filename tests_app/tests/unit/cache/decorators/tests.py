@@ -2,7 +2,7 @@
 from mock import Mock, patch
 
 from django.test import TestCase
-from django.core.cache import cache, get_cache
+from django.core.cache import cache
 from django.utils import unittest
 
 from rest_framework import views
@@ -23,7 +23,7 @@ class CacheResponseTest(TestCase):
     def setUp(self):
         super(CacheResponseTest, self).setUp()
         self.request = factory.get('')
-        self.cache = get_cache(extensions_api_settings.DEFAULT_USE_CACHE)
+        self.cache = cache(extensions_api_settings.DEFAULT_USE_CACHE)
 
     def test_should_return_response_if_it_is_not_in_cache(self):
         class TestView(views.APIView):
@@ -160,7 +160,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = get_cache('special_cache').get('cache_response_key')
+        data_from_cache = cache('special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 5"')
 
@@ -178,7 +178,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = get_cache('another_special_cache').get('cache_response_key')
+        data_from_cache = cache('another_special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
 

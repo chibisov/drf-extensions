@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from rest_framework_extensions.utils import prepare_header_name
 from rest_framework_extensions.settings import extensions_api_settings
-from rest_framework_extensions.compat import six
+from django.utils import six
 
 
 logger = logging.getLogger('django.request')
