@@ -169,30 +169,6 @@ except ImportError:
     from django.utils.encoding import smart_str as force_bytes_or_smart_bytes
 
 
-class RequestFactory(DjangoRequestFactory):
-    def generic(self, method, path,
-            data='', content_type='application/octet-stream', **extra):
-        parsed = urlparse.urlparse(path)
-        data = force_bytes_or_smart_bytes(data, settings.DEFAULT_CHARSET)
-        r = {
-            'PATH_INFO':      self._get_path(parsed),
-            'QUERY_STRING':   force_text(parsed[4]),
-            'REQUEST_METHOD': str(method),
-        }
-        if data:
-            r.update({
-                'CONTENT_LENGTH': len(data),
-                'CONTENT_TYPE':   str(content_type),
-                'wsgi.input':     FakePayload(data),
-            })
-        elif django.VERSION <= (1, 4):
-            # For 1.3 we need an empty WSGI payload
-            r.update({
-                'wsgi.input': FakePayload('')
-            })
-        r.update(extra)
-        return self.request(**r)
-
 # Markdown is optional
 try:
     import markdown
