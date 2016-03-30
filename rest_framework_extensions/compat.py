@@ -23,14 +23,11 @@ from django.conf.urls import url, include
 # Handle django.utils.encoding rename:
 # smart_unicode -> smart_text
 # force_unicode -> force_text
-try:
-    from django.utils.encoding import smart_text
-except ImportError:
-    from django.utils.encoding import smart_unicode as smart_text
-try:
-    from django.utils.encoding import force_text
-except ImportError:
-    from django.utils.encoding import force_unicode as force_text
+
+from django.utils.encoding import smart_text
+
+from django.utils.encoding import force_text
+
 
 
 # HttpResponseBase only exists from 1.5 onwards
