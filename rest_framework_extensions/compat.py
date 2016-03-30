@@ -12,16 +12,13 @@ from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
 # Try to import six from Django, fallback to included `six`.
-try:
-    from django.utils import six
-except ImportError:
-    from rest_framework import six
+from django.utils import six
+
 
 # location of patterns, url, include changes in 1.4 onwards
-try:
-    from django.conf.urls import patterns, url, include
-except ImportError:
-    from django.conf.urls.defaults import patterns, url, include
+
+from django.conf.urls import url, include
+
 
 # Handle django.utils.encoding rename:
 # smart_unicode -> smart_text
