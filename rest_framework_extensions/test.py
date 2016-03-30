@@ -10,8 +10,8 @@ from django.test.client import ClientHandler
 from django.test import testcases
 from django.utils.http import urlencode
 from rest_framework.settings import api_settings
-from rest_framework_extensions.compat import RequestFactory as DjangoRequestFactory  # changed here
-from rest_framework_extensions.compat import force_bytes_or_smart_bytes, six  # changed here
+from django.test.client import RequestFactory  # changed here
+from django.utils.encoding import force_bytes, six  # changed here
 
 
 def force_authenticate(request, user=None, token=None):
@@ -19,7 +19,7 @@ def force_authenticate(request, user=None, token=None):
     request._force_auth_token = token
 
 
-class APIRequestFactory(DjangoRequestFactory):
+class APIRequestFactory(RequestFactory):
     renderer_classes_list = api_settings.TEST_REQUEST_RENDERER_CLASSES
     default_format = api_settings.TEST_REQUEST_DEFAULT_FORMAT
 
@@ -44,16 +44,18 @@ class APIRequestFactory(DjangoRequestFactory):
 
         if content_type:
             # Content type specified explicitly, treat data as a raw bytestring
-            ret = force_bytes_or_smart_bytes(data, settings.DEFAULT_CHARSET)
+            ret = force_bytes(data, settings.DEFAULT_CHARSET)
 
         else:
             format = format or self.default_format
 
-            assert format in self.renderer_classes, ("Invalid format '{0}'. "
-                "Available formats are {1}.  Set TEST_REQUEST_RENDERER_CLASSES "
+            assert format in self.renderer_classes, (
+                "Invalid format '{0}'."
+                "Available formats are {1}. Set TEST_REQUEST_RENDERER_CLASSES "
                 "to enable extra request formats.".format(
                     format,
-                    ', '.join(["'" + fmt + "'" for fmt in self.renderer_classes.keys()])
+                    ', '.join(
+                        ["'" + fmt + "'" for fmt in self.renderer_classes.keys()])
                 )
             )
 
