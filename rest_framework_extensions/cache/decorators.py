@@ -5,7 +5,7 @@ from django.utils.decorators import available_attrs
 
 from rest_framework_extensions.utils import get_cache
 from rest_framework_extensions.settings import extensions_api_settings
-from rest_framework_extensions.compat import six
+from django.utils import six
 
 
 class CacheResponse(object):
