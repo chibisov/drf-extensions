@@ -7,7 +7,8 @@ from django.core.files import File
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.compat import BytesIO
 
-from .serializers import CommentSerializer, UserSerializer, CommentSerializerWithExpandedUsersLiked, CommentSerializerWithAllowedUserId
+from .serializers import CommentSerializer, UserSerializer, \
+    CommentSerializerWithExpandedUsersLiked, CommentSerializerWithAllowedUserId
 from .models import UserModel, CommentModel
 
 
@@ -69,7 +70,8 @@ class PartialUpdateSerializerMixinTest(TestCase):
         serializer_three.save()
 
         fresh_instance = self.get_comment()
-        self.assertEqual(fresh_instance.attachment.read(), u'file two'.encode('utf-8'))
+        self.assertEqual(
+            fresh_instance.attachment.read(), u'file two'.encode('utf-8'))
         self.assertEqual(fresh_instance.text, 'moon')
         self.assertEqual(fresh_instance.title, 'goodbye')
 
@@ -79,7 +81,8 @@ class PartialUpdateSerializerMixinTest(TestCase):
             'title': 'goodbye',
             'user': another_user.pk
         }
-        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        serializer = CommentSerializer(
+            instance=self.get_comment(), data=data, partial=True)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         fresh_instance = self.get_comment()
@@ -90,7 +93,8 @@ class PartialUpdateSerializerMixinTest(TestCase):
         data = {
             'title_from_source': 'goodbye'
         }
-        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        serializer = CommentSerializer(
+            instance=self.get_comment(), data=data, partial=True)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         fresh_instance = self.get_comment()
@@ -102,16 +106,20 @@ class PartialUpdateSerializerMixinTest(TestCase):
             'title': 'goodbye',
             'users_liked': [self.user.pk, another_user.pk]
         }
-        serializer = CommentSerializer(instance=self.get_comment(), data=data, partial=True)
+        serializer = CommentSerializer(
+            instance=self.get_comment(), data=data, partial=True)
         self.assertTrue(serializer.is_valid())
         try:
             serializer.save()
         except ValueError:
-            self.fail('If m2m field used in partial update then it should not be used in update_fields list')
+            self.fail(
+                'If m2m field used in partial update then it should not be used in update_fields list')
         fresh_instance = self.get_comment()
         self.assertEqual(fresh_instance.title, 'goodbye')
-        users_liked = set(fresh_instance.users_liked.all().values_list('pk', flat=True))
-        self.assertEqual(users_liked, set([self.user.pk, another_user.pk]))
+        users_liked = set(
+            fresh_instance.users_liked.all().values_list('pk', flat=True))
+        self.assertEqual(
+            users_liked, set([self.user.pk, another_user.pk]))
 
     def test_should_not_use_related_set_field_name_for_update_field_list(self):
         another_user = UserModel.objects.create(name='vova')
