@@ -2,7 +2,7 @@
 from mock import Mock, patch
 
 from django.test import TestCase
-from django.core.cache import cache, get_cache
+from django.core.cache import cache
 from django.utils import unittest
 
 from rest_framework import views
@@ -23,7 +23,7 @@ class CacheResponseTest(TestCase):
     def setUp(self):
         super(CacheResponseTest, self).setUp()
         self.request = factory.get('')
-        self.cache = get_cache(extensions_api_settings.DEFAULT_USE_CACHE)
+        self.cache = cache(extensions_api_settings.DEFAULT_USE_CACHE)
 
     def test_should_return_response_if_it_is_not_in_cache(self):
         class TestView(views.APIView):
@@ -110,7 +110,9 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(cache_response_decorator.cache.set.called, 'Cache saving should be performed')
+        self.assertTrue(
+            cache_response_decorator.cache.set.called,
+            'Cache saving should be performed')
         self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 100)
 
     def test_should_store_response_in_cache_with_timeout_from_arguments(self):
@@ -160,9 +162,11 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = get_cache('special_cache').get('cache_response_key')
+        data_from_cache = cache('special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
-        self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 5"')
+        self.assertEqual(
+            data_from_cache.content.decode('utf-8'),
+            u'"Response from method 5"')
 
     @override_extensions_api_settings(
         DEFAULT_USE_CACHE='special_cache'
@@ -178,7 +182,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = get_cache('another_special_cache').get('cache_response_key')
+        data_from_cache = cache('another_special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
 
