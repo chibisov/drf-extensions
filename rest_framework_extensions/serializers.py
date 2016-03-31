@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework_extensions.compat import get_concrete_model
-from rest_framework_extensions.utils import get_model_opts_concrete_fields, get_rest_framework_features
+from rest_framework_extensions.utils import get_model_opts_concrete_fields, \
+    get_rest_framework_features
 
 
 def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
