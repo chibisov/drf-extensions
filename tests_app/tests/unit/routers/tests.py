@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.utils import unittest
 
 from rest_framework import viewsets
-from rest_framework import decorators
 from rest_framework.response import Response
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.routers import ExtendedDefaultRouter
@@ -171,7 +170,7 @@ class ExtendedDefaultRouterTest(TestCase):
             def link(self, request, *args, **kwargs):
                 pass
 
-            @decorators.link()
+            @link()
             def link_default(self, request, *args, **kwargs):
                 pass
 
@@ -179,7 +178,7 @@ class ExtendedDefaultRouterTest(TestCase):
             def action(self, request, *args, **kwargs):
                 pass
 
-            @decorators.action()
+            @action()
             def action_default(self, request, *args, **kwargs):
                 pass
 
@@ -192,4 +191,6 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(link_route.name, u'{basename}-link')
         self.assertEqual(link_default_route.name, u'{basename}-link-default')
         self.assertEqual(action_route.name, u'{basename}-action')
-        self.assertEqual(action_default_route.name, u'{basename}-action-default')
+        self.assertEqual(
+            action_default_route.name,
+            u'{basename}-action-default')
