@@ -12,13 +12,13 @@ from rest_framework_extensions.utils import (
 )
 
 
-class Test_get_rest_framework_version(TestCase):
+class TestRestFrameworkVersion(TestCase):
     def test(self):
         expected = tuple(map(int, VERSION.split('.')))
         self.assertEqual(get_rest_framework_version(), expected)
 
 
-class Test_get_rest_framework_features(TestCase):
+class TestRestFrameworkFeatures(TestCase):
     def test_router_trailing_slash(self):
         experiments = [
             {
@@ -45,7 +45,9 @@ class Test_get_rest_framework_features(TestCase):
 
         for exp in experiments:
             with patch('rest_framework_extensions.utils.get_rest_framework_version', Mock(return_value=exp['version'])):
-                self.assertEqual(get_rest_framework_features()['router_trailing_slash'], exp['expected'])
+                self.assertEqual(get_rest_framework_features()[
+                    'router_trailing_slash'],
+                    exp['expected'])
 
     def test_allow_dot_in_lookup_regex_without_trailing_slash(self):
         experiments = [
@@ -177,7 +179,7 @@ class Test_get_rest_framework_features(TestCase):
                 )
 
 
-class Test_prepare_header_name(TestCase):
+class TestPrepareHeaderName(TestCase):
     def test_upper(self):
         self.assertEqual(prepare_header_name('Accept'), 'HTTP_ACCEPT')
 
