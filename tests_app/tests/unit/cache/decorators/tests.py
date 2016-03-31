@@ -3,7 +3,7 @@ from mock import Mock, patch
 
 from django.test import TestCase
 from django.core.cache import cache
-from django.utils import unittest
+
 
 from rest_framework import views
 from rest_framework.response import Response
@@ -113,7 +113,8 @@ class CacheResponseTest(TestCase):
         self.assertTrue(
             cache_response_decorator.cache.set.called,
             'Cache saving should be performed')
-        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 100)
+        self.assertEqual(
+            cache_response_decorator.cache.set.call_args_list[0][0][2], 100)
 
     def test_should_store_response_in_cache_with_timeout_from_arguments(self):
         cache_response_decorator = cache_response(timeout=3)
@@ -126,8 +127,11 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(cache_response_decorator.cache.set.called, 'Cache saving should be performed')
-        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 3)
+        self.assertTrue(
+            cache_response_decorator.cache.set.called,
+            'Cache saving should be performed')
+        self.assertEqual(
+            cache_response_decorator.cache.set.call_args_list[0][0][2], 3)
 
     def test_should_return_response_from_cache_if_it_is_in_it(self):
         def key_func(**kwargs):
@@ -146,7 +150,9 @@ class CacheResponseTest(TestCase):
         self.cache.set('cache_response_key', cached_response)
 
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(response.content.decode('utf-8'), u'"Cached response from method 4"')
+        self.assertEqual(
+            response.content.decode('utf-8'),
+            u'"Cached response from method 4"')
 
     @override_extensions_api_settings(
         DEFAULT_USE_CACHE='special_cache'
@@ -186,10 +192,7 @@ class CacheResponseTest(TestCase):
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
 
-    @unittest.skipUnless(
-        get_django_features()['caches_singleton'],
-        "Current django version doesn't support caches singleton"
-    )
+
     def test_should_reuse_cache_singleton(self):
         """
         https://github.com/chibisov/drf-extensions/issues/26
