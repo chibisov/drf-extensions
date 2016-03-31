@@ -21,10 +21,6 @@ from django.utils import six
 from django.conf.urls import url, include
 
 
-# Handle django.utils.encoding rename:
-# smart_unicode -> smart_text
-# force_unicode -> force_text
-
 from django.utils.encoding import smart_text
 
 from django.utils.encoding import force_text
@@ -91,8 +87,8 @@ def get_concrete_model(model_cls):
 
 
 # PUT, DELETE do not require CSRF until 1.4. They should.Make it better.
-if django.VERSION >= (1, 4):
-    from django.middleware.csrf import CsrfViewMiddleware
+
+from django.middleware.csrf import CsrfViewMiddleware
 
 
 # timezone support is new in Django 1.4
