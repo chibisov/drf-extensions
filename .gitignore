@@ -1,3 +1,4 @@
+__pycache__/
 *.pyc
 *.egg-info
 .tox
@@ -5,4 +6,3 @@
 .idea
 env
 dist
-__pycache__/
