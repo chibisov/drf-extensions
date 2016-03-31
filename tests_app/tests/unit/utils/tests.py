@@ -19,78 +19,6 @@ class TestRestFrameworkVersion(TestCase):
 
 
 class TestRestFrameworkFeatures(TestCase):
-    def test_router_trailing_slash(self):
-        experiments = [
-            {
-                'version': (2, 3),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 5),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 6),
-                'expected': True
-            },
-            {
-                'version': (2, 3, 7),
-                'expected': True
-            },
-            {
-                'version': (2, 4),
-                'expected': True
-            },
-        ]
-
-        for exp in experiments:
-            with patch('rest_framework_extensions.utils.get_rest_framework_version', Mock(return_value=exp['version'])):
-                self.assertEqual(get_rest_framework_features()[
-                    'router_trailing_slash'],
-                    exp['expected'])
-
-    def test_allow_dot_in_lookup_regex_without_trailing_slash(self):
-        experiments = [
-            {
-                'version': (2, 3),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 5),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 6),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 7),
-                'expected': False
-            },
-            {
-                'version': (2, 3, 8),
-                'expected': True
-            },
-            {
-                'version': (2, 3, 9),
-                'expected': True
-            },
-            {
-                'version': (2, 3, 10),
-                'expected': True
-            },
-            {
-                'version': (2, 4),
-                'expected': True
-            },
-        ]
-
-        for exp in experiments:
-            with patch('rest_framework_extensions.utils.get_rest_framework_version', Mock(return_value=exp['version'])):
-                self.assertEqual(
-                    get_rest_framework_features()['allow_dot_in_lookup_regex_without_trailing_slash'],
-                    exp['expected']
-                )
 
     def test_max_paginate_by(self):
         experiments = [
@@ -184,10 +112,13 @@ class TestPrepareHeaderName(TestCase):
         self.assertEqual(prepare_header_name('Accept'), 'HTTP_ACCEPT')
 
     def test_replace_dash_with_underscores(self):
-        self.assertEqual(prepare_header_name('Accept-Language'), 'HTTP_ACCEPT_LANGUAGE')
+        self.assertEqual(
+            prepare_header_name('Accept-Language'), 'HTTP_ACCEPT_LANGUAGE')
 
     def test_strips_whitespaces(self):
-        self.assertEqual(prepare_header_name('  Accept-Language  '), 'HTTP_ACCEPT_LANGUAGE')
+        self.assertEqual(
+            prepare_header_name('  Accept-Language  '), 'HTTP_ACCEPT_LANGUAGE')
 
     def test_adds_http_prefix(self):
-        self.assertEqual(prepare_header_name('Accept-Language'), 'HTTP_ACCEPT_LANGUAGE')
+        self.assertEqual(
+            prepare_header_name('Accept-Language'), 'HTTP_ACCEPT_LANGUAGE')
