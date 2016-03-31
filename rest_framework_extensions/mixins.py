@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 # Try to import six from Django, fallback to included `six`.
-try:
-    from django.utils import six
-except ImportError:
-    from rest_framework import six
+
+from django.utils import six
+
 
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
