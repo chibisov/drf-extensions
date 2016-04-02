@@ -35,11 +35,13 @@ class PaginateByMaxMixinTest(TestCase):
         self.assertEqual(len(resp.data['results']), 20)
 
     def test_custom_page_size_with_max_value__for_view_without__paginate_by_param__attribute(self):
-        resp = self.client.get('/comments-without-paginate-by-param-attribute/?page_size=max')
+        resp = self.client.get(
+            '/comments-without-paginate-by-param-attribute/?page_size=max')
         self.assertEqual(len(resp.data['results']), 10)
 
     def test_custom_page_size_with_max_value__for_view_without__max_paginate_by__attribute(self):
-        resp = self.client.get('/comments-without-max-paginate-by-attribute/?page_size=max')
+        resp = self.client.get(
+            '/comments-without-max-paginate-by-attribute/?page_size=max')
         self.assertEqual(len(resp.data['results']), 10)
 
 
