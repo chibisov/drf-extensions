@@ -391,10 +391,8 @@ class ListSqlQueryKeyBitTest(TestCase):
         expected = (u'SELECT "tests_app_bittestmodel"."id", "tests_app_bittestmodel"."is_active" '
                     u'FROM "tests_app_bittestmodel" '
                     u'WHERE "tests_app_bittestmodel"."is_active" = True{space}')
-        if get_django_features()['has_odd_space_in_sql_query']:
-            space = ' '
-        else:
-            space = ''
+
+        space = ''
         expected = expected.format(space=space)
         response = ListSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
@@ -429,10 +427,7 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
         expected = (u'SELECT "tests_app_bittestmodel"."id", "tests_app_bittestmodel"."is_active" '
                     u'FROM "tests_app_bittestmodel" '
                     u'WHERE ("tests_app_bittestmodel"."is_active" = True {space}AND "tests_app_bittestmodel"."id" = 123{space})')
-        if get_django_features()['has_odd_space_in_sql_query']:
-            space = ' '
-        else:
-            space = ''
+        space = ''
         expected = expected.format(space=space)
 
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
