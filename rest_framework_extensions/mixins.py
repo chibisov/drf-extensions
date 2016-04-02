@@ -42,7 +42,7 @@ class DetailSerializerMixin(object):
 class PaginateByMaxMixin(object):
 
     def get_page_size(self, request):
-        if self.page_size_query_param and self.max_page_size and request.query_params.get(self.page_size_query_param) == 'max'):
+        if self.page_size_query_param and self.max_page_size and request.query_params.get(self.page_size_query_param) == 'max':
             return self.max_page_size
         return super(PaginateByMaxMixin, self).get_page_size(request)
 
