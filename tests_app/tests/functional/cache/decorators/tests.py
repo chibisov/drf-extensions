@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import datetime
 
 from django.test import TestCase
-from rest_framework_extensions.compat import force_text
+from django.utils.encoding import force_text
 
 from .urls import urlpatterns
 
