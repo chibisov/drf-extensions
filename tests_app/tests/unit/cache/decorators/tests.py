@@ -2,7 +2,6 @@
 from mock import Mock, patch
 
 from django.test import TestCase
-from django.core.cache import caches
 
 
 from rest_framework import views
@@ -11,19 +10,22 @@ from rest_framework.response import Response
 from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
-from rest_framework_extensions.utils import get_django_features
-
 from tests_app.testutils import override_extensions_api_settings
 
 
 factory = APIRequestFactory()
 
 
+def cache(alias):
+    from django.core.cache import caches
+    return caches[alias]
+
+
 class CacheResponseTest(TestCase):
     def setUp(self):
         super(CacheResponseTest, self).setUp()
         self.request = factory.get('')
-        self.cache = caches(extensions_api_settings.DEFAULT_USE_CACHE)
+        self.cache = cache(extensions_api_settings.DEFAULT_USE_CACHE)
 
     def test_should_return_response_if_it_is_not_in_cache(self):
         class TestView(views.APIView):
@@ -45,7 +47,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(caches.get('cache_response_key').content, response.content)
+        self.assertEqual(cache.get('cache_response_key').content, response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_function_which_specified_in_arguments(self):
@@ -59,7 +61,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(caches.get('cache_response_key_from_func').content, response.content)
+        self.assertEqual(cache.get('cache_response_key_from_func').content, response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_which_calculated_by_view_method__if__key_func__is_string(self):
@@ -73,7 +75,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(caches.get('cache_response_key_from_method').content, response.content)
+        self.assertEqual(cache.get('cache_response_key_from_method').content, response.content)
         self.assertEqual(type(response), Response)
 
     def test_key_func_call_arguments(self):
@@ -168,7 +170,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = caches('special_cache').get('cache_response_key')
+        data_from_cache = cache('special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(
             data_from_cache.content.decode('utf-8'),
@@ -188,7 +190,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = caches('another_special_cache').get('cache_response_key')
+        data_from_cache = cache('another_special_cache').get('cache_response_key')
         self.assertTrue(hasattr(data_from_cache, 'content'))
         self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
 
