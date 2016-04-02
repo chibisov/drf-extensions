@@ -36,18 +36,13 @@ class DetailSerializerMixin(object):
     def _is_request_to_detail_endpoint(self):
         if hasattr(self, 'lookup_url_kwarg'):
             lookup = self.lookup_url_kwarg or self.lookup_field
-        else:  # DRF 2 compatibility
-            lookup = self.pk_url_kwarg or self.slug_url_kwarg
         return lookup and lookup in self.kwargs
 
 
 class PaginateByMaxMixin(object):
 
     def get_page_size(self, request):
-        if (get_rest_framework_features()['max_paginate_by'] and
-            self.page_size_query_param and
-            self.max_page_size and
-            request.query_params.get(self.page_size_query_param) == 'max'):
+        if self.page_size_query_param and self.max_page_size and request.query_params.get(self.page_size_query_param) == 'max':
             return self.max_page_size
         return super(PaginateByMaxMixin, self).get_page_size(request)
 
