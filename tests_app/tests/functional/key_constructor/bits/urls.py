@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import routers
 
-from .views import (
-    UserModelViewSet,
-)
+from .views import UserModelViewSet
 
 
 viewset_router = routers.DefaultRouter()

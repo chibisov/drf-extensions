@@ -6,11 +6,11 @@ class KeyConstructorUserProperty(models.Model):
     name = models.CharField(max_length=100)
 
     class Meta:
-        app_label = 'keycon_user_prop'
+        app_label = 'tests_app'
 
 
 class KeyConstructorUserModel(models.Model):
     property = models.ForeignKey(KeyConstructorUserProperty)
 
     class Meta:
-        app_label = 'keycon_user'
+        app_label = 'tests_app'
