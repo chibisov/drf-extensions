@@ -25,5 +25,8 @@ class CommentModel(models.Model):
         upload_to=upload_to, blank=True, null=True, max_length=500)
     hidden_text = models.CharField(max_length=200, blank=True, null=True)
 
+    def __str__(self):
+        return self.user
+
     class Meta:
         app_label = 'tests_app'
