@@ -27,7 +27,6 @@ def get_rest_framework_features():
         'has_auto_writable_nested_serialization': get_rest_framework_version() < (3, 0),
         'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),
         'allows_to_send_custom_kwargs_for_saving_object_in_serializers': get_rest_framework_version() <= (3, 0),
-        'single_step_object_creation_in_serializers': get_rest_framework_version() >= (3, 0),
         'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),
         'single_step_object_creation_in_serializers': get_rest_framework_version() >= (3, 0),
     }

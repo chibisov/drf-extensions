@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from rest_framework_extensions.test import APITestCase
 
-from .models import KeyConstructorUserProperty, KeyConstructorUserModel
+from .models import KeyConstructorUserProperty
 
 
-class ListSqlQueryKeyBitTestBehaviour__with_bad_filter_arguments(APITestCase):
+class ListSqlQueryKeyBitTestBehaviour(APITestCase):
     """Regression tests for https://github.com/chibisov/drf-extensions/issues/28#issuecomment-51711927
 
     `rest_framework.filters.DjangoFilterBackend` uses defalut `FilterSet`.

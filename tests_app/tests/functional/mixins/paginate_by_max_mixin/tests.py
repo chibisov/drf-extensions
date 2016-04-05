@@ -67,8 +67,8 @@ class PaginateByMaxMixinTestBehavior__should_not_affect_view_if_DRF_does_not_sup
 
     def test_custom_page_size__more_then_maximum(self):
         resp = self.client.get('/comments/?limit=25')
-        self.assertEqual(len(resp.data['results']), 25)
+        self.assertEqual(len(resp.data['results']), 20)
 
     def test_custom_page_size_with_max_value(self):
         resp = self.client.get('/comments/?limit=max')
-        self.assertEqual(len(resp.data['results']), 10)
+        self.assertEqual(len(resp.data['results']), 20)

@@ -1,25 +1,9 @@
 # -*- coding: utf-8 -*-
-from mock import patch, Mock
-
-from rest_framework import VERSION
 
 from django.test import TestCase
 
-from rest_framework_extensions.utils import (
-    get_rest_framework_version,
-    get_rest_framework_features,
-    prepare_header_name,
-)
+from rest_framework_extensions.utils import prepare_header_name
 
-
-class TestRestFrameworkVersion(TestCase):
-    def test(self):
-        expected = tuple(map(int, VERSION.split('.')))
-        self.assertEqual(get_rest_framework_version(), expected)
-
-
-class TestRestFrameworkFeatures(TestCase):
-    pass
 
 class TestPrepareHeaderName(TestCase):
     def test_upper(self):
