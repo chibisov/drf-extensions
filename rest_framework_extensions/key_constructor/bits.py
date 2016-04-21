@@ -169,34 +169,14 @@ class PaginationKeyBit(QueryParamsKeyBit):
         {'page_size': 100, 'page': '1'}
 
     """
-    def get_data(self, **kwargs):
-        kwargs['params'] = []
-        if hasattr(kwargs['view_instance'], 'paginator'):
-            if hasattr(kwargs['view_instance'].paginator, 'page_query_param'):
-                kwargs['params'].append(
-                    kwargs['view_instance'].paginator.page_query_param)
-            if hasattr(kwargs['view_instance'].paginator,
-                       'page_size_query_param'):
-                kwargs['params'].append(
-                    kwargs['view_instance'].paginator.page_size_query_param)
-        return super(PaginationKeyBit, self).get_data(**kwargs)
-
-
-class PageNoPaginationKeyBit(QueryParamsKeyBit):
-    """
-    Used to distinguish different pages in the api.
-    That is to distinguish api/news from api/news?page=2.
-
-    Return example:
-        {'page': '2'}
-
-    """
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        kwargs['params'] = []
-        kwargs['params'].append({'page': request.GET.get('page')})
-        return super(PaginationKeyBit, self).get_data(params, view_instance, view_method, request, args, kwargs)
-
-
+        page_dict = {}
+        if hasattr(view_instance, 'paginate_by'):
+            page_dict = {'page_size': view_instance.paginate_by}
+        page_dict.update({'page': request.GET.get('page', 1)})
+        return page_dict
+        
+        
 class SqlQueryKeyBitBase(KeyBitBase):
     def _get_queryset_query_string(self, queryset):
         if isinstance(queryset, EmptyQuerySet):
