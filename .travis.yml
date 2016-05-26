@@ -5,15 +5,23 @@ python:
   - "3.4"
   - "2.7"
 
+env:
+  - TOX_ENV=django.1.10
+  - TOX_ENV=django.1.9
+  - TOX_ENV=django.1.8.lts
+
 matrix:
+  allow_failures:
+    - env: TOX_ENV=django.1.10
+    - env: TOX_ENV=django.1.9
+
+
+  fast_finish: true
 
 
 install:
   - pip install tox
 
-env:
-  - TOX_ENV=django.1.9
-  - TOX_ENV=django.1.8.lts,
 
 
 script:
