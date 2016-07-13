@@ -161,36 +161,3 @@ class ExtendedDefaultRouterTest(TestCase):
             action1_list_route.name, u'{basename}-action-one-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
 
-    def test_with_default_controllers(self):
-        class BasicViewSet(viewsets.ViewSet):
-            @link()
-            def link(self, request, *args, **kwargs):
-                pass
-
-            @link()
-            def link_default(self, request, *args, **kwargs):
-                pass
-
-            @action()
-            def action(self, request, *args, **kwargs):
-                pass
-
-            @action()
-            def action_default(self, request, *args, **kwargs):
-                pass
-
-        routes = self.router.get_routes(BasicViewSet)
-        link_route = self.get_dynamic_route_by_def_name('link', routes)
-        link_default_route = self.get_dynamic_route_by_def_name('link_default', routes)
-        action_route = self.get_dynamic_route_by_def_name('action', routes)
-        action_default_route = self.get_dynamic_route_by_def_name(
-            'action_default', routes)
-
-        self.assertEqual(link_route.name, u'{basename}-link')
-        self.assertEqual(link_default_route.name, u'{basename}-link-default')
-        self.assertEqual(action_route.name, u'{basename}-action')
-        self.assertEqual(
-            action_default_route.name,
-            u'{basename}-action-default')
-        self.assertEqual(
-            action_default_route.name, u'{basename}-action-default')

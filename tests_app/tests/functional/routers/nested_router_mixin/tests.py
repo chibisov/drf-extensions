@@ -26,24 +26,7 @@ from .views import (
 
 
 class NestedRouterMixinTestBehaviourBase(APITestCase):
-    router = ExtendedSimpleRouter()
-    # main routes
-    (
-        router.register(r'users', UserViewSet)
-              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups'])
-              .register(r'permissions', PermissionViewSet, 'users-groups-permission', parents_query_lookups=['group__user', 'group'])
-    )
-
-    # register on one depth
-    permissions_routes = router.register(r'permissions', PermissionViewSet)
-    permissions_routes.register(r'groups', GroupViewSet, 'permissions-group', parents_query_lookups=['permissions'])
-    permissions_routes.register(r'users', UserViewSet, 'permissions-user', parents_query_lookups=['groups__permissions'])
-
-    # simple routes
-    router.register(r'groups', GroupViewSet, 'group')
-    router.register(r'permissions', PermissionViewSet, 'permission')
-
-    urls = router.urls
+    urls = 'tests_app.tests.functional.routers.nested_router_mixin.urls_base'
 
     def setUp(self):
         self.users = {
@@ -337,19 +320,7 @@ class NestedRouterMixinTestBehaviour__actions_and_links(NestedRouterMixinTestBeh
 
 
 class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
-    router = ExtendedSimpleRouter()
-    # tasks route
-    (
-        router.register(r'tasks', TaskViewSet)
-              .register(r'comments', TaskCommentViewSet, 'tasks-comment', parents_query_lookups=['object_id'])
-    )
-    # books route
-    (
-        router.register(r'books', BookViewSet)
-              .register(r'comments', BookCommentViewSet, 'books-comment', parents_query_lookups=['object_id'])
-    )
-
-    urls = router.urls
+    urls = 'tests_app.tests.functional.routers.nested_router_mixin.urls_generic'
 
     def setUp(self):
         self.tasks = {
@@ -445,14 +416,7 @@ class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
 
 
 class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
-    router = ExtendedSimpleRouter()
-    # main routes
-    (
-        router.register(r'users', UserViewSetWithEmailLookup)
-              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups__email'])
-    )
-
-    urls = router.urls
+    urls = 'tests_app.tests.functional.routers.nested_router_mixin.urls_behavior'
 
     def setUp(self):
         self.users = {
@@ -526,54 +490,3 @@ class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
         response = self.client.get(url)
         msg = 'If user has no requested group it should return 404'
         self.assertEqual(response.status_code, 404, msg=msg)
-
-
-# class NestedRouterMixinTestBehaviour__generic_relations1(APITestCase):
-#     router = ExtendedSimpleRouter()
-#     # tasks route
-#     (
-#         router.register(r'tasks', TaskViewSet)
-#               .register(r'', TaskCommentViewSet, 'tasks-comment', parents_query_lookups=['object_id'])
-#     )
-#     # books route
-#     (
-#         router.register(r'books', BookViewSet)
-#               .register(r'', BookCommentViewSet, 'books-comment', parents_query_lookups=['object_id'])
-#     )
-#
-#     urls = router.urls
-#
-#     def setUp(self):
-#         self.tasks = {
-#             'one': TaskModel.objects.create(id=1, title='Task one'),
-#             'two': TaskModel.objects.create(id=2, title='Task two'),
-#         }
-#         self.books = {
-#             'one': BookModel.objects.create(id=1, title='Book one'),
-#             'two': BookModel.objects.create(id=2, title='Book two'),
-#         }
-#         self.comments = {
-#             'for_task_one': CommentModel.objects.create(
-#                 id=1,
-#                 content_object=self.tasks['one'],
-#                 text=u'Comment for task one'
-#             ),
-#             'for_task_two': CommentModel.objects.create(
-#                 id=2,
-#                 content_object=self.tasks['two'],
-#                 text=u'Comment for task two'
-#             ),
-#             'for_book_one': CommentModel.objects.create(
-#                 id=3,
-#                 content_object=self.books['one'],
-#                 text=u'Comment for book one'
-#             ),
-#             'for_book_two': CommentModel.objects.create(
-#                 id=4,
-#                 content_object=self.books['two'],
-#                 text=u'Comment for book two'
-#             ),
-#         }
-#
-#     def test_me(self):
-#         print 'hell'
