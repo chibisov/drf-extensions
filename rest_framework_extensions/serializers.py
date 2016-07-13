@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.relations import HyperlinkedRelatedField
+from rest_framework_extensions.fields import(
+    NestedHyperlinkedRelatedField,
+    NestedHyperlinkedIdentityField,
+)
 from rest_framework_extensions.compat import get_concrete_model
 from rest_framework_extensions.utils import get_model_opts_concrete_fields, \
     get_rest_framework_features
@@ -41,3 +47,38 @@ class PartialUpdateSerializerMixin(object):
         else:
             instance.save()
             return instance
+
+
+class NestedHyperlinkedModelSerializer(HyperlinkedModelSerializer):
+    """
+    Extension of `HyperlinkedModelSerializer` that adds support for
+    nested resources.
+    """
+    serializer_related_field = NestedHyperlinkedRelatedField
+    serializer_url_field = NestedHyperlinkedIdentityField
+
+    def get_default_field_names(self, declared_fields, model_info):
+        """
+        Return the default list of field names that will be used if the
+        `Meta.fields` option is not specified.
+        """
+        return (
+            [self.url_field_name] +
+            list(declared_fields.keys()) +
+            list(model_info.fields.keys()) +
+            list(model_info.forward_relations.keys())
+        )
+
+    def build_nested_field(self, field_name, relation_info, nested_depth):
+        """
+        Create nested fields for forward and reverse relationships.
+        """
+        class NestedSerializer(NestedHyperlinkedModelSerializer):
+            class Meta:
+                model = relation_info.related_model
+                depth = nested_depth - 1
+
+        field_class = NestedSerializer
+        field_kwargs = get_nested_relation_kwargs(relation_info)
+
+        return field_class, field_kwargs

@@ -336,11 +336,15 @@ into your routers.
 
 ### Nested routes
 
-*New in DRF-extensions 0.2.4*
+*New in DRF-extensions 0.2.9*
+
+*Implementation introduced in DRF-extensions 0.2.4 is pending deprecated and is not documented anymore*
 
 Nested routes allows you create nested resources with [viewsets](http://www.django-rest-framework.org/api-guide/viewsets.html).
 
 For example:
+
+    # yourapp.urls
 
     from rest_framework_extensions.routers import ExtendedSimpleRouter
     from yourapp.views import (
@@ -350,46 +354,54 @@ For example:
     )
 
     router = ExtendedSimpleRouter()
-    (
-        router.register(r'users', UserViewSet, base_name='user')
-              .register(r'groups',
-                        GroupViewSet,
-                        base_name='users-group',
-                        parents_query_lookups=['user_groups'])
-              .register(r'permissions',
-                        PermissionViewSet,
-                        base_name='users-groups-permission',
-                        parents_query_lookups=['group__user', 'group'])
-    )
+
+    with router.register(r'users',
+                         UserViewSet,
+                         base_name='user') as user:
+        with user.register(r'groups',
+                           GroupViewSet,
+                           base_name='users-group') as groups:
+              groups.register(r'permissions',
+                              PermissionViewSet,
+                              base_name='users-groups-permission')
+
     urlpatterns = router.urls
 
-There is one requirement for viewsets which used in nested routers. They should add mixin `NestedViewSetMixin`. That mixin
-adds automatic filtering by parent lookups:
+There is few things you need to take care in viewsets which are used in nested routes.
+Views should contain mixin `NestedViewSetMixin`, which adds automatic filtering by parent lookups.
+You should define `lookup_url_kwarg` (or `lookup_field`) in root and nested classes.
+In addition you need to define `parent_lookup_map` for `NestedViewSetMixin` to know how to use url parameters.
 
     # yourapp.views
     from rest_framework_extensions.mixins import NestedViewSetMixin
 
-    class UserViewSet(NestedViewSetMixin, ModelViewSet):
+    class UserViewSet(ModelViewSet):
         model = UserModel
+        lookup_url_kwarg = 'user_id'
 
     class GroupViewSet(NestedViewSetMixin, ModelViewSet):
         model = GroupModel
+        lookup_url_kwarg = 'group_id'
+        parent_lookup_map = {'user_id': 'user.id'}
 
     class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
         model = PermissionModel
+        lookup_url_kwarg = 'permission_id'
+        parent_lookup_map = {'user_id': 'group.user.id',
+                             'group_id': 'group.id'}
 
-
-With such kind of router we have next resources:
+With above files we have following resources:
 
 * `/users/` - list of all users. Resolve name is **user-list**
-* `/users/<pk>/` - user detail. Resolve name is **user-detail**
-* `/users/<parent_lookup_user_groups>/groups/` - list of groups for exact user.
+* `/users/<user_id>/` - user detail. Resolve name is **user-detail**
+* `/users/<user_id>/groups/` - list of groups for exact user.
 Resolve name is **users-group-list**
-* `/users/<parent_lookup_user_groups>/groups/<pk>/` - user group detail. If user doesn't have group then resource will
-be not found. Resolve name is **users-group-detail**
-* `/users/<parent_lookup_group__user>/groups/<parent_lookup_group>/permissions/` - list of permissions for user group.
+* `/users/<user_id>/groups/<group_id>/` - user group detail.
+If user doesn't have group then resource will be not found.
+Resolve name is **users-group-detail**
+* `/users/<user_id>/groups/<group_id>/permissions/` - list of permissions for user group.
 Resolve name is **users-groups-permission-list**
-* `/users/<parent_lookup_group__user>/groups/<parent_lookup_group>/permissions/<pk>/` - user group permission detail.
+* `/users/<user_id>/groups/<group_id>/permissions/<permission_id>/` - user group permission detail.
 If user doesn't have group or group doesn't have permission then resource will be not found.
 Resolve name is **users-groups-permission-detail**
 
@@ -419,167 +431,60 @@ Every resource is automatically filtered by parent lookups.
       }
     ]
 
-For request above permissions will be filtered by user with pk `1` and group with pk `2`:
+For request above permissions will be filtered by group user with id `1` and group with id `2`:
 
-    Permission.objects.filter(group__user=1, group=2)
+    Permission.objects.filter(group__user__id=1, group__id=2)
 
 Example with registering more then one nested resource in one depth:
 
-    permissions_routes = router.register(
-        r'permissions',
-        PermissionViewSet,
-        base_name='permission'
-    )
-    permissions_routes.register(
-        r'groups',
-        GroupViewSet,
-        base_name='permissions-group',
-        parents_query_lookups=['permissions']
-    )
-    permissions_routes.register(
-        r'users',
-        UserViewSet,
-        base_name='permissions-user',
-        parents_query_lookups=['groups__permissions']
-    )
+    with router.register(r'permissions',
+                         PermissionViewSet,
+                         base_name='permission') as permissions:
+        permissions.register(r'groups',
+                             GroupViewSet,
+                             base_name='permissions-group')
+        permissions.register(r'users',
+                             UserViewSet,
+                             base_name='permissions-user')
 
-With such kind of router we have next resources:
+    # or
 
-* `/permissions/` - list of all permissions. Resolve name is **permission-list**
-* `/permissions/<pk>/` - permission detail. Resolve name is **permission-detail**
-* `/permissions/<parent_lookup_permissions>/groups/` - list of groups for exact permission.
+    permissions = router.register(r'permissions',
+                                  PermissionViewSet,
+                                  base_name='permission')
+    permissions.register(r'groups',
+                         GroupViewSet,
+                         base_name='permissions-group')
+    permissions.register(r'users',
+                         UserViewSet,
+                         base_name='permissions-user')
+
+With such router and `lookup_url_kwarg = 'permission_id'` in `PermissionViewSet` we would have following resources:
+
+* `/permissions/` - list of all permissions.
+Resolve name is **permission-list**
+* `/permissions/<permission_id>/` - permission detail.
+Resolve name is **permission-detail**
+* `/permissions/<permission_id>/groups/` - list of groups for exact permission.
 Resolve name is **permissions-group-list**
-* `/permissions/<parent_lookup_permissions>/groups/<pk>/` - permission group detail. If group doesn't have
-permission then resource will be not found. Resolve name is **permissions-group-detail**
-* `/permissions/<parent_lookup_groups__permissions>/users/` - list of users for exact permission.
+* `/permissions/<permission_id>/groups/<pk>/` - permission group detail.
+If group doesn't have permission then resource will be not found.
+Resolve name is **permissions-group-detail**
+* `/permissions/<permission_id>/users/` - list of users for exact permission.
 Resolve name is **permissions-user-list**
-* `/permissions/<parent_lookup_groups__permissions>/user/<pk>/` - permission user detail. If user doesn't have
-permission then resource will be not found. Resolve name is **permissions-user-detail**
+* `/permissions/<permission_id>/user/<pk>/` - permission user detail.
+If user doesn't have permission then resource will be not found.
+Resolve name is **permissions-user-detail**
 
 #### Nested router mixin
 
-You can use `rest_framework_extensions.routers.NestedRouterMixin` for adding nesting feature into your routers:
+You can use `rest_framework_extensions.routers.NestedRouterMixin` to add nesting feature into your own router:
 
     from rest_framework_extensions.routers import NestedRouterMixin
     from rest_framework.routers import SimpleRouter
 
     class SimpleRouterWithNesting(NestedRouterMixin, SimpleRouter):
         pass
-
-#### Usage with generic relations
-
-If you want to use nested router for [generic relation](https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#generic-relations)
-fields, you should explicitly filter `QuerySet` by content type.
-
-For example if you have such kind of models:
-
-    class Task(models.Model):
-        title = models.CharField(max_length=30)
-
-    class Book(models.Model):
-        title = models.CharField(max_length=30)
-
-    class Comment(models.Model):
-        content_type = models.ForeignKey(ContentType)
-        object_id = models.PositiveIntegerField()
-        content_object = generic.GenericForeignKey()
-        text = models.CharField(max_length=30)
-
-Lets create viewsets for that models:
-
-    class TaskViewSet(NestedViewSetMixin, ModelViewSet):
-        model = TaskModel
-
-    class BookViewSet(NestedViewSetMixin, ModelViewSet):
-        model = BookModel
-
-    class CommentViewSet(NestedViewSetMixin, ModelViewSet):
-        queryset = CommentModel.objects.all()
-
-And router like this:
-
-    router = ExtendedSimpleRouter()
-    # tasks route
-    (
-        router.register(r'tasks', TaskViewSet)
-              .register(r'comments',
-                        CommentViewSet,
-                        'tasks-comment',
-                        parents_query_lookups=['object_id'])
-    )
-    # books route
-    (
-        router.register(r'books', BookViewSet)
-              .register(r'comments',
-                        CommentViewSet,
-                        'books-comment',
-                        parents_query_lookups=['object_id'])
-    )
-
-As you can see we've added to `parents_query_lookups` only one `object_id` value. But when you make requests to `comments`
-endpoint for both tasks and books routes there is no context for current content type.
-
-    # Request
-    GET /tasks/123/comments/ HTTP/1.1
-    Accept: application/json
-
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-
-    [
-        {
-            id: 1,
-            content_type: 1,
-            object_id: 123,
-            text: "Good task!"
-        },
-        {
-            id: 2,
-            content_type: 2,  // oops. Wrong content type (for book)
-            object_id: 123,   // task and book has the same id
-            text: "Good book!"
-        },
-    ]
-
-For such kind of cases you should explicitly filter `QuerySets` of nested viewsets by content type:
-
-    from django.contrib.contenttypes.models import ContentType
-
-    class CommentViewSet(NestedViewSetMixin, ModelViewSet):
-        queryset = CommentModel.objects.all()
-
-    class TaskCommentViewSet(CommentViewSet):
-        def get_queryset(self):
-            return super(TaskCommentViewSet, self).get_queryset().filter(
-                content_type=ContentType.objects.get_for_model(TaskModel)
-            )
-
-    class BookCommentViewSet(CommentViewSet):
-        def get_queryset(self):
-            return super(BookCommentViewSet, self).get_queryset().filter(
-                content_type=ContentType.objects.get_for_model(BookModel)
-            )
-
-Lets use new viewsets in router:
-
-    router = ExtendedSimpleRouter()
-    # tasks route
-    (
-        router.register(r'tasks', TaskViewSet)
-              .register(r'comments',
-                        TaskCommentViewSet,
-                        'tasks-comment',
-                        parents_query_lookups=['object_id'])
-    )
-    # books route
-    (
-        router.register(r'books', BookViewSet)
-              .register(r'comments',
-                        BookCommentViewSet,
-                        'books-comment',
-                        parents_query_lookups=['object_id'])
-    )
 
 
 ### Serializers
@@ -665,6 +570,45 @@ Request example:
       resource_uri: "http://localhost:8000/v1/cities/268/",
       name: "Serpuhov"
     }
+
+With nested routes you would need `NestedHyperlinkedIdentityField` instead.
+
+#### NestedHyperlinkedRelatedField
+
+Version of `rest_framework.serializer.HyperlinkedRelatedField` that handles nested routes ([about nested routes](#nested-routes)).
+You can pass dict that defines how to resolve keyword aguments for reverse url resolving using argument `lookup_map`.
+If not passed then the map is resolved from current view or you can pass view as object or string via `lookup_map`.
+In addition you need to define `view_name` that points to correct nested route url.
+Some examples:
+
+    from rest_framework_extensions.fields import NestedHyperlinkedRelatedField
+
+    class CitySerializer(serializers.ModelSerializer):
+        resource_uri = NestedHyperlinkedIdentityField(view_name='city-detail')
+        houses = NestedHyperlinkedRelatedField(
+            many=True,
+            view_name='houses-list',
+            lookup_map='yourapp.api_views.HousesViewSet')
+        citizens = NestedHyperlinkedRelatedField(
+            many=True,
+            view_name='citizens-detail',
+            lookup_map = {
+                'town_id': 'town.id',
+                'citizen_id': 'id',
+            })
+
+        class Meta:
+            model = City
+            fields = ('resource_uri', 'houses', 'citizens')
+
+If `lookup_map` value is callable, it will be called with selected model object as only argument.
+
+**This field is read only for now.**
+Implementation of write support is pending.
+
+#### NestedHyperlinkedIdentityField
+
+Same as `NestedHyperlinkedRelatedField` except it always uses object itself (`source='*'`).
 
 
 ### Permissions
