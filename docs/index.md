@@ -2170,6 +2170,12 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### 0.3.1
+
+*July 15, 2016*
+
+* Fix `schema_urls` `ExtendedDefaultRouter` compatability issue introduced by DRF 3.4.0
+
 #### 0.2.8
 
 *Sep 21, 2015*

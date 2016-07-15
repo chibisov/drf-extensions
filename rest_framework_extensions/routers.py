@@ -204,11 +204,13 @@ class NestedRouterMixin(object):
             parent_viewset=self.registry[-1][1]
         )
 
-    def get_api_root_view(self):
+    def get_api_root_view(self, **kwargs):
         """
         Return a view to use as the API root.
-        Can be deleted once support of DRF < 2.4.3 is dropped.
+        Important to maintain compat with DRF 3.4.0
         """
+        if StrictVersion(rest_framework.VERSION) >= StrictVersion('3.4.0'):
+            return super(NestedRouterMixin, self).get_api_root_view(**kwargs)
         if StrictVersion(rest_framework.VERSION) >= StrictVersion('2.4.3'):
             return super(NestedRouterMixin, self).get_api_root_view()
         api_root_dict = {}
