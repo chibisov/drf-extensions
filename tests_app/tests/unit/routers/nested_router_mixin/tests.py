@@ -2,12 +2,18 @@
 from rest_framework_extensions.compat_drf import get_lookup_allowed_symbols
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.routers import ExtendedSimpleRouter
-from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
+from rest_framework_extensions.settings import extensions_api_settings
 from .views import (
     UserViewSet,
     GroupViewSet,
     PermissionViewSet,
 )
+
+def compose_parent_pk_kwarg_name(value):
+    return '{0}{1}'.format(
+        extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
+        value
+    )
 
 
 class NestedRouterMixinTest(APITestCase):

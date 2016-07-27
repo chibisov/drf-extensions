@@ -20,9 +20,7 @@ class TestTrailingSlashIncluded(TestCase):
         lookup_allowed_symbols = get_lookup_allowed_symbols()
 
         for exp in ['^router-viewset/$',
-                    '^router-viewset/{0}/$'.format(lookup_allowed_symbols),
-                    '^router-viewset/list_controller/$',
-                    '^router-viewset/{0}/detail_controller/$'.format(lookup_allowed_symbols)]:
+                    '^router-viewset/{0}/$'.format(lookup_allowed_symbols)]:
             msg = 'Should find url pattern with regexp %s' % exp
             self.assertIsNotNone(get_url_pattern_by_regex_pattern(urls, exp), msg=msg)
 
@@ -39,8 +37,6 @@ class TestTrailingSlashRemoved(TestCase):
         )
 
         for exp in ['^router-viewset$',
-                    '^router-viewset/{0}$'.format(lookup_allowed_symbols),
-                    '^router-viewset/list_controller$',
-                    '^router-viewset/{0}/detail_controller$'.format(lookup_allowed_symbols)]:
+                    '^router-viewset/{0}$'.format(lookup_allowed_symbols)]:
             msg = 'Should find url pattern with regexp %s' % exp
             self.assertIsNotNone(get_url_pattern_by_regex_pattern(urls, exp), msg=msg)
