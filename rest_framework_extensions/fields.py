@@ -12,7 +12,7 @@ from rest_framework.relations import (
 )
 
 
-class ResourceUriField(HyperlinkedRelatedField):
+class ResourceUriField(HyperlinkedIdentityField):
     """
     Represents a hyperlinking uri that points to the detail view for that object.
 
@@ -30,12 +30,7 @@ class ResourceUriField(HyperlinkedRelatedField):
             "resource_uri": "http://localhost/v1/surveys/1/",
         }
     """
-    # todo: test me
-    read_only = True
-
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('source', '*')
-        super(ResourceUriField, self).__init__(*args, **kwargs)
+    pass
 
 
 class NestedHyperlinkedRelatedField(HyperlinkedRelatedField):
