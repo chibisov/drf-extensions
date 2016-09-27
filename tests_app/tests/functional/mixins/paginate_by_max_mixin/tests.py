@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-from .urls import urlpatterns
 from .models import CommentForPaginateByMaxMixin
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.paginate_by_max_mixin.urls')
 class PaginateByMaxMixinTest(TestCase):
-    urls = urlpatterns
 
     def setUp(self):
         for i in range(30):
@@ -45,9 +44,8 @@ class PaginateByMaxMixinTest(TestCase):
         self.assertEqual(len(resp.data['results']), 10)
 
 
-
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.paginate_by_max_mixin.urls')
 class PaginateByMaxMixinTestBehavior__should_not_affect_view_if_DRF_does_not_supports__max_paginate_by(TestCase):
-    urls = urlpatterns
 
     def setUp(self):
         for i in range(30):
