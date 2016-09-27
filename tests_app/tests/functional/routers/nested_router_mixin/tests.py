@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.test import override_settings
+
 from rest_framework_extensions.test import APITestCase
 
-from rest_framework_extensions.utils import get_rest_framework_features
-from rest_framework_extensions.routers import ExtendedSimpleRouter
-
-from tests_app.testutils import get_url_pattern_by_regex_pattern
 from .models import (
     NestedRouterMixinUserModel as UserModel,
     NestedRouterMixinGroupModel as GroupModel,
@@ -13,37 +11,10 @@ from .models import (
     NestedRouterMixinBookModel as BookModel,
     NestedRouterMixinCommentModel as CommentModel
 )
-from .views import (
-    UserViewSet,
-    UserViewSetWithEmailLookup,
-    GroupViewSet,
-    PermissionViewSet,
-    TaskViewSet,
-    TaskCommentViewSet,
-    BookViewSet,
-    BookCommentViewSet
-)
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.routers.nested_router_mixin.urls')
 class NestedRouterMixinTestBehaviourBase(APITestCase):
-    router = ExtendedSimpleRouter()
-    # main routes
-    (
-        router.register(r'users', UserViewSet)
-              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups'])
-              .register(r'permissions', PermissionViewSet, 'users-groups-permission', parents_query_lookups=['group__user', 'group'])
-    )
-
-    # register on one depth
-    permissions_routes = router.register(r'permissions', PermissionViewSet)
-    permissions_routes.register(r'groups', GroupViewSet, 'permissions-group', parents_query_lookups=['permissions'])
-    permissions_routes.register(r'users', UserViewSet, 'permissions-user', parents_query_lookups=['groups__permissions'])
-
-    # simple routes
-    router.register(r'groups', GroupViewSet, 'group')
-    router.register(r'permissions', PermissionViewSet, 'permission')
-
-    urls = router.urls
 
     def setUp(self):
         self.users = {
@@ -336,20 +307,8 @@ class NestedRouterMixinTestBehaviour__actions_and_links(NestedRouterMixinTestBeh
         self.assertEqual(response.data, 'permissions action')
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.routers.nested_router_mixin.urls_generic_relations')
 class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
-    router = ExtendedSimpleRouter()
-    # tasks route
-    (
-        router.register(r'tasks', TaskViewSet)
-              .register(r'comments', TaskCommentViewSet, 'tasks-comment', parents_query_lookups=['object_id'])
-    )
-    # books route
-    (
-        router.register(r'books', BookViewSet)
-              .register(r'comments', BookCommentViewSet, 'books-comment', parents_query_lookups=['object_id'])
-    )
-
-    urls = router.urls
 
     def setUp(self):
         self.tasks = {
@@ -444,15 +403,8 @@ class NestedRouterMixinTestBehaviour__generic_relations(APITestCase):
         ])
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.routers.nested_router_mixin.urls_parent_viewset_lookup')
 class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
-    router = ExtendedSimpleRouter()
-    # main routes
-    (
-        router.register(r'users', UserViewSetWithEmailLookup)
-              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups__email'])
-    )
-
-    urls = router.urls
 
     def setUp(self):
         self.users = {

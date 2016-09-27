@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+from django.test import override_settings
+
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
 
-from .urls import urlpatterns
 from .models import CommentForListDestroyModelMixin as Comment
 from tests_app.testutils import override_extensions_api_settings
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.list_destroy_model_mixin.urls')
 class ListDestroyModelMixinTest(APITestCase):
-    urls = urlpatterns
 
     def setUp(self):
         self.comments = [

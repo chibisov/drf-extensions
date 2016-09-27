@@ -2,8 +2,8 @@
 import json
 
 from django.contrib.auth.models import User, Group, Permission
-from django.contrib.auth.management import create_permissions
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 
 from rest_framework import status
 from rest_framework_extensions.test import APITestCase
@@ -11,7 +11,6 @@ from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.compat import get_model_name
 
 from tests_app.testutils import basic_auth_header
-from .urls import urlpatterns
 from .models import PermissionsComment
 
 
@@ -70,15 +69,14 @@ class ExtendedDjangoObjectPermissionTestMixin(object):
             self.credentials[user.username] = basic_auth_header(user.username, 'password')
 
 
-
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.permissions.extended_django_object_permissions.urls')
 class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjangoObjectPermissionTestMixin,
                                                                   APITestCase):
-    urls = urlpatterns
 
     # Delete
     def test_can_delete_permissions(self):
         response = self.client.delete(
-            '/comments/1/', 
+            '/comments/1/',
             **{'HTTP_AUTHORIZATION': self.credentials['deleteonly']})
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -154,9 +152,9 @@ class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjango
         self.assertListEqual(response.data, [])
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.permissions.extended_django_object_permissions.urls')
 class ExtendedDjangoObjectPermissionsTest_without_hiding_forbidden_objects(ExtendedDjangoObjectPermissionTestMixin,
                                                                            APITestCase):
-    urls = urlpatterns
 
     # Delete
     def test_can_delete_permissions(self):
