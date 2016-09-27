@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 from rest_framework_extensions import serializers as drf_serializers
-from django.contrib.auth.models import User
-from .models import CommentModel
+
+from .models import CommentModel, UserModel
 
 
 class UserSerializer(drf_serializers.PartialUpdateSerializerMixin,
                      serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserModel
         fields = (
-            'username',
+            'name',
             'comments'
         )
 
@@ -28,7 +28,7 @@ class CommentSerializer(drf_serializers.PartialUpdateSerializerMixin,
             'title',
             'text',
             'attachment',
-            'hidden_text'
+            'title_from_source'
         )
 
 

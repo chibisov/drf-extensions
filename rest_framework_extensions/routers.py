@@ -42,7 +42,7 @@ class ExtendedActionLinkRouterMixin(object):
             initkwargs={'suffix': 'Instance'}
         ),
         # Dynamically generated routes.
-        # Generated using @action or @link decorators on methods of the viewset.
+        # Generated using @list_route or @detail_route decorators on methods of the viewset.
         # List
         Route(
             url=add_trailing_slash_if_needed(r'^{prefix}/{methodname}/$'),
@@ -72,13 +72,13 @@ class ExtendedActionLinkRouterMixin(object):
         Returns a list of the Route namedtuple.
         """
 
-        # Determine any `@action` or `@link` decorated methods on the viewset
+        # Determine any `@list_route` or `@detail_route` decorated methods on the viewset
         dynamic_routes = self.get_dynamic_routes(viewset)
 
         ret = []
         for route in self._routs:
             if self.is_dynamic_route(route):
-                # Dynamic routes (@link or @action decorator)
+                # Dynamic routes (@list_route or @detail_route decorator)
                 if self.is_list_dynamic_route(route):
                     ret += self.get_dynamic_routes_instances(
                         viewset,
@@ -113,7 +113,7 @@ class ExtendedActionLinkRouterMixin(object):
                 endpoint = getattr(attr, 'endpoint', methodname)
                 is_for_list = getattr(attr, 'is_for_list', not getattr(attr, 'detail', True))
                 if endpoint in known_actions:
-                    raise ImproperlyConfigured('Cannot use @action or @link decorator on '
+                    raise ImproperlyConfigured('Cannot use @detail_route or @list_route decorator on '
                                                'method "%s" as %s is an existing route'
                                                % (methodname, endpoint))
                 httpmethods = [method.lower() for method in httpmethods]

@@ -3,7 +3,6 @@
 from django.test import TestCase
 from django.core.files import File
 
-
 from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.compat import BytesIO
 
@@ -30,6 +29,20 @@ class PartialUpdateSerializerMixinTest(TestCase):
 
     def get_comment(self):
         return CommentModel.objects.get(pk=self.comment.pk)
+
+    def test_should_use_default_saving_without_partial(self):
+        serializer = CommentSerializer(data={
+            'user': self.user.id,
+            'title': 'hola',
+            'text': 'amigos',
+        })
+
+        self.assertTrue(serializer.is_valid())  # bug for python3 comes from here
+
+        saved_object = serializer.save()
+        self.assertEqual(saved_object.user, self.user)
+        self.assertEqual(saved_object.title, 'hola')
+        self.assertEqual(saved_object.text, 'amigos')
 
     def test_should_save_partial(self):
         serializer = CommentSerializer(
@@ -184,29 +197,6 @@ class PartialUpdateSerializerMixinTest(TestCase):
         fresh_instance = self.get_comment()
         self.assertEqual(fresh_instance.title, 'goodbye')
         self.assertEqual(fresh_instance.text, 'world')
-
-
-    def test_should_not_use_update_fields_when_related_objects_are_saving(self):
-        data = {
-            'title': 'goodbye',
-            'user': {
-                'id': self.user.pk,
-                'name': 'oleg'
-            }
-
-        }
-        serializer = CommentSerializerWithExpandedUsersLiked(instance=self.get_comment(), data=data, partial=True)
-        self.assertTrue(serializer.is_valid())
-        try:
-            serializer.save()
-        except ValueError:
-            self.fail('If serializer has expanded related serializer, then it should not use update_fields while '
-                      'saving related object')
-        fresh_instance = self.get_comment()
-        self.assertEqual(fresh_instance.title, 'goodbye')
-
-        if get_rest_framework_features()['save_related_serializers']:
-            self.assertEqual(fresh_instance.user.name, 'oleg')
 
     def test_should_not_use_field_attname_for_update_fields__if_attname_not_allowed_in_serializer_fields(self):
         another_user = UserModel.objects.create(name='vova')
