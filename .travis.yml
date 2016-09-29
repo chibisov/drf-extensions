@@ -11,18 +11,10 @@ env:
   - TOX_ENV=django.1.8.lts
 
 matrix:
-  allow_failures:
-    - env: TOX_ENV=django.1.10
-    - env: TOX_ENV=django.1.9
-
-
   fast_finish: true
-
 
 install:
   - pip install tox
-
-
 
 script:
   - tox -e $TOX_ENV -- tests_app

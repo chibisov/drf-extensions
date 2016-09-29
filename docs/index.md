@@ -1989,10 +1989,12 @@ You can read about versioning, deprecation policy and upgrading from
 
 #### 0.3.1
 
-*July 15, 2016*
+*Sep 29, 2016*
 
 * Fix `schema_urls` `ExtendedDefaultRouter` compatability issue introduced by DRF 3.4.0
 * Removed deprecated @action() and @link() decorators
+* DRF 3.4.x compatibility
+* Django 1.9 and 1.10 compatibility
 
 #### 0.2.8
 
