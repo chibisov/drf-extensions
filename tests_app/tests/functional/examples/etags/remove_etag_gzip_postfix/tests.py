@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-from django.conf.urls import url
-from django.test.utils import override_settings
-
-from .views import MyView
+from django.test import TestCase, override_settings
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.examples.etags.remove_etag_gzip_postfix.urls')
 class RemoveEtagGzipPostfixTest(TestCase):
-    urls = (
-        url(r'^remove-etag-gzip-postfix/$', MyView.as_view()),
-    )
 
     @override_settings(MIDDLEWARE_CLASSES=(
         'django.middleware.gzip.GZipMiddleware',

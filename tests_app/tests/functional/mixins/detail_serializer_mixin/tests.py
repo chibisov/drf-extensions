@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from rest_framework_extensions.test import APIRequestFactory  # todo: use from rest_framework when released
 
-from .urls import urlpatterns
 from .models import Comment
 
 
 factory = APIRequestFactory()
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.detail_serializer_mixin.urls')
 class DetailSerializerMixinTest_serializer_detail_class(TestCase):
-    urls = urlpatterns
 
     def setUp(self):
         self.comment = Comment.objects.create(
@@ -45,8 +44,8 @@ class DetailSerializerMixinTest_serializer_detail_class(TestCase):
         self.assertRaisesMessage(AssertionError, msg, self.client.get, '/comments-2/')
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.detail_serializer_mixin.urls')
 class DetailSerializerMixin_queryset_detail(TestCase):
-    urls = urlpatterns
 
     def setUp(self):
         self.comments = [

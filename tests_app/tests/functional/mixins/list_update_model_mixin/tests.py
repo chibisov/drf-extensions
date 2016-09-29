@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.utils import unittest
+import unittest
+
+from django.test import override_settings
 
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
 from rest_framework_extensions.utils import get_rest_framework_features
 
-from .urls import urlpatterns
 from .models import (
     CommentForListUpdateModelMixin as Comment,
     UserForListUpdateModelMixin as User
@@ -16,8 +17,8 @@ from .models import (
 from tests_app.testutils import override_extensions_api_settings
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.list_update_model_mixin.urls')
 class ListUpdateModelMixinTest(APITestCase):
-    urls = urlpatterns
 
     def setUp(self):
         self.comments = [
@@ -115,8 +116,8 @@ class ListUpdateModelMixinTest(APITestCase):
             self.assertEqual(comment.email, self.comments[i].email)
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.mixins.list_update_model_mixin.urls')
 class ListUpdateModelMixinTestBehaviour__serializer_fields(APITestCase):
-    urls = urlpatterns
 
     def setUp(self):
         self.user = User.objects.create(

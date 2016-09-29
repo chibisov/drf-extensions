@@ -3,7 +3,6 @@ import itertools
 from functools import wraps
 
 from django import VERSION as django_version
-from django.utils.decorators import available_attrs
 
 import rest_framework
 
@@ -19,24 +18,20 @@ def get_rest_framework_features():
     return {
         'router_trailing_slash': get_rest_framework_version() >= (2, 3, 6),
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
-        'use_dot_in_lookup_regex_by_default': get_rest_framework_version() >= (2, 4, 0),  # todo: test me
+        'use_dot_in_lookup_regex_by_default': get_rest_framework_version() >= (2, 4, 0),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
         'django_object_permissions_class': get_rest_framework_version() >= (2, 3, 8),
-        'save_related_serializers': get_rest_framework_version() >= (2, 3, 8),  # todo: test me
-        'write_only_fields': get_rest_framework_version() >= (2, 3, 11),  # todo: test me
-        'has_action_and_link_decorators': get_rest_framework_version() < (3, 0),  # todo: test me
-        'has_auto_writable_nested_serialization': get_rest_framework_version() < (3, 0),  # todo: test me
-        'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),  # todo: test me
-        'allows_to_send_custom_kwargs_for_saving_object_in_serializers': get_rest_framework_version() <= (3, 0),  # todo: test me
-        'single_step_object_creation_in_serializers': get_rest_framework_version() >= (3, 0),  # todo: test me
+        'write_only_fields': get_rest_framework_version() >= (2, 3, 11),
+        'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),
+        'allows_to_send_custom_kwargs_for_saving_object_in_serializers': get_rest_framework_version() <= (3, 0),
+        'uses_single_request_data_in_serializers': get_rest_framework_version() >= (3, 0),
     }
 
 
 def get_django_features():
     # todo: test me
     return {
-        'has_odd_space_in_sql_query': django_version < (1, 7, 0),
-        'caches_singleton': django_version >= (1, 7, 0),  # https://docs.djangoproject.com/en/dev/releases/1.7/#cache
+        'caches_singleton': django_version >= (1, 7, 0)
     }
 
 
@@ -46,7 +41,8 @@ def get_rest_framework_version():
 
 def flatten(list_of_lists):
     """
-    Takes an iterable of iterables, returns a single iterable containing all items
+    Takes an iterable of iterables,
+    returns a single iterable containing all items
     """
     # todo: test me
     return itertools.chain(*list_of_lists)
@@ -54,8 +50,8 @@ def flatten(list_of_lists):
 
 def prepare_header_name(name):
     """
-        >> prepare_header_name('Accept-Language')
-        http_accept_language
+    >> prepare_header_name('Accept-Language')
+    http_accept_language
     """
     return 'http_{0}'.format(name.strip().replace('-', '_')).upper()
 
@@ -81,15 +77,6 @@ def compose_parent_pk_kwarg_name(value):
         extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,
         value
     )
-
-def get_cache(alias):
-    # todo: test me
-    if get_django_features()['caches_singleton']:
-        from django.core.cache import caches
-        return caches[alias]
-    else:
-        from django.core.cache import get_cache as _get_cache
-        return _get_cache(alias)
 
 
 default_cache_key_func = DefaultKeyConstructor()

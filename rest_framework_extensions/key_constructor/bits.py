@@ -3,7 +3,7 @@ from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
 from django.db.models.sql.datastructures import EmptyResultSet
 
-from rest_framework_extensions.compat import force_text
+from django.utils.encoding import force_text
 
 
 class AllArgsMixin(object):
@@ -171,10 +171,14 @@ class PaginationKeyBit(QueryParamsKeyBit):
     """
     def get_data(self, **kwargs):
         kwargs['params'] = []
-        if hasattr(kwargs['view_instance'], 'page_kwarg'):
-            kwargs['params'].append(kwargs['view_instance'].page_kwarg)
-        if hasattr(kwargs['view_instance'], 'paginate_by_param'):
-            kwargs['params'].append(kwargs['view_instance'].paginate_by_param)
+        if hasattr(kwargs['view_instance'], 'paginator'):
+            if hasattr(kwargs['view_instance'].paginator, 'page_query_param'):
+                kwargs['params'].append(
+                    kwargs['view_instance'].paginator.page_query_param)
+            if hasattr(kwargs['view_instance'].paginator,
+                       'page_size_query_param'):
+                kwargs['params'].append(
+                    kwargs['view_instance'].paginator.page_size_query_param)
         return super(PaginationKeyBit, self).get_data(**kwargs)
 
 

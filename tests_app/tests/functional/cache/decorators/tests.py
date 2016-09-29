@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import datetime
 
-from django.test import TestCase
-from rest_framework_extensions.compat import force_text
-
-from .urls import urlpatterns
+from django.test import TestCase, override_settings
+from django.utils.encoding import force_text
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.cache.decorators.urls')
 class TestCacheResponseFunctionally(TestCase):
-    urls = urlpatterns
 
     def test_should_return_response(self):
         resp = self.client.get('/hello/')

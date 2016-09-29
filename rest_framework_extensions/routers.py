@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from distutils.version import StrictVersion
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
 
+import rest_framework
 from rest_framework.routers import (
     DefaultRouter,
     SimpleRouter,
@@ -40,7 +42,7 @@ class ExtendedActionLinkRouterMixin(object):
             initkwargs={'suffix': 'Instance'}
         ),
         # Dynamically generated routes.
-        # Generated using @action or @link decorators on methods of the viewset.
+        # Generated using @list_route or @detail_route decorators on methods of the viewset.
         # List
         Route(
             url=add_trailing_slash_if_needed(r'^{prefix}/{methodname}/$'),
@@ -70,13 +72,13 @@ class ExtendedActionLinkRouterMixin(object):
         Returns a list of the Route namedtuple.
         """
 
-        # Determine any `@action` or `@link` decorated methods on the viewset
+        # Determine any `@list_route` or `@detail_route` decorated methods on the viewset
         dynamic_routes = self.get_dynamic_routes(viewset)
 
         ret = []
         for route in self._routs:
             if self.is_dynamic_route(route):
-                # Dynamic routes (@link or @action decorator)
+                # Dynamic routes (@list_route or @detail_route decorator)
                 if self.is_list_dynamic_route(route):
                     ret += self.get_dynamic_routes_instances(
                         viewset,
@@ -109,9 +111,9 @@ class ExtendedActionLinkRouterMixin(object):
             httpmethods = getattr(attr, 'bind_to_methods', None)
             if httpmethods:
                 endpoint = getattr(attr, 'endpoint', methodname)
-                is_for_list = getattr(attr, 'is_for_list', False)
+                is_for_list = getattr(attr, 'is_for_list', not getattr(attr, 'detail', True))
                 if endpoint in known_actions:
-                    raise ImproperlyConfigured('Cannot use @action or @link decorator on '
+                    raise ImproperlyConfigured('Cannot use @detail_route or @list_route decorator on '
                                                'method "%s" as %s is an existing route'
                                                % (methodname, endpoint))
                 httpmethods = [method.lower() for method in httpmethods]
@@ -137,10 +139,11 @@ class ExtendedActionLinkRouterMixin(object):
         for httpmethods, methodname, endpoint, is_for_list in dynamic_routes:
             initkwargs = route.initkwargs.copy()
             initkwargs.update(getattr(viewset, methodname).kwargs)
+            url_path = initkwargs.pop('url_path', endpoint)
             dynamic_routes_instances.append(Route(
-                url=replace_methodname(route.url, endpoint),
+                url=replace_methodname(route.url, url_path),
                 mapping=dict((httpmethod, methodname) for httpmethod in httpmethods),
-                name=replace_methodname(route.name, endpoint),
+                name=replace_methodname(route.name, url_path),
                 initkwargs=initkwargs,
             ))
         return dynamic_routes_instances
@@ -201,10 +204,15 @@ class NestedRouterMixin(object):
             parent_viewset=self.registry[-1][1]
         )
 
-    def get_api_root_view(self):
+    def get_api_root_view(self, **kwargs):
         """
         Return a view to use as the API root.
+        Important to maintain compat with DRF 3.4.0
         """
+        if StrictVersion(rest_framework.VERSION) >= StrictVersion('3.4.0'):
+            return super(NestedRouterMixin, self).get_api_root_view(**kwargs)
+        if StrictVersion(rest_framework.VERSION) >= StrictVersion('2.4.3'):
+            return super(NestedRouterMixin, self).get_api_root_view()
         api_root_dict = {}
         list_name = self.routes[0].name
         for prefix, viewset, basename in self.registry:

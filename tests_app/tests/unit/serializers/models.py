@@ -20,7 +20,8 @@ class CommentModel(models.Model):
     users_liked = models.ManyToManyField(UserModel, blank=True, null=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=200)
-    attachment = models.FileField(upload_to=upload_to, blank=True, null=True)
+    attachment = models.FileField(
+        upload_to=upload_to, blank=True, null=True, max_length=500)
     hidden_text = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:

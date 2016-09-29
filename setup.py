@@ -44,7 +44,7 @@ version = get_version('rest_framework_extensions')
 
 if sys.argv[-1] == 'publish':
     os.system("python setup.py sdist upload")
-    # os.system("python setup.py bdist_wheel upload")  # todo
+    os.system("python setup.py bdist_wheel upload")
     print("You probably want to also tag the version now:")
     print("  git tag -a %s -m 'version %s'" % (version, version))
     print("  git push --tags")
@@ -57,7 +57,7 @@ setup(
     url='http://github.com/chibisov/drf-extensions',
     download_url='https://pypi.python.org/pypi/drf-extensions/',
     license='BSD',
-    install_requires=['djangorestframework>=2.3.5'],
+    install_requires=['djangorestframework>=3.3.1'],
     description='Extensions for Django REST Framework',
     long_description='DRF-extensions is a collection of custom extensions for Django REST Framework',
     author='Gennady Chibisov',

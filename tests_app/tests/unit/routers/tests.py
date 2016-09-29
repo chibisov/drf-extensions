@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.utils import unittest
 
 from rest_framework import viewsets
-from rest_framework import decorators
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.routers import ExtendedDefaultRouter
-from rest_framework_extensions.decorators import link, action
 from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
 
 
@@ -29,91 +26,116 @@ class ExtendedDefaultRouterTest(TestCase):
             def list(self, request, *args, **kwargs):
                 return Response({'method': 'list'})
 
-            @action()
-            def action1(self, request, *args, **kwargs):
-                return Response({'method': 'action1'})
-
-            @link()
-            def link1(self, request, *args, **kwargs):
-                return Response({'method': 'link1'})
+            @detail_route()
+            def detail1(self, request, *args, **kwargs):
+                return Response({'method': 'detail1'})
 
         routes = self.router.get_routes(BasicViewSet)
         expected = [
-            '{basename}-action1',
-            '{basename}-link1',
+            '{basename}-detail1',
             '{basename}-list',
             '{basename}-detail'
         ]
-        msg = '@action and @link methods should come first in routes order'
+        msg = '@detail_route methods should come first in routes order'
         self.assertEqual(self.get_routes_names(routes), expected, msg)
 
-    def test_action_endpoint(self):
+    def test_detail_route(self):
         class BasicViewSet(viewsets.ViewSet):
-            @action(endpoint='action-one')
+            @detail_route()
             def action1(self, request, *args, **kwargs):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
         action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
-        msg = '@action with endpoint route should map methods to endpoint if it is specified'
+        msg = '@detail_route should map methods to def name'
+        self.assertEqual(action1_route.mapping, {'get': 'action1'}, msg)
+
+        msg = '@detail_route should use url with detail lookup'
+        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action1/$'), msg)
+
+    def test_detail_route__with_methods(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @detail_route(methods=['post'])
+            def action1(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
+
+        msg = '@detail_route should map methods to def name'
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
-        msg = '@action with endpoint route should use url with detail lookup'
+        msg = '@detail_route should use url with detail lookup'
+        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action1/$'), msg)
+
+    def test_detail_route__with_methods__and__with_url_path(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @detail_route(methods=['post'], url_path='action-one')
+            def action1(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
+
+        msg = '@detail_route should map methods to "url_path"'
+        self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
+
+        msg = '@detail_route should use url with detail lookup and "url_path" value'
         self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'), msg)
 
-    def test_link_endpoint(self):
+    def test_list_route(self):
         class BasicViewSet(viewsets.ViewSet):
-            @link(endpoint='link-one')
-            def link1(self, request, *args, **kwargs):
-                pass
-
-        routes = self.router.get_routes(BasicViewSet)
-        link1_route = self.get_dynamic_route_by_def_name('link1', routes)
-
-        msg = '@link with endpoint route should map methods to endpoint if it is specified'
-        self.assertEqual(link1_route.mapping, {'get': 'link1'}, msg)
-
-        msg = '@link with endpoint route should use url with detail lookup'
-        self.assertEqual(link1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/link-one/$'), msg)
-
-    def test_action__for_list(self):
-        class BasicViewSet(viewsets.ViewSet):
-            @action(is_for_list=True)
+            @list_route()
             def action1(self, request, *args, **kwargs):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
         action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
-        msg = '@action with is_for_list=True route should map methods to def name'
-        self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
+        msg = '@list_route should map methods to def name'
+        self.assertEqual(action1_route.mapping, {'get': 'action1'}, msg)
 
-        msg = '@action with is_for_list=True route should use url in list scope'
+        msg = '@list_route should use url in list scope'
         self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action1/$'), msg)
 
-    def test_action__for_list__and__with_endpoint(self):
+    def test_list_route__with_methods(self):
         class BasicViewSet(viewsets.ViewSet):
-            @action(is_for_list=True, endpoint='action-one')
+            @list_route(methods=['post'])
             def action1(self, request, *args, **kwargs):
                 pass
 
         routes = self.router.get_routes(BasicViewSet)
         action1_route = self.get_dynamic_route_by_def_name('action1', routes)
 
-        msg = '@action with is_for_list=True and endpoint route should map methods to "endpoint"'
+        msg = '@list_route should map methods to def name'
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
-        msg = '@action with is_for_list=True and endpoint route should use url in list scope with "endpoint" value'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'), msg)
+        msg = '@list_route should use url in list scope'
+        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action1/$'), msg)
 
-    def test_actions__for_list_and_detail_with_exact_names(self):
+    def test_list_route__with_methods__and__with_url_path(self):
         class BasicViewSet(viewsets.ViewSet):
-            @action(is_for_list=True, endpoint='action-one')
+            @list_route(methods=['post'], url_path='action-one')
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @action(endpoint='action-one')
+        routes = self.router.get_routes(BasicViewSet)
+        action1_route = self.get_dynamic_route_by_def_name('action1', routes)
+
+        msg = '@list_route should map methods to "url_path"'
+        self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
+
+        msg = '@list_route should use url in list scope with "url_path" value'
+        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'), msg)
+
+    def test_list_route_and_detail_route_with_exact_names(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @list_route(url_path='action-one')
+            def action1(self, request, *args, **kwargs):
+                pass
+
+            @detail_route(url_path='action-one')
             def action1_detail(self, request, *args, **kwargs):
                 pass
 
@@ -121,19 +143,19 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action1_detail_route = self.get_dynamic_route_by_def_name('action1_detail', routes)
 
-        self.assertEqual(action1_list_route.mapping, {'post': 'action1'})
+        self.assertEqual(action1_list_route.mapping, {'get': 'action1'})
         self.assertEqual(action1_list_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'))
 
-        self.assertEqual(action1_detail_route.mapping, {'post': 'action1_detail'})
+        self.assertEqual(action1_detail_route.mapping, {'get': 'action1_detail'})
         self.assertEqual(action1_detail_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'))
 
-    def test_action_names(self):
+    def test_list_route_and_detail_route_names(self):
         class BasicViewSet(viewsets.ViewSet):
-            @action(is_for_list=True)
+            @list_route()
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @action()
+            @detail_route()
             def action2(self, request, *args, **kwargs):
                 pass
 
@@ -144,13 +166,13 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_list_route.name, u'{basename}-action1-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action2')
 
-    def test_action_names__with_endpoints(self):
+    def test_list_route_and_detail_route_names__with_endpoints(self):
         class BasicViewSet(viewsets.ViewSet):
-            @action(is_for_list=True, endpoint='action_one')
+            @list_route(url_path='action_one')
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @action(endpoint='action-two')
+            @detail_route(url_path='action-two')
             def action2(self, request, *args, **kwargs):
                 pass
 
@@ -160,36 +182,3 @@ class ExtendedDefaultRouterTest(TestCase):
 
         self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
-
-    @unittest.skipIf(
-        not get_rest_framework_features()['has_action_and_link_decorators'],
-        "Current DRF version has removed 'action' and 'link' decorators"
-    )
-    def test_with_default_controllers(self):
-        class BasicViewSet(viewsets.ViewSet):
-            @link()
-            def link(self, request, *args, **kwargs):
-                pass
-
-            @decorators.link()
-            def link_default(self, request, *args, **kwargs):
-                pass
-
-            @action()
-            def action(self, request, *args, **kwargs):
-                pass
-
-            @decorators.action()
-            def action_default(self, request, *args, **kwargs):
-                pass
-
-        routes = self.router.get_routes(BasicViewSet)
-        link_route = self.get_dynamic_route_by_def_name('link', routes)
-        link_default_route = self.get_dynamic_route_by_def_name('link_default', routes)
-        action_route = self.get_dynamic_route_by_def_name('action', routes)
-        action_default_route = self.get_dynamic_route_by_def_name('action_default', routes)
-
-        self.assertEqual(link_route.name, u'{basename}-link')
-        self.assertEqual(link_default_route.name, u'{basename}-link-default')
-        self.assertEqual(action_route.name, u'{basename}-action')
-        self.assertEqual(action_default_route.name, u'{basename}-action-default')

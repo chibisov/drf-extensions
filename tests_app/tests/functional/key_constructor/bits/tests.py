@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.test import override_settings
+
 from rest_framework_extensions.test import APITestCase
 
-from .models import KeyConstructorUserProperty, KeyConstructorUserModel
+from .models import KeyConstructorUserProperty
 
 
-class ListSqlQueryKeyBitTestBehaviour__with_bad_filter_arguments(APITestCase):
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.key_constructor.bits.urls')
+class ListSqlQueryKeyBitTestBehaviour(APITestCase):
     """Regression tests for https://github.com/chibisov/drf-extensions/issues/28#issuecomment-51711927
 
     `rest_framework.filters.DjangoFilterBackend` uses defalut `FilterSet`.
@@ -12,7 +15,6 @@ class ListSqlQueryKeyBitTestBehaviour__with_bad_filter_arguments(APITestCase):
         {'property': [u'Select a valid choice. That choice is not one of the available choices.']}
     In that case `FilterSet.qs` returns `self.queryset.none()`
     """
-    urls = 'tests_app.tests.functional.key_constructor.bits.urls'
 
     def test_with_fk_in_db(self):
         KeyConstructorUserProperty.objects.create(name='some property')

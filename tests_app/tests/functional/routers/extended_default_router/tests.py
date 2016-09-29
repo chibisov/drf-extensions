@@ -1,29 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import NoReverseMatch
+from django.test import override_settings
 
 from rest_framework_extensions.test import APITestCase
-from rest_framework_extensions.routers import ExtendedDefaultRouter
-
-from .views import (
-    UserViewSet,
-    GroupViewSet,
-    PermissionViewSet,
-)
 
 
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.routers.extended_default_router.urls')
 class ExtendedDefaultRouterTestBehaviour(APITestCase):
-    router = ExtendedDefaultRouter()
-    # nested routes
-    (
-        router.register(r'users', UserViewSet)
-              .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups'])
-              .register(r'permissions', PermissionViewSet, 'users-groups-permission', parents_query_lookups=['group__user', 'group'])
-    )
-    # simple routes
-    router.register(r'groups', GroupViewSet, 'group')
-    router.register(r'permissions', PermissionViewSet, 'permission')
-
-    urls = tuple(router.urls)
 
     def test_index_page(self):
         try:

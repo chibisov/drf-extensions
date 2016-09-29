@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route, list_route
 
-from rest_framework_extensions.decorators import action
 from .models import RouterTestModel
 
 
 class RouterViewSet(viewsets.ModelViewSet):
-    model = RouterTestModel
+    queryset = RouterTestModel.objects.all()
 
-    @action()
+    @detail_route()
     def detail_controller(self):
         pass
 
-    @action(is_for_list=True)
+    @list_route()
     def list_controller(self):
         pass

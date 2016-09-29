@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.test import TestCase
-from django.utils import unittest
 from django.contrib.auth.models import User, Group, Permission
-from django.contrib.auth.management import create_permissions
-from django.db.models import get_app, get_models
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 
 from rest_framework import status
 from rest_framework_extensions.test import APITestCase
 
-from rest_framework_extensions.compat import guardian, get_model_name
-from rest_framework_extensions.utils import get_rest_framework_features
+from rest_framework_extensions.compat import get_model_name
 
 from tests_app.testutils import basic_auth_header
-from .urls import urlpatterns
 from .models import PermissionsComment
 
 
@@ -45,7 +40,7 @@ class ExtendedDjangoObjectPermissionTestMixin(object):
         app_label = PermissionsComment._meta.app_label
         f = '{0}_{1}'.format
         perms = {
-            'view':   f('view', model_name),
+            'view': f('view', model_name),
             'change': f('change', model_name),
             'delete': f('delete', model_name)
         }
@@ -74,21 +69,21 @@ class ExtendedDjangoObjectPermissionTestMixin(object):
             self.credentials[user.username] = basic_auth_header(user.username, 'password')
 
 
-@unittest.skipIf(
-    not get_rest_framework_features()['django_object_permissions_class'],
-    "Current DRF version doesn't support DjangoObjectPermissions"
-)
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.permissions.extended_django_object_permissions.urls')
 class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjangoObjectPermissionTestMixin,
                                                                   APITestCase):
-    urls = urlpatterns
 
     # Delete
     def test_can_delete_permissions(self):
-        response = self.client.delete('/comments/1/', **{'HTTP_AUTHORIZATION': self.credentials['deleteonly']})
+        response = self.client.delete(
+            '/comments/1/',
+            **{'HTTP_AUTHORIZATION': self.credentials['deleteonly']})
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_cannot_delete_permissions(self):
-        response = self.client.delete('/comments/1/', **{'HTTP_AUTHORIZATION': self.credentials['readonly']})
+        response = self.client.delete(
+            '/comments/1/',
+            **{'HTTP_AUTHORIZATION': self.credentials['readonly']})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Update
@@ -128,11 +123,15 @@ class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjango
 
     # Read
     def test_can_read_permissions(self):
-        response = self.client.get('/comments/1/', **{'HTTP_AUTHORIZATION': self.credentials['readonly']})
+        response = self.client.get(
+            '/comments/1/',
+            **{'HTTP_AUTHORIZATION': self.credentials['readonly']})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_cannot_read_permissions(self):
-        response = self.client.get('/comments/1/', **{'HTTP_AUTHORIZATION': self.credentials['writeonly']})
+        response = self.client.get(
+            '/comments/1/',
+            **{'HTTP_AUTHORIZATION': self.credentials['writeonly']})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # Read list
@@ -153,13 +152,9 @@ class ExtendedDjangoObjectPermissionsTest_should_inherit_standard(ExtendedDjango
         self.assertListEqual(response.data, [])
 
 
-@unittest.skipIf(
-    not get_rest_framework_features()['django_object_permissions_class'],
-    "Current DRF version doesn't support DjangoObjectPermissions"
-)
+@override_settings(ROOT_URLCONF='tests_app.tests.functional.permissions.extended_django_object_permissions.urls')
 class ExtendedDjangoObjectPermissionsTest_without_hiding_forbidden_objects(ExtendedDjangoObjectPermissionTestMixin,
                                                                            APITestCase):
-    urls = urlpatterns
 
     # Delete
     def test_can_delete_permissions(self):
