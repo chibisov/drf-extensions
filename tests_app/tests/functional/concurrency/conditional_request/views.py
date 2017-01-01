@@ -9,3 +9,4 @@ class BookViewSet(ETAGMixin,
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
