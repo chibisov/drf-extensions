@@ -424,11 +424,13 @@ class ListModelKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset(self):
-        # create 2 models
+        # create 4 models
+        BitTestModel.objects.create(is_active=True)
+        BitTestModel.objects.create(is_active=True)
         BitTestModel.objects.create(is_active=True)
         BitTestModel.objects.create(is_active=True)
 
-        expected = u"<QuerySet [{'id': 1, 'is_active': True}, {'id': 2, 'is_active': True}]>"
+        expected = u"<QuerySet [(1, True), (2, True), (3, True), (4, True)]>"
 
         response = ListModelKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
@@ -504,7 +506,7 @@ class RetrieveModelKeyBitTest(TestCase):
         model = BitTestModel.objects.create(is_active=True)
         self.kwargs['view_instance'].kwargs = {'id': model.id}
 
-        expected = u"<QuerySet [{'id': %s, 'is_active': True}]>" % model.id
+        expected = u"<QuerySet [(%s, True)]>" % model.id
 
         response = RetrieveModelKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
