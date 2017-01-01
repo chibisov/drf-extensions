@@ -199,7 +199,7 @@ class ModelInstanceKeyBitBase(KeyBitBase):
     This class is similar to the `SqlQueryKeyBitBase`.
     """
     def _get_queryset_query_values(self, queryset):
-        if isinstance(queryset, EmptyQuerySet):
+        if isinstance(queryset, EmptyQuerySet) or queryset.count() == 0:
             return None
         else:
             try:

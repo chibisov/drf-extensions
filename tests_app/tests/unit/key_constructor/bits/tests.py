@@ -22,6 +22,8 @@ from rest_framework_extensions.key_constructor.bits import (
     PaginationKeyBit,
     ListSqlQueryKeyBit,
     RetrieveSqlQueryKeyBit,
+    ListModelKeyBit,
+    RetrieveModelKeyBit,
     ArgsKeyBit,
     KwargsKeyBit,
 )
@@ -408,6 +410,40 @@ class ListSqlQueryKeyBitTest(TestCase):
         self.assertEqual(response, None)
 
 
+class ListModelKeyBitTest(TestCase):
+    def setUp(self):
+        self.kwargs = {
+            'params': None,
+            'view_instance': Mock(),
+            'view_method': None,
+            'request': None,
+            'args': None,
+            'kwargs': None
+        }
+        self.kwargs['view_instance'].get_queryset = Mock(return_value=BitTestModel.objects.all())
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
+
+    def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset(self):
+        # create 2 models
+        BitTestModel.objects.create(is_active=True)
+        BitTestModel.objects.create(is_active=True)
+
+        expected = u"<QuerySet [{'id': 1, 'is_active': True}, {'id': 2, 'is_active': True}]>"
+
+        response = ListModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, expected)
+
+    def test_should_return_none_if_empty_queryset(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
+        response = ListModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+    def test_should_return_none_if_empty_result_set_raised(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(pk__in=[])
+        response = ListModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+
 class RetrieveSqlQueryKeyBitTest(TestCase):
     def setUp(self):
         self.kwargs = {
@@ -446,6 +482,46 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
     def test_should_return_none_if_empty_result_set_raised(self):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(pk__in=[])
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+
+class RetrieveModelKeyBitTest(TestCase):
+    def setUp(self):
+        self.kwargs = {
+            'params': None,
+            'view_instance': Mock(),
+            'view_method': None,
+            'request': None,
+            'args': None,
+            'kwargs': None
+        }
+        self.kwargs['view_instance'].kwargs = {'id': 123}
+        self.kwargs['view_instance'].lookup_field = 'id'
+        self.kwargs['view_instance'].get_queryset = Mock(return_value=BitTestModel.objects.all())
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
+
+    def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field(self):
+        model = BitTestModel.objects.create(is_active=True)
+        self.kwargs['view_instance'].kwargs = {'id': model.id}
+
+        expected = u"<QuerySet [{'id': %s, 'is_active': True}]>" % model.id
+
+        response = RetrieveModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, expected)
+
+    def test_with_bad_lookup_value(self):
+        self.kwargs['view_instance'].kwargs = {'id': "I'm ganna hack u are!"}
+        response = RetrieveModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+    def test_should_return_none_if_empty_queryset(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.none()
+        response = RetrieveModelKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, None)
+
+    def test_should_return_none_if_empty_result_set_raised(self):
+        self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(pk__in=[])
+        response = RetrieveModelKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, None)
 
 
