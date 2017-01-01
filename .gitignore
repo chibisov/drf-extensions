@@ -6,3 +6,4 @@ __pycache__/
 .idea
 env
 dist
+.DS_Store
