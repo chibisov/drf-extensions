@@ -11,5 +11,5 @@ class BookViewSet(ETAGMixin,
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-    # use a custom object_etag_func
+    # use a custom object_etag_func (semantic hash of the object's contents)
     object_etag_func = ModelInstanceKeyConstructor()
