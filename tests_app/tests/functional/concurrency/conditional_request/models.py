@@ -2,6 +2,8 @@ from django.db import models
 
 
 class Book(models.Model):
+    """A sample model for conditional requests."""
+
     class Meta:
         app_label = 'tests_app'
 
