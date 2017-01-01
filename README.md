@@ -11,7 +11,7 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 ## Requirements
 
 * Tested for python 2.7 and 3.4, 3.5 versions
-* Tested for releases of Django Rest Framework from 3.1.x to 3.4 versions
+* Tested for releases of Django Rest Framework from 3.1.x to 3.5.3 versions
 * Tested for Django from 1.8 to 1.10 versions
 
 ## Installation:
