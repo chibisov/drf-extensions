@@ -212,6 +212,20 @@ class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
             return self._get_queryset_query_string(queryset)
 
 
+class RetrieveModelInstanceKeyBit(KeyBitBase):
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        lookup_value = view_instance.kwargs[view_instance.lookup_field]
+        try:
+            queryset = view_instance.filter_queryset(view_instance.get_queryset()).filter(
+                **{view_instance.lookup_field: lookup_value}
+            )
+        except ValueError:
+            return None
+        else:
+            # instead of the SQL string, return the values of the queryset
+            return force_text(queryset.values())
+
+
 class ArgsKeyBit(AllArgsMixin, KeyBitBase):
 
     def get_data(self, params, view_instance, view_method, request, args, kwargs):

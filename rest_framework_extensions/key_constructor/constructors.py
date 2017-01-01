@@ -104,3 +104,7 @@ class DefaultObjectKeyConstructor(DefaultKeyConstructor):
 class DefaultListKeyConstructor(DefaultKeyConstructor):
     list_sql_query = bits.ListSqlQueryKeyBit()
     pagination = bits.PaginationKeyBit()
+
+
+class ModelInstanceKeyConstructor(KeyConstructor):
+    retrieve_sql_query = bits.RetrieveModelInstanceKeyBit()
