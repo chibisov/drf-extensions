@@ -154,3 +154,22 @@ class BookAPITestCases(APITestCase):
                                            HTTP_IF_MATCH=etag)
 
         self.assertEqual(book_response.status_code, status.HTTP_204_NO_CONTENT, 'The response status code must be 204!')
+
+    def test_book_conditional_delete_fail(self):
+        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 204."""
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # alter the book
+        self.alter_book_issn()
+
+        # delete the instance
+        book_response = self.client.delete(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                           HTTP_IF_MATCH=etag)
+
+        self.assertEqual(book_response.status_code, status.HTTP_412_PRECONDITION_FAILED,
+                         'The response status code must be 412!')
+
