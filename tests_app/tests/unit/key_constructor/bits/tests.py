@@ -430,7 +430,7 @@ class ListModelKeyBitTest(TestCase):
         BitTestModel.objects.create(is_active=True)
         BitTestModel.objects.create(is_active=True)
 
-        expected = u"<QuerySet [(1, True), (2, True), (3, True), (4, True)]>"
+        expected = u"[(1, True), (2, True), (3, True), (4, True)]"
 
         response = ListModelKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
@@ -506,7 +506,7 @@ class RetrieveModelKeyBitTest(TestCase):
         model = BitTestModel.objects.create(is_active=True)
         self.kwargs['view_instance'].kwargs = {'id': model.id}
 
-        expected = u"<QuerySet [(%s, True)]>" % model.id
+        expected = u"[(%s, True)]" % model.id
 
         response = RetrieveModelKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)

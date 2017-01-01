@@ -8,7 +8,8 @@ from django.test import override_settings
 @override_settings(ROOT_URLCONF='tests_app.tests.functional.concurrency.conditional_request.urls')
 class BookAPITestCases(APITestCase):
     """
-    Run the conditional requests test cases (django 1.10 only):
+    Run the conditional requests test cases.
+    It uses django >=1.9 to avoid "AttributeError: 'Response' object has no attribute 'json'":
 
         `tox -e django.1.10 -- tests_app.tests.functional.concurrency.conditional_request.tests`
     """
