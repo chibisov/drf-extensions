@@ -106,5 +106,26 @@ class DefaultListKeyConstructor(DefaultKeyConstructor):
     pagination = bits.PaginationKeyBit()
 
 
-class ModelInstanceKeyConstructor(KeyConstructor):
-    retrieve_sql_query = bits.RetrieveModelInstanceKeyBit()
+class DefaultAPIKeyConstructor(KeyConstructor):
+    """
+    API view constructor that does not include the concrete HTTP method.
+    """
+    unique_method_id = bits.UniqueViewIdKeyBit()
+    format = bits.FormatKeyBit()
+    language = bits.LanguageKeyBit()
+
+
+class DefaultAPIModelInstanceKeyConstructor(KeyConstructor):
+    """
+    Use this constructor when the values of the model instance are required
+    to identify the resource.
+    """
+    retrieve_sql_query = bits.RetrieveModelKeyBit()
+
+
+class DefaultAPIModelListKeyConstructor(KeyConstructor):
+    """
+    Use this constructor when the values of the model instance are required
+    to identify many resources.
+    """
+    list_sql_query = bits.ListModelKeyBit()

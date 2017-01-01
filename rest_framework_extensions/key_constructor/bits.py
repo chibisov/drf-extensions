@@ -227,7 +227,7 @@ class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
             return self._get_queryset_query_string(queryset)
 
 
-class RetrieveModelInstanceKeyBit(ModelInstanceKeyBitBase):
+class RetrieveModelKeyBit(ModelInstanceKeyBitBase):
     """A key bit reflecting the contents of the model instance."""
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
