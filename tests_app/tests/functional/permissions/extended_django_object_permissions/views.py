@@ -32,6 +32,8 @@ class CommentObjectPermissions(ExtendedDjangoObjectPermissions):
 class PermissionsCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermissionsComment
+        fields = '__all__'
+
 
 class CommentObjectPermissionsWithoutHidingForbiddenObjects(CommentObjectPermissions):
     hide_forbidden_for_read_objects = False

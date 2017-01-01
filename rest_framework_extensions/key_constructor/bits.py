@@ -203,7 +203,8 @@ class ModelInstanceKeyBitBase(KeyBitBase):
             return None
         else:
             try:
-                return force_text(queryset.values())
+                # run through the instances and collect all values in ordered fashion
+                return force_text(queryset.values_list())
             except EmptyResultSet:
                 return None
 
