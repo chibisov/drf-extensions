@@ -7,3 +7,4 @@ from .models import KeyConstructorUserModel
 class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = KeyConstructorUserModel
+        fields = '__all__'
