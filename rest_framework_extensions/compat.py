@@ -208,3 +208,14 @@ else:
     def is_non_str_iterable(obj):
         return hasattr(obj, '__iter__')
 
+
+# handle different QuerySet representations
+def queryset_to_value_list(queryset):
+    assert isinstance(queryset, str)
+
+    # django 1.10 introduces syntax "<QuerySet [(#1), (#2), ...]>"
+    # we extract only the list of tuples from the string
+    idx_bracket_open = queryset.find(u'[')
+    idx_bracket_close = queryset.rfind(u']')
+
+    return queryset[idx_bracket_open:idx_bracket_close+1]

@@ -5,6 +5,8 @@ from django.db.models.sql.datastructures import EmptyResultSet
 
 from django.utils.encoding import force_text
 
+from rest_framework_extensions import compat
+
 
 class AllArgsMixin(object):
 
@@ -204,7 +206,7 @@ class ModelInstanceKeyBitBase(KeyBitBase):
         else:
             try:
                 # run through the instances and collect all values in ordered fashion
-                return force_text(queryset.values_list())
+                return compat.queryset_to_value_list(force_text(queryset.values_list()))
             except EmptyResultSet:
                 return None
 
