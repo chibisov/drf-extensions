@@ -193,6 +193,21 @@ class SqlQueryKeyBitBase(KeyBitBase):
                 return None
 
 
+class ModelInstanceKeyBitBase(KeyBitBase):
+    """
+    Return the actual contents of the query set.
+    This class is similar to the `SqlQueryKeyBitBase`.
+    """
+    def _get_queryset_query_values(self, queryset):
+        if isinstance(queryset, EmptyQuerySet):
+            return None
+        else:
+            try:
+                return force_text(queryset.values())
+            except EmptyResultSet:
+                return None
+
+
 class ListSqlQueryKeyBit(SqlQueryKeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         queryset = view_instance.filter_queryset(view_instance.get_queryset())
@@ -212,7 +227,8 @@ class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
             return self._get_queryset_query_string(queryset)
 
 
-class RetrieveModelInstanceKeyBit(KeyBitBase):
+class RetrieveModelInstanceKeyBit(ModelInstanceKeyBitBase):
+    """A key bit reflecting the contents of the model instance."""
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
         try:
@@ -222,8 +238,14 @@ class RetrieveModelInstanceKeyBit(KeyBitBase):
         except ValueError:
             return None
         else:
-            # instead of the SQL string, return the values of the queryset
-            return force_text(queryset.values())
+            return self._get_queryset_query_values(queryset)
+
+
+class ListModelKeyBit(ModelInstanceKeyBitBase):
+    """A key bit reflecting the contents of a list of model instances."""
+    def get_data(self, params, view_instance, view_method, request, args, kwargs):
+        queryset = view_instance.filter_queryset(view_instance.get_queryset())
+        return self._get_queryset_query_values(queryset)
 
 
 class ArgsKeyBit(AllArgsMixin, KeyBitBase):
