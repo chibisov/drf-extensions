@@ -20,6 +20,11 @@ DEFAULTS = {
     'DEFAULT_OBJECT_ETAG_FUNC': 'rest_framework_extensions.utils.default_object_etag_func',
     'DEFAULT_LIST_ETAG_FUNC': 'rest_framework_extensions.utils.default_list_etag_func',
 
+    # API - ETAG
+    'DEFAULT_API_ETAG_FUNC': 'rest_framework_extensions.utils.default_api_etag_func',
+    'DEFAULT_API_OBJECT_ETAG_FUNC': 'rest_framework_extensions.utils.default_api_object_etag_func',
+    'DEFAULT_API_LIST_ETAG_FUNC': 'rest_framework_extensions.utils.default_api_list_etag_func',
+
     # other
     'DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST': False,
     'DEFAULT_BULK_OPERATION_HEADER_NAME': 'X-BULK-OPERATION',
@@ -33,6 +38,10 @@ IMPORT_STRINGS = [
     'DEFAULT_ETAG_FUNC',
     'DEFAULT_OBJECT_ETAG_FUNC',
     'DEFAULT_LIST_ETAG_FUNC',
+    # API - ETAG
+    'DEFAULT_API_ETAG_FUNC',
+    'DEFAULT_API_OBJECT_ETAG_FUNC',
+    'DEFAULT_API_LIST_ETAG_FUNC',
 ]
 
 

@@ -134,4 +134,14 @@ class ETAGProcessor(object):
         return Response(status=status.HTTP_412_PRECONDITION_FAILED)
 
 
+class APIETAGProcessor(ETAGProcessor):
+    """This subclass uses different default ETag function."""
+    def __init__(self, etag_func=None, rebuild_after_method_evaluation=False):
+        if not etag_func:
+            etag_func = extensions_api_settings.DEFAULT_API_ETAG_FUNC
+        super(APIETAGProcessor, self).__init__(etag_func=etag_func,
+                                               rebuild_after_method_evaluation=rebuild_after_method_evaluation)
+
+
 etag = ETAGProcessor
+api_etag = APIETAGProcessor

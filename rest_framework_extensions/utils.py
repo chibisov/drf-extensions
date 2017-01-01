@@ -10,6 +10,9 @@ from rest_framework_extensions.key_constructor.constructors import (
     DefaultKeyConstructor,
     DefaultObjectKeyConstructor,
     DefaultListKeyConstructor,
+    DefaultAPIKeyConstructor,
+    DefaultAPIModelInstanceKeyConstructor,
+    DefaultAPIModelListKeyConstructor
 )
 from rest_framework_extensions.settings import extensions_api_settings
 
@@ -85,3 +88,8 @@ default_list_cache_key_func = DefaultListKeyConstructor()
 default_etag_func = default_cache_key_func
 default_object_etag_func = default_object_cache_key_func
 default_list_etag_func = default_list_cache_key_func
+
+# API (object-centered) functions
+default_api_etag_func = DefaultAPIKeyConstructor()
+default_api_object_etag_func = DefaultAPIModelInstanceKeyConstructor()
+default_api_list_etag_func = DefaultAPIModelListKeyConstructor()
