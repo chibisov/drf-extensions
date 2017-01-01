@@ -19,6 +19,7 @@ class CommentFilter(django_filters.FilterSet):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
+        fields = '__all__'
 
 
 class CommentViewSet(ListDestroyModelMixin, viewsets.ModelViewSet):
