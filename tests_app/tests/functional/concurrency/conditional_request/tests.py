@@ -11,9 +11,7 @@ import json
 class BookAPITestCases(APITestCase):
     """
     Run the conditional requests test cases.
-    It uses django >=1.9 to avoid "AttributeError: 'Response' object has no attribute 'json'":
-
-        `tox -e django.1.10 -- tests_app.tests.functional.concurrency.conditional_request.tests`
+        `tox -- tests_app.tests.functional.concurrency.conditional_request.tests`
     """
     def setUp(self):
         # create a book
