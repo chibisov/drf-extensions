@@ -231,7 +231,11 @@ class RetrieveSqlQueryKeyBit(SqlQueryKeyBitBase):
 
 
 class RetrieveModelKeyBit(ModelInstanceKeyBitBase):
-    """A key bit reflecting the contents of the model instance."""
+    """
+    A key bit reflecting the contents of the model instance.
+    Return example:
+        u"[(3, False)]"
+    """
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
         try:
@@ -245,7 +249,11 @@ class RetrieveModelKeyBit(ModelInstanceKeyBitBase):
 
 
 class ListModelKeyBit(ModelInstanceKeyBitBase):
-    """A key bit reflecting the contents of a list of model instances."""
+    """
+    A key bit reflecting the contents of a list of model instances.
+    Return example:
+        u"[(1, True), (2, True), (3, False)]"
+    """
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         queryset = view_instance.filter_queryset(view_instance.get_queryset())
         return self._get_queryset_query_values(queryset)
