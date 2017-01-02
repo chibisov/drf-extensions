@@ -228,3 +228,71 @@ class BookAPITestCases(APITestCase):
         self.assertEqual(book_response.status_code, status.HTTP_412_PRECONDITION_FAILED,
                          'The response status code must be 412!')
 
+    def test_book_retrieve_cache_hit_view(self):
+        """Test idempotent retrieve using 'If-None-Match' HTTP header, should result in HTTP 304."""
+        book_response = self.client.get(reverse('book_view-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # issue the same request again
+        book_response = self.client.get(reverse('book_view-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json',
+                                        HTTP_IF_NONE_MATCH=etag)
+
+        self.assertEqual(book_response.status_code, status.HTTP_304_NOT_MODIFIED,
+                         'The response status code must be 304!')
+        self.assertEqual(book_response['ETag'], etag)
+
+    def test_book_conditional_custom_delete_decorator(self):
+        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 204."""
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # delete the instance
+        book_response = self.client.delete(reverse('book_view-custom_delete', kwargs={'pk': self.book.id}),
+                                           HTTP_IF_MATCH=etag)
+
+        self.assertEqual(book_response.status_code, status.HTTP_204_NO_CONTENT,
+                         'The response status code must be 204!')
+
+    def test_book_conditional_custom_delete_decorator_fail(self):
+        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 412."""
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # change the instance in the DB
+        self.alter_book_issn()
+
+        # delete the instance
+        book_response = self.client.delete(reverse('book_view-custom_delete', kwargs={'pk': self.book.id}),
+                                           HTTP_IF_MATCH=etag)
+
+        self.assertEqual(book_response.status_code, status.HTTP_412_PRECONDITION_FAILED,
+                         'The response status code must be 412!')
+
+    def test_book_conditional_custom_delete_decorator_fail__not_found(self):
+        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 412."""
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # delete the instance in the DB
+        self.book.delete()
+
+        # delete the instance
+        book_response = self.client.delete(reverse('book_view-custom_delete',
+                                                   kwargs={'pk': book_response.json()['id']}),
+                                           HTTP_IF_MATCH=etag)
+
+        self.assertEqual(book_response.status_code, status.HTTP_412_PRECONDITION_FAILED,
+                         'The response status code must be 412!')
