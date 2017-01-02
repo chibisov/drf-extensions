@@ -117,7 +117,7 @@ class BookAPITestCases(APITestCase):
         self.assertEqual(updated_book_json['author'], book_json['author'], 'Author must be John Grisham!')
 
     def test_book_conditional_update_fail(self):
-        """Test a conditional update of a book using 'If-Match' HTTP header, should yield HTTP 200."""
+        """Test a conditional update of a book using 'If-Match' HTTP header, should yield HTTP 412."""
         book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
@@ -157,7 +157,7 @@ class BookAPITestCases(APITestCase):
         self.assertEqual(book_response.status_code, status.HTTP_204_NO_CONTENT, 'The response status code must be 204!')
 
     def test_book_conditional_delete_fail(self):
-        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 204."""
+        """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 412."""
         book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
