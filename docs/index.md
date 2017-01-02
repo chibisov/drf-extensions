@@ -1284,7 +1284,7 @@ Combines data about view module, view class name and view method name.
 
 #### ListModelKeyBit
 
-*New in DRF-extensions Development version*
+*New in DRF-extensions 0.3.2*
 
 Computes the semantic fingerprint of a list of objects returned by `view.filter_queryset(view.get_queryset())`
 using a flat representation of all objects' values.
@@ -1294,7 +1294,7 @@ using a flat representation of all objects' values.
 
 #### RetrieveModelKeyBit
 
-*New in DRF-extensions Development version*
+*New in DRF-extensions 0.3.2*
 
 Computes the semantic fingerprint of a particular objects returned by `view.get_object()`.
 
@@ -1415,7 +1415,7 @@ settings:
 #### API ETag function
 <!-- This refers to the APIETagProcessor and @api_etag decorator -->
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.3.2*
 
 In addition, `APIETAGProcessor` exists explicitly requires a function that creates an ETag value from model instances.
 If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. 
@@ -1850,7 +1850,7 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 
 #### APIETagMixin
 
-*New in DRF-extensions development version*
+*New in DRF-extensions 0.3.2*
 
 In analogy to `ETAGMixin` the `APIETAGMixin` exists. Just mix it into DRF viewsets or `APIViews` 
 and those methods will use the ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
@@ -2149,7 +2149,7 @@ If you need to access the values of DRF-extensions API settings in your project,
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
-#### Development version
+#### 0.3.2
 
 *Jan 2, 2017*
 
