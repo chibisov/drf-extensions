@@ -211,7 +211,10 @@ else:
 
 # handle different QuerySet representations
 def queryset_to_value_list(queryset):
-    assert isinstance(queryset, str)
+    if six.PY3:
+        assert isinstance(queryset, str)
+    else:
+        assert isinstance(queryset, basestring)
 
     # django 1.10 introduces syntax "<QuerySet [(#1), (#2), ...]>"
     # we extract only the list of tuples from the string
