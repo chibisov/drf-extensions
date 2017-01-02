@@ -142,6 +142,60 @@ class BookAPITestCases(APITestCase):
                                                                                     'be 412!')
         # ######################## ######################## ########################
 
+    def test_book_conditional_update_fail_first_then_succeed(self):
+        """Test a conditional update of a book using 'If-Match' HTTP header, should yield HTTP 412, then 200."""
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(book_response['ETag'])
+        book_json = book_response.json()
+        # memorize the ETag from the response to send with the next request
+        etag = book_response['ETag']
+
+        # mimic background activity
+        self.alter_book_issn()
+
+        # try to alter the author
+        book_json['author'] = 'John Grisham'
+        url = reverse('book-detail', kwargs={'pk': book_json['id']})
+        response = self.client.put(url,
+                                   data=book_json,
+                                   HTTP_IF_MATCH=etag)  # <-- set the ETag header to trigger the conditional request
+
+        # ######################## ######################## ########################
+        # this update must succeed, since the if-match header is the same as the ETag sent from the server!
+        self.assertEqual(response.status_code, status.HTTP_412_PRECONDITION_FAILED, 'The response status code must '
+                                                                                    'be 412!')
+        # ######################## ######################## ########################
+
+        # fetch the instance again and try again
+        book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
+                                        CONTENT_TYPE='application/json')
+
+        self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(book_response['ETag'])
+        book_json = book_response.json()
+        # memorize the ETag from the response to send with the next request
+        new_etag = book_response['ETag']
+
+        # ...client merges/rejects the local changes...
+
+        # try again to update
+        response = self.client.put(url,
+                                   data=book_json,
+                                   HTTP_IF_MATCH=new_etag)  # <-- set the ETag header to trigger the conditional request
+
+        # ######################## ######################## ########################
+        # this update must succeed, since the if-match header is the same as the ETag sent from the server!
+        self.assertNotEqual(response.status_code, status.HTTP_412_PRECONDITION_FAILED, 'The response status code must '
+                                                                                       'not be 412!')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'The response status code must be 200!')
+        # ######################## ######################## ########################
+
+        updated_book_json = response.json()
+        # print(response.json())
+        self.assertEqual(updated_book_json['author'], book_json['author'], 'Author must be John Grisham!')
+
     def test_book_conditional_delete(self):
         """Test conditional delete using 'If-Match' HTTP header, should result in HTTP 204."""
         book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
