@@ -135,10 +135,18 @@ class ETAGProcessor(object):
 
 
 class APIETAGProcessor(ETAGProcessor):
-    """This subclass uses different default ETag function."""
+    """
+    This class is responsible for calculating the ETag value given (a list of) model instance(s).
+
+    The difference to the base class `ETAGProcessor` is that it cannot be used as `@api_etag()` decorator.
+    It does not make sense to compute a default ETag here, because the processor would always issue a 304 response,
+    even if the response was modified meanwhile.
+    Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument.
+    """
     def __init__(self, etag_func=None, rebuild_after_method_evaluation=False):
-        if not etag_func:
-            etag_func = extensions_api_settings.DEFAULT_API_ETAG_FUNC
+        assert etag_func is not None, ('None-Type functions are not allowed for APIETag processing.'
+                                       'You must specify a function to calculate the API ETags '
+                                       'using the "etag_func" keyword argument.')
         super(APIETAGProcessor, self).__init__(etag_func=etag_func,
                                                rebuild_after_method_evaluation=rebuild_after_method_evaluation)
 
