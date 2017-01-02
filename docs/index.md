@@ -762,7 +762,7 @@ You can change cache key function by providing `object_cache_key_func` or
         def list_cache_key_func(self, **kwargs):
             return 'some key for list'
 
-Ofcourse you can use custom [key constructor](#key-constructor):
+Of course you can use custom [key constructor](#key-constructor):
 
     from yourapp.key_constructors import (
         CustomObjectKeyConstructor,
@@ -779,7 +779,7 @@ If you want to cache only `retrieve` method then you could use `rest_framework_e
 If you want to cache only `list` method then you could use `rest_framework_extensions.cache.mixins.ListCacheResponseMixin`.
 
 
-### Key constructor
+### Key constructors
 
 As you could see from previous section cache key calculation might seem fairly simple operation. But let's see next example. We make ordinary HTTP request to cities resource:
 
@@ -876,7 +876,7 @@ Of course we can use custom `calculate_cache_key` methods and reuse them for dif
 
 Firstly, let's revise `CityView.get` method cache key calculation. It constructs from 3 bits:
 
-* **unique\_method\_id** - remember that [default key calculation](#cache-key)? Here it is. Just one of the cache key bits. `head` method has different set of bits and they can't collide with `get` method bits. But there could be another view class with the same bits.
+* **unique\_method\_id** - remember our [default key calculation](#cache-key)? Here it is. Just one of the cache key bits. `head` method has different set of bits and they can't collide with `get` method bits. But there could be another view class with the same bits.
 * **format** - key would be different for different formats.
 * **language** - key would be different for different languages.
 
@@ -890,13 +890,12 @@ All default key bits are listed in [this section](#default-key-bits).
 #### Default key constructor
 
 `DefaultKeyConstructor` is located in `rest_framework_extensions.key_constructor.constructors` module and constructs a key
-from unique method id, request format and request language. It has next implementation:
+from unique *method* id, request format and request language. It has the following implementation:
 
     class DefaultKeyConstructor(KeyConstructor):
         unique_method_id = bits.UniqueMethodIdKeyBit()
         format = bits.FormatKeyBit()
         language = bits.LanguageKeyBit()
-
 
 #### How key constructor works
 
@@ -1283,21 +1282,57 @@ Combines data about view module, view class name and view method name.
     class MyKeyConstructor(KeyConstructor):
         unique_view_id = bits.UniqueMethodIdKeyBit()
 
+#### ListModelKeyBit
+
+*New in DRF-extensions Development version*
+
+Computes the semantic fingerprint of a list of objects returned by `view.filter_queryset(view.get_queryset())`
+using a flat representation of all objects' values.
+
+    class MyKeyConstructor(KeyConstructor):
+        list_model_values = bits.ListModelKeyBit()
+
+#### RetrieveModelKeyBit
+
+*New in DRF-extensions Development version*
+
+Computes the semantic fingerprint of a particular objects returned by `view.get_object()`.
+
+    class MyKeyConstructor(KeyConstructor):
+        retrieve_model_values = bits.RetrieveModelKeyBit()
+
+
+
+
 
 ### Conditional requests
 
 *This documentation section uses information from [RESTful Web Services Cookbook](http://shop.oreilly.com/product/9780596801694.do) 10-th chapter.*
 
-Conditional HTTP request allows API clients to accomplish 2 goals:
+Conditional HTTP requests allow API clients to accomplish 2 goals:
 
-* Conditional HTTP GET saves client and server time and bandwidth.
-* For unsafe requests such as PUT, POST, and DELETE, conditional requests provide concurrency control.
+1. Conditional HTTP GET saves client and server [time and bandwidth](#saving-time-and-bandwidth).
+* For unsafe requests such as PUT, POST, and DELETE, conditional requests provide [concurrency control](#concurrency-control).
 
-#### HTTP Etag
+The second goal addresses the lost update problem, where a resource is altered and saved by user B while user A is still editing.
+In both cases, the 'condition' included in the request needs to be a unique identifier (e.g. unique semantic fingerprint) of the requested resource in order to detect changes.
+This fingerprint can be transient (i.e. using the cache as with `UpdatedAtKeyBit`), or persistent, i.e. computed from the model instance attribute values from the database. 
+While the `UpdatedAtKeyBit` approach requires to add triggers to your models, the semantic fingerprint option is designed to be pluggable and does not require to alter your model code. 
 
-*An ETag or entity tag, is part of HTTP, the protocol for the World Wide Web. It is one of several mechanisms that HTTP provides for web cache validation, and which allows a client to make conditional requests.* - [Wikipedia](http://en.wikipedia.org/wiki/HTTP_ETag)
 
-For etag calculation and conditional request processing you should use `rest_framework_extensions.etag.decorators.etag` decorator. It's similar to native [django decorator](https://docs.djangoproject.com/en/dev/topics/conditional-view-processing/).
+#### HTTP ETag
+
+*An ETag or entity tag, is part of HTTP, the protocol for the World Wide Web. 
+It is one of several mechanisms that HTTP provides for web cache validation, and which allows a client to make conditional requests.* - [Wikipedia](http://en.wikipedia.org/wiki/HTTP_ETag)
+
+For ETag calculation and conditional request processing you should use the decorators from `rest_framework_extensions.etag.decorators`.
+The `@etag` decorator works similar to the native [django decorator](https://docs.djangoproject.com/en/dev/topics/conditional-view-processing/).
+
+<!-- THIS REFERS TO THE DEFAULT_OBJ_ETAG_FUNC -->
+The [default ETag function](#default-etag-function) used by the `@etag` decorator computes the value with respect to the particular view and HTTP method in the request and therefore *cannot detect changes in individual model instances*.
+If you need to compute the *semantic* fingerprint of a model independent of a particular view and method, implement your custom `etag_func`.
+Alternatively you could use the `@api_etag` decorator and specify the `viewset` in the view.
+
 
     from rest_framework_extensions.etag.decorators import etag
 
@@ -1307,7 +1342,7 @@ For etag calculation and conditional request processing you should use `rest_fra
             cities = City.objects.all().values_list('name', flat=True)
             return Response(cities)
 
-By default `@etag` would calculate header value with the same algorithm as [cache key](#cache-key) default calculation performs.
+By default `@etag` would calculate the ETag header value with the same algorithm as [cache key](#cache-key) default calculation performs.
 
     # Request
     GET /cities/ HTTP/1.1
@@ -1320,7 +1355,7 @@ By default `@etag` would calculate header value with the same algorithm as [cach
 
     ['Moscow', 'London', 'Paris']
 
-You can define custom function for Etag value calculation with `etag_func` argument:
+You can define a custom function for Etag value calculation with `etag_func` argument:
 
     from rest_framework_extensions.etag.decorators import etag
 
@@ -1338,7 +1373,7 @@ You can define custom function for Etag value calculation with `etag_func` argum
             return Response(cities)
 
 
-You can implement view method and use it for Etag calculation by specifying `etag_func` argument as string:
+You can implement a view method and use it for Etag calculation by specifying `etag_func` argument as string:
 
     from rest_framework_extensions.etag.decorators import etag
 
@@ -1355,7 +1390,7 @@ You can implement view method and use it for Etag calculation by specifying `eta
                 len(kwargs)
             ])
 
-Etag calculation function will be called with next parameters:
+ETag calculation function will be called with following parameters:
 
 * **view_instance** - view instance of decorated method
 * **view_method** - decorated method
@@ -1363,7 +1398,8 @@ Etag calculation function will be called with next parameters:
 * **args** - decorated method positional arguments
 * **kwargs** - decorated method keyword arguments
 
-#### Default etag function
+
+#### Default ETag function
 
 If `@etag` decorator used without `etag_func` argument then default etag function will be used. You can change this function in
 settings:
@@ -1375,9 +1411,54 @@ settings:
 
 `default_etag_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for etag calculation.
 
+
+#### API ETag function
+<!-- This refers to the APIETagProcessor and @api_etag decorator -->
+
+*New in DRF-extensions development version*
+
+In addition, `APIETAGProcessor` exists explicitly requires a function that creates an ETag value from model instances.
+If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. 
+The following snipped would not work:
+
+    # BEGIN BAD CODE:
+    class View(views.APIView):
+        @api_etag() 
+        def get(self, request, *args, **kwargs):
+            return super(View, self).get(request, *args, **kwargs)
+    # END BAD CODE
+
+**Why's that?**
+It does not make sense to compute a default ETag here, because the processor would lock us out from the API by always issuing a `304` 
+response on conditional requests, even if the resource was modified meanwhile.
+Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument and there exists convenient 
+[mixin classes](#apietagmixin).
+
+You can use the decorator in regular `APIView` and subclasses from the `rest_framework.generics` module, 
+but ensure to include a `queryset` attribute or override `get_queryset()`:
+
+    from rest_framework import generics
+    from rest_framework.response import Response
+    from rest_framework_extensions.utils import default_api_object_etag_func
+    from my_app.models import Book
+    
+    class BookCustomDestroyView(generics.DestroyAPIView):  
+        # include the queryset here to enable the object lookup 
+        queryset = Book.objects.all()
+    
+        @api_etag(etag_func=default_api_object_etag_func)
+        def delete(self, request, *args, **kwargs):
+            obj = Book.objects.get(id=kwargs['pk'])
+            # ... perform some custom operations here ...
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 #### Usage with caching
 
-As you can see `@etag` and `@cache_response` decorators has similar key calculation approaches. They both can take key from simple callable function. And more then this - in many cases they share the same calculation logic. In the next example we use both decorators, which share one calculation function:
+As you can see `@etag` and `@cache_response` decorators has similar key calculation approaches. 
+They both can take key from simple callable function. And more than this - in many cases they share the same calculation logic. 
+In the next example we use both decorators, which share one calculation function:
 
     from rest_framework_extensions.etag.decorators import etag
     from rest_framework_extensions.cache.decorators import cache_response
@@ -1399,7 +1480,7 @@ As you can see `@etag` and `@cache_response` decorators has similar key calculat
             cities = City.objects.all().values_list('name', flat=True)
             return Response(cities)
 
-Note the decorators order. First goes `@etag` and after goes `@cache_response`. We want firstly perform conditional processing and after it response processing.
+Note the decorators order. First goes `@etag` and then goes `@cache_response`. We want firstly perform conditional processing and after it response processing.
 
 There is one more point for it. If conditional processing didn't fail then `key_constructor_func` would be called again in `@cache_response`.
 But in most cases first calculation is enough. To accomplish this goal you could use `KeyConstructor` initial argument `memoize_for_request`:
@@ -1424,12 +1505,11 @@ By default `memoize_for_request` is `False`, but you can change it in settings:
 
 It's important to note that this memoization is thread safe.
 
-
-#### Saving time and bandwith
+#### Saving time and bandwidth
 
 When a server returns `ETag` header, you should store it along with the representation data on the client.
 When making GET and HEAD requests for the same resource in the future, include the `If-None-Match` header
-to make these requests "conditional".
+to make these requests "conditional". 
 
 For example, retrieve all cities:
 
@@ -1444,7 +1524,7 @@ For example, retrieve all cities:
 
     ['Moscow', 'London', 'Paris']
 
-If you make same request with `If-None-Match` and there is the cached value for this request,
+If you make same request with `If-None-Match` and there exists a cached value for this request,
 then server will respond with `304` status code without body data.
 
     # Request
@@ -1457,7 +1537,14 @@ then server will respond with `304` status code without body data.
     Content-Type: application/json; charset=UTF-8
     Etag: "some_etag_value"
 
-After this response you can use existing cities data on the client.
+After this response you can use existing cities data on the client. 
+
+
+
+
+
+
+
 
 #### Concurrency control
 
@@ -1473,8 +1560,9 @@ Instead of obtaining a lock, the client attempts a write operation with the toke
 The operation succeeds if the token is still valid and fails otherwise.
 
 HTTP, being a stateless application control, is designed for optimistic concurrency control.
+**NB: The current implementation DOES NOT enforce the If-Match header. It returns 403 if the ETag is not supplied, and permits the unsafe method!**
 
-                                    PUT
+                                 PUT/PATCH
                                      |
                               +-------------+
                               |  Etag       |
@@ -1497,7 +1585,7 @@ HTTP, being a stateless application control, is designed for optimistic concurre
                                                                |
                                          +-----------------------+
                                          |  Can clients          |
-                                         |  create resources     |
+                                         |  create resources?    |
                                          +-----------------------+
                                                |           |
                                               Yes          No
@@ -1530,9 +1618,12 @@ Delete:
     |  resource    |  |  failed            |
     +--------------+  +--------------------+
 
+**Example: transient key construction**
 
-Here is example of implementation for all CRUD methods (except create, because it doesn't need concurrency control)
-wrapped with `etag` decorator:
+Here is an example implementation for all (C)RUD methods (except create, because it doesn't need concurrency control)
+wrapped with the default `etag` decorator. We use our [previous implementation](#custom-key-bit) of the `UpdatedAtKeyBit` that looks up the cache 
+for the last timestamp the particular object was updated on the server. This required us to add `post_save` and `post_delete` signals
+to our models explicitly. See [below](#apietagmixin) for an example using `@api_etag` and mixins that computes the key from persistent data.
 
     from rest_framework.viewsets import ModelViewSet
     from rest_framework_extensions.key_constructor import bits
@@ -1541,6 +1632,7 @@ wrapped with `etag` decorator:
     )
 
     from your_app.models import City
+    # use our own implementation that detects an update timestamp in the cache 
     from your_app.key_bits import UpdatedAtKeyBit
 
     class CityListKeyConstructor(KeyConstructor):
@@ -1584,7 +1676,7 @@ wrapped with `etag` decorator:
             return super(CityViewSet, self).destroy(request, *args, **kwargs)
 
 
-#### Etag for unsafe methods
+#### ETag for unsafe methods
 
 From previous section you could see that unsafe methods, such `update` (PUT, PATCH) or `destroy` (DELETE), have the same `@etag`
 decorator wrapping manner as the safe methods.
@@ -1626,7 +1718,7 @@ If you specify `rebuild_after_method_evaluation` as `True` then Etag will be reb
     }
 
 As you can see we didn't specify `rebuild_after_method_evaluation` for `destroy` method. That is because there is no
-sense to use returned Etag value on clients if object deletion already performed.
+sense to use returned ETag value on clients if object deletion already performed.
 
 With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PATCH` method would look like:
 
@@ -1703,7 +1795,7 @@ By default those functions are using [DefaultKeyConstructor](#default-key-constr
 * With `RetrieveSqlQueryKeyBit` for *"DEFAULT\_OBJECT\_ETAG\_FUNC"*
 * With `ListSqlQueryKeyBit` and `PaginationKeyBit` for *"DEFAULT\_LIST\_ETAG\_FUNC"*
 
-You can change those settings for custom etag generation:
+You can change those settings for custom ETag generation:
 
     REST_FRAMEWORK_EXTENSIONS = {
         'DEFAULT_OBJECT_ETAG_FUNC':
@@ -1732,7 +1824,7 @@ You can change etag function by providing `object_etag_func` or
         def list_etag_func(self, **kwargs):
             return 'some key for list'
 
-Ofcourse you can use custom [key constructor](#key-constructor):
+Of course you can use custom [key constructor](#key-constructor):
 
     from yourapp.key_constructors import (
         CustomObjectKeyConstructor,
@@ -1744,7 +1836,7 @@ Ofcourse you can use custom [key constructor](#key-constructor):
         object_etag_func = CustomObjectKeyConstructor()
         list_etag_func = CustomListKeyConstructor()
 
-It is important to note that etags for unsafe method `update` is processed with parameter
+It is important to note that ETags for unsafe method `update` is processed with parameter
 `rebuild_after_method_evaluation` equals `True`. You can read why from [this](#etag-for-unsafe-methods) section.
 
 There are other mixins for more granular Etag calculation in `rest_framework_extensions.etag.mixins` module:
@@ -1755,6 +1847,74 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 * **DestroyETAGMixin** - only for `destroy` method
 * **UpdateETAGMixin** - only for `update` method
 
+
+#### APIETagMixin
+
+*New in DRF-extensions development version*
+
+In analogy to `ETAGMixin` the `APIETAGMixin` exists. Just mix it into DRF viewsets or `APIViews` 
+and those methods will use the ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
+
+* *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods
+* *"DEFAULT\_API\_LIST\_ETAG\_FUNC"* for `list` method
+
+By default those functions are using custom key constructors that create the key from **persisted model attributes**:
+
+* `RetrieveModelKeyBit` (see [definition](#retrievemodelkeybit)) for *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"*
+* `ListModelKeyBit` (see [definition](#listmodelkeybit)) for *"DEFAULT\_API\_LIST\_ETAG\_FUNC"*
+
+You can change those settings globally for your custom ETag generation, or use the default values, which should cover 
+the most common use cases:
+
+    REST_FRAMEWORK_EXTENSIONS = {
+        'DEFAULT_API_OBJECT_ETAG_FUNC': 
+            'rest_framework_extensions.utils.default_api_object_etag_func',
+        'DEFAULT_API_LIST_ETAG_FUNC': 
+            'rest_framework_extensions.utils.default_api_list_etag_func',
+    }
+
+Mixin example usage:
+
+    from myapps.serializers import UserSerializer
+    from rest_framework_extensions.etag.mixins import APIETAGMixin
+
+    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+
+You can change etag function by providing `api_object_etag_func` or
+`api_list_etag_func` methods in view class:
+
+    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+
+        def api_object_etag_func(self, **kwargs):
+            return 'some key for object'
+
+        def api_list_etag_func(self, **kwargs):
+            return 'some key for list'
+
+Of course you can use custom [key constructors](#key-constructor):
+
+    from yourapp.key_constructors import (
+        CustomObjectKeyConstructor,
+        CustomListKeyConstructor,
+    )
+
+    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+        api_object_etag_func = CustomObjectKeyConstructor()
+        api_list_etag_func = CustomListKeyConstructor()
+
+There are other mixins for more granular ETag calculation in `rest_framework_extensions.etag.mixins` module:
+
+* **APIReadOnlyETAGMixin** - only for `retrieve` and `list` methods
+* **APIRetrieveETAGMixin** - only for `retrieve` method
+* **APIListETAGMixin** - only for `list` method
+* **APIDestroyETAGMixin** - only for `destroy` method
+* **APIUpdateETAGMixin** - only for `update` method
+
+
+#### Example: persistent key construction
 
 #### Gzipped ETags
 
@@ -1830,6 +1990,8 @@ Don't forget to add this middleware in your settings before `GZipMiddleware`:
         'django.middleware.common.CommonMiddleware',
         ...
     )
+
+
 
 
 ### Bulk operations
@@ -1955,7 +2117,7 @@ Bulk partial update example - set `email_provider` of every user as `google`, if
 
 ### Settings
 
-DRF-extesions follows Django Rest Framework approach in settings implementation.
+DRF-extensions follows Django Rest Framework approach in settings implementation.
 
 [In Django Rest Framework](http://www.django-rest-framework.org/api-guide/settings) you specify custom settings by changing `REST_FRAMEWORK` variable in settings file:
 
@@ -1968,7 +2130,7 @@ DRF-extesions follows Django Rest Framework approach in settings implementation.
         )
     }
 
-In DRF-extesions there is a magic variable too called `REST_FRAMEWORK_EXTENSIONS`:
+In DRF-extensions there is a magic variable too called `REST_FRAMEWORK_EXTENSIONS`:
 
     REST_FRAMEWORK_EXTENSIONS = {
         'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
@@ -1976,7 +2138,7 @@ In DRF-extesions there is a magic variable too called `REST_FRAMEWORK_EXTENSIONS
 
 #### Accessing settings
 
-If you need to access the values of DRF-exteinsions API settings in your project, you should use the `extensions_api_settings` object. For example:
+If you need to access the values of DRF-extensions API settings in your project, you should use the `extensions_api_settings` object. For example:
 
     from rest_framework_extensions.settings import extensions_api_settings
 
@@ -1987,11 +2149,24 @@ If you need to access the values of DRF-exteinsions API settings in your project
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### Development version
+
+*Jan 2, 2017*
+
+* Added `@api_etag` decorator function and `APIETAGProcessor` that uses *semantic* ETags per API resource, decoupled from views, such that it can be used in optimistic concurrency control 
+* Added new default key bits `RetrieveModelKeyBit` and `ListModelKeyBit` for computing the semantic fingerprint of a django model instance
+* Added `APIETAGMixin` to be used in DRF viewsets and views
+* Added new settings for default implementation of the API ETag functions: `DEFAULT_API_OBJECT_ETAG_FUNC`, `DEFAULT_API_LIST_ETAG_FUNC`
+* Added test application for functional tests and demo as `tests_app/tests/functional/concurrency/conditional_request`
+* Added unit tests for the `@api_etag` decorator
+* DRF 3.5.x, Django pre-1.10 compatibility of the key bit construction
+* (Test-)Code cleanup
+
 #### 0.3.1
 
 *Sep 29, 2016*
 
-* Fix `schema_urls` `ExtendedDefaultRouter` compatability issue introduced by DRF 3.4.0
+* Fix `schema_urls` `ExtendedDefaultRouter` compatibility issue introduced by DRF 3.4.0
 * Removed deprecated @action() and @link() decorators
 * DRF 3.4.x compatibility
 * Django 1.9 and 1.10 compatibility
