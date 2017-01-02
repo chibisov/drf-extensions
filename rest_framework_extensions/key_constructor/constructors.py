@@ -120,7 +120,7 @@ class DefaultAPIModelInstanceKeyConstructor(KeyConstructor):
     Use this constructor when the values of the model instance are required
     to identify the resource.
     """
-    retrieve_sql_query = bits.RetrieveModelKeyBit()
+    retrieve_model_values = bits.RetrieveModelKeyBit()
 
 
 class DefaultAPIModelListKeyConstructor(KeyConstructor):
@@ -128,4 +128,4 @@ class DefaultAPIModelListKeyConstructor(KeyConstructor):
     Use this constructor when the values of the model instance are required
     to identify many resources.
     """
-    list_sql_query = bits.ListModelKeyBit()
+    list_model_values = bits.ListModelKeyBit()
