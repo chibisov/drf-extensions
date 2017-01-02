@@ -4,6 +4,8 @@ from rest_framework.test import APITestCase
 from .models import Book
 from django.test import override_settings
 
+import json
+
 
 @override_settings(ROOT_URLCONF='tests_app.tests.functional.concurrency.conditional_request.urls')
 class BookAPITestCases(APITestCase):
@@ -67,15 +69,14 @@ class BookAPITestCases(APITestCase):
         book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
-        book_json = book_response.json()
+        book_json = json.loads(book_response.content.decode())
         # alter the author
         book_json['author'] = 'John Grisham'
         url = reverse('book-detail', kwargs={'pk': book_json['id']})
         response = self.client.put(url,
                                    data=book_json)
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'The response status code must be 200!')
-        updated_book_json = response.json()
-        # print(response.json())
+        updated_book_json = json.loads(response.content.decode())
         self.assertEqual(updated_book_json['author'], book_json['author'], 'Author must be John Grisham!')
 
     def test_book_delete(self):
@@ -94,7 +95,7 @@ class BookAPITestCases(APITestCase):
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(book_response['ETag'])
-        book_json = book_response.json()
+        book_json = json.loads(book_response.content.decode())
         # memorize the ETag from the response to send with the next request
         etag = book_response['ETag']
 
@@ -112,8 +113,7 @@ class BookAPITestCases(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'The response status code must be 200!')
         # ######################## ######################## ########################
 
-        updated_book_json = response.json()
-        # print(response.json())
+        updated_book_json = json.loads(response.content.decode())
         self.assertEqual(updated_book_json['author'], book_json['author'], 'Author must be John Grisham!')
 
     def test_book_conditional_update_fail(self):
@@ -122,7 +122,7 @@ class BookAPITestCases(APITestCase):
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(book_response['ETag'])
-        book_json = book_response.json()
+        book_json = json.loads(book_response.content.decode())
         # memorize the ETag from the response to send with the next request
         etag = book_response['ETag']
 
@@ -148,7 +148,7 @@ class BookAPITestCases(APITestCase):
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(book_response['ETag'])
-        book_json = book_response.json()
+        book_json = json.loads(book_response.content.decode())
         # memorize the ETag from the response to send with the next request
         etag = book_response['ETag']
 
@@ -174,7 +174,7 @@ class BookAPITestCases(APITestCase):
 
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(book_response['ETag'])
-        book_json = book_response.json()
+        book_json = json.loads(book_response.content.decode())
         # memorize the ETag from the response to send with the next request
         new_etag = book_response['ETag']
 
@@ -192,8 +192,7 @@ class BookAPITestCases(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'The response status code must be 200!')
         # ######################## ######################## ########################
 
-        updated_book_json = response.json()
-        # print(response.json())
+        updated_book_json = json.loads(response.content.decode())
         self.assertEqual(updated_book_json['author'], book_json['author'], 'Author must be John Grisham!')
 
     def test_book_conditional_delete(self):
@@ -283,6 +282,7 @@ class BookAPITestCases(APITestCase):
         book_response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.id}),
                                         CONTENT_TYPE='application/json')
         self.assertEqual(book_response.status_code, status.HTTP_200_OK)
+        book_json = json.loads(book_response.content.decode())
         # memorize the ETag from the response to send with the next request
         etag = book_response['ETag']
 
@@ -291,7 +291,7 @@ class BookAPITestCases(APITestCase):
 
         # delete the instance
         book_response = self.client.delete(reverse('book_view-custom_delete',
-                                                   kwargs={'pk': book_response.json()['id']}),
+                                                   kwargs={'pk': book_json['id']}),
                                            HTTP_IF_MATCH=etag)
 
         self.assertEqual(book_response.status_code, status.HTTP_412_PRECONDITION_FAILED,
