@@ -110,7 +110,7 @@ class DefaultAPIKeyConstructor(KeyConstructor):
     """
     API view constructor that does not include the concrete HTTP method.
     """
-    unique_method_id = bits.UniqueViewIdKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
 
