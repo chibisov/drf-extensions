@@ -138,7 +138,6 @@ class APIETAGProcessor(ETAGProcessor):
     """
     This class is responsible for calculating the ETag value given (a list of) model instance(s).
 
-    The difference to the base class `ETAGProcessor` is that it cannot be used as `@api_etag()` decorator.
     It does not make sense to compute a default ETag here, because the processor would always issue a 304 response,
     even if the response was modified meanwhile.
     Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument.
