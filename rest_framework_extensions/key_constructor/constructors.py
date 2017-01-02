@@ -106,15 +106,6 @@ class DefaultListKeyConstructor(DefaultKeyConstructor):
     pagination = bits.PaginationKeyBit()
 
 
-class DefaultAPIKeyConstructor(KeyConstructor):
-    """
-    API view constructor that does not include the concrete HTTP method.
-    """
-    unique_view_id = bits.UniqueViewIdKeyBit()
-    format = bits.FormatKeyBit()
-    language = bits.LanguageKeyBit()
-
-
 class DefaultAPIModelInstanceKeyConstructor(KeyConstructor):
     """
     Use this constructor when the values of the model instance are required

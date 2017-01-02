@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS
 
-from rest_framework_extensions.etag.decorators import etag
+from rest_framework_extensions.etag.decorators import (etag, api_etag)
 from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.utils import prepare_header_name
 
@@ -19,6 +19,9 @@ from tests_app.testutils import (
 factory = APIRequestFactory()
 UNSAFE_METHODS = ('POST', 'PUT', 'DELETE', 'PATCH')
 
+
+def dummy_api_etag_func(**kwargs):
+    return 'hello'
 
 def default_etag_func(**kwargs):
     return 'hello'
@@ -322,3 +325,33 @@ class ETAGProcessorTestBehavior_if_match(ETAGProcessorTestBehaviorMixin, TestCas
             tuple(SAFE_METHODS) + UNSAFE_METHODS,
             condition_failed_status=status.HTTP_412_PRECONDITION_FAILED
         )
+
+
+class APIETAGProcessorTest(TestCase):
+    """Unit test cases for the APIETAGProcessor and decorator functionality."""
+    def setUp(self):
+        self.request = factory.get('')
+
+    def test_should_raise_assertion_error_if_not_specified(self):
+        with self.assertRaises(AssertionError):
+            api_etag()
+
+    def test_should_raise_assertion_error_if_not_specified_decorator(self):
+        with self.assertRaises(AssertionError):
+            class View(views.APIView):
+                @api_etag()
+                def get(self, request, *args, **kwargs):
+                    return super(View, self).get(request, *args, **kwargs)
+
+    def test_should_add_object_etag_value(self):
+
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func)
+            def get(self, request, *args, **kwargs):
+                return Response('Response from method')
+
+        view_instance = TestView()
+        response = view_instance.get(request=self.request)
+        expected_etag_value = dummy_api_etag_func()
+        self.assertEqual(response.get('Etag'), quote_etag(expected_etag_value))
+        self.assertEqual(response.data, 'Response from method')
