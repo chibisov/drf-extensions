@@ -1417,9 +1417,9 @@ settings:
 
 *New in DRF-extensions 0.3.2*
 
-In addition, `APIETAGProcessor` exists explicitly requires a function that creates an ETag value from model instances.
+In addition, `APIETAGProcessor` explicitly requires a function that (ideally) creates an ETag value from model instances.
 If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. 
-The following snipped would not work:
+Hence, the following snipped would not work:
 
     # BEGIN BAD CODE:
     class View(views.APIView):
@@ -1434,7 +1434,7 @@ response on conditional requests, even if the resource was modified meanwhile.
 Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument and there exists convenient 
 [mixin classes](#apietagmixin).
 
-You can use the decorator in regular `APIView` and subclasses from the `rest_framework.generics` module, 
+You can use the decorator in regular `APIView`, and subclasses from the `rest_framework.generics` module, 
 but ensure to include a `queryset` attribute or override `get_queryset()`:
 
     from rest_framework import generics
@@ -1454,7 +1454,38 @@ but ensure to include a `queryset` attribute or override `get_queryset()`:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-#### Usage with caching
+The next difference to the `@etag` decorator is that it defines an explicit map of 
+required headers for each HTTP request verb, using the following default values for unsafe methods:
+
+    precondition_map = {'PUT': ['If-Match'],
+                        'PATCH': ['If-Match'],
+                        'DELETE': ['If-Match']}
+
+You can specify a custom set of headers in the decorator by passing the `precondition_map` keyword argument.
+For instance, this statement
+  
+    @api_etag(etag_func=default_api_object_etag_func, precondition_map={'PUT': ['X-mycorp-custom']})
+    def put(self, request, *args, **kwargs):
+        obj = Book.objects.get(id=kwargs['pk'])
+        # ... perform some custom operations here ...
+        obj.save()
+        return Response(status=status.HTTP_200_OK)
+
+checks for the presence of a custom header `X-mycorp-custom` in the request and permits the request, if it is present, 
+or returns a `428 PRECONDITION REQUIRED` response.
+
+Similarly, to disable all checks for a particular method simply pass an empty dict:
+
+    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
+    def put(self, request, *args, **kwargs):
+        obj = Book.objects.get(id=kwargs['pk'])
+        # ... perform some custom operations here ...
+        obj.save()
+        return Response(status=status.HTTP_200_OK)
+
+Please note that passing `None` in the `precondition_map` argument falls back to using the default map.
+
+#### Usage ETag with caching
 
 As you can see `@etag` and `@cache_response` decorators has similar key calculation approaches. 
 They both can take key from simple callable function. And more than this - in many cases they share the same calculation logic. 
@@ -1560,63 +1591,72 @@ Instead of obtaining a lock, the client attempts a write operation with the toke
 The operation succeeds if the token is still valid and fails otherwise.
 
 HTTP, being a stateless application control, is designed for optimistic concurrency control.
-**NB: The current implementation DOES NOT enforce the If-Match header. It returns 403 if the ETag is not supplied, and permits the unsafe method!**
+According to [RFC 6585](https://tools.ietf.org/html/rfc6585), the server can optionally require 
+a condition for a request. This library returns a `428` status, if no ETag is supplied, but would be mandatory 
+for a request to succeed.
 
-                                 PUT/PATCH
-                                     |
-                              +-------------+
-                              |  Etag       |
-                              |  supplied?  |
-                              +-------------+
-                               |           |
-                              Yes          No
-                               |           |
-            +--------------------+       +-----------------------+
-            |  Do preconditions  |       |  Does the             |
-            |  match?            |       |  resource exist?      |
-            +--------------------+       +-----------------------+
-                |           |                   |              |
-                Yes         No                  Yes            No
-                |           |                   |              |
-    +--------------+  +--------------------+  +-------------+  |
-    |  Update the  |  |  412 Precondition  |  |  403        |  |
-    |  resource    |  |  failed            |  |  Forbidden  |  |
-    +--------------+  +--------------------+  +-------------+  |
-                                                               |
-                                         +-----------------------+
-                                         |  Can clients          |
-                                         |  create resources?    |
-                                         +-----------------------+
-                                               |           |
-                                              Yes          No
-                                               |           |
-                                         +-----------+   +-------------+
-                                         |  201      |   |  404        |
-                                         |  Created  |   |  Not Found  |
-                                         +-----------+   +-------------+
+Update:
+
+                                            PUT/PATCH
+                                                +
+                                    +-----------+------------+
+                                    |         ETag           |
+                                    |         supplied?      |
+                                    ++-----------------+-----+
+                                     |                 |
+                                     Yes               No
+                                     |                 |
+               +---------------------++               ++-------------+
+               |   Do preconditions   |               | Precondition |
+               |   match?             |               | required?    |
+               +---+-----------------++               ++------------++
+                   |                 |                 |            |
+                   Yes               No                No           Yes
+                   |                 |                 |            |
+        +----------+------+  +-------+----------+  +---+-----+      |
+        |  Does resource  |  | 412 Precondition |  | 200 OK  |      |
+        |  exist?         |  | failed           |  | Update  |      |
+        ++---------------++  +------------------+  +---------+      |
+         |               |                              +-----------+------+
+         Yes             No                             | 428 Precondition |
+         |               |                              | required         |
+    +----+----+     +----+----+                         +------------------+
+    | 200 OK  |     | 404 Not |
+    | Update  |     | found   |
+    +---------+     +---------+
+
 
 Delete:
 
-                                   DELETE
-                                     |
-                              +-------------+
-                              |  Etag       |
-                              |  supplied?  |
-                              +-------------+
-                               |           |
-                              Yes          No
-                               |           |
-            +--------------------+       +-------------+
-            |  Do preconditions  |       |  403        |
-            |  match?            |       |  Forbidden  |
-            +--------------------+       +-------------+
-                |           |
-                Yes         No
-                |           |
-    +--------------+  +--------------------+
-    |  Delete the  |  |  412 Precondition  |
-    |  resource    |  |  failed            |
-    +--------------+  +--------------------+
+                                              DELETE
+                                                +
+                                    +-----------+------------+
+                                    |         ETag           |
+                                    |         supplied?      |
+                                    ++-----------------+-----+
+                                     |                 |
+                                     Yes               No
+                                     |                 |
+               +---------------------++               ++-------------+
+               |   Do preconditions   |               | Precondition |
+               |   match?             |               | required?    |
+               +---+-----------------++               ++------------++
+                   |                 |                 |            |
+                   Yes               No                No           Yes
+                   |                 |                 |            |
+        +----------+------+  +-------+----------+  +---+-----+      |
+        |  Does resource  |  | 412 Precondition |  | 204 No  |      |
+        |  exist?         |  | failed           |  | content |      |
+        ++---------------++  +------------------+  +---------+      |
+         |               |                              +-----------+------+
+         Yes             No                             | 428 Precondition |
+         |               |                              | required         |
+    +----+----+     +----+----+                         +------------------+
+    | 204 No  |     | 404 Not |
+    | content |     | found   |
+    +---------+     +---------+
+
+
 
 **Example: transient key construction**
 
@@ -1913,8 +1953,9 @@ There are other mixins for more granular ETag calculation in `rest_framework_ext
 * **APIDestroyETAGMixin** - only for `destroy` method
 * **APIUpdateETAGMixin** - only for `update` method
 
+By default, all mixins require the conditional requests, i.e. they use the default `precondition_map` from the 
+`APIETAGProcessor` class.
 
-#### Example: persistent key construction
 
 #### Gzipped ETags
 
@@ -2151,8 +2192,9 @@ You can read about versioning, deprecation policy and upgrading from
 
 #### 0.3.2
 
-*Jan 2, 2017*
+*Jan 4, 2017*
 
+* Added `rest_framework_extensions.exceptions.PreconditionRequiredException` as subclass of `rest_framework.exceptions.APIException`
 * Added `@api_etag` decorator function and `APIETAGProcessor` that uses *semantic* ETags per API resource, decoupled from views, such that it can be used in optimistic concurrency control 
 * Added new default key bits `RetrieveModelKeyBit` and `ListModelKeyBit` for computing the semantic fingerprint of a django model instance
 * Added `APIETAGMixin` to be used in DRF viewsets and views
