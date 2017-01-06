@@ -1320,6 +1320,42 @@ This fingerprint can be transient (i.e. using the cache as with `UpdatedAtKeyBit
 While the `UpdatedAtKeyBit` approach requires to add triggers to your models, the semantic fingerprint option is designed to be pluggable and does not require to alter your model code. 
 
 
+
+#### Precondition required
+
+*New in DRF-extensions 0.3.2*
+
+A common use case for conditional requests is to require the presence of certain headers, e.g. `If-Match`, `If-Range`, etc.
+To check for certain headers you can use the `@precondition_required` decorator from `rest_framework_extensions.decorators`.
+
+It provides a dictionary of required headers for each HTTP request verb, using the following default values for unsafe methods:
+
+    precondition_map = {'PUT': ['If-Match'],
+                        'PATCH': ['If-Match'],
+                        'DELETE': ['If-Match']}
+
+You can specify a custom set of headers in the decorator by passing the `precondition_map` keyword argument.
+For instance, this statement
+  
+    @precondition_required(precondition_map={'PUT': ['X-mycorp-custom']})
+    def put(self, request, *args, **kwargs):
+        obj = Book.objects.get(id=kwargs['pk'])
+        # ... perform some custom operations here ...
+        obj.save()
+        return Response(status=status.HTTP_200_OK)
+
+checks for the presence of a custom header `X-mycorp-custom` in the request and permits the request, if it is present, 
+or returns a `428 PRECONDITION REQUIRED` response.
+
+Similarly, to disable all checks for a particular method simply pass an empty dictionary, or simply omit the decorator:
+
+    @precondition_required(precondition_map={})
+    def put(self, request, *args, **kwargs):
+        # ... perform some custom operations here ...
+
+Please note that passing `None` in the `precondition_map` argument falls back to using the default map.
+This decorator can be used for decorator chaining with other view method enabled decorators such as `@etag`. 
+
 #### HTTP ETag
 
 *An ETag or entity tag, is part of HTTP, the protocol for the World Wide Web. 
@@ -1331,7 +1367,7 @@ The `@etag` decorator works similar to the native [django decorator](https://doc
 <!-- THIS REFERS TO THE DEFAULT_OBJ_ETAG_FUNC -->
 The [default ETag function](#default-etag-function) used by the `@etag` decorator computes the value with respect to the particular view and HTTP method in the request and therefore *cannot detect changes in individual model instances*.
 If you need to compute the *semantic* fingerprint of a model independent of a particular view and method, implement your custom `etag_func`.
-Alternatively you could use the `@api_etag` decorator and specify the `viewset` in the view.
+Alternatively you could use the `@etag` decorator and specify the `viewset` in the view.
 
 
     from rest_framework_extensions.etag.decorators import etag
@@ -1409,81 +1445,8 @@ settings:
           'rest_framework_extensions.utils.default_etag_func'
     }
 
-`default_etag_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for etag calculation.
+`default_etag_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for ETag calculation.
 
-
-#### API ETag function
-<!-- This refers to the APIETagProcessor and @api_etag decorator -->
-
-*New in DRF-extensions 0.3.2*
-
-In addition, `APIETAGProcessor` explicitly requires a function that (ideally) creates an ETag value from model instances.
-If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. 
-Hence, the following snipped would not work:
-
-    # BEGIN BAD CODE:
-    class View(views.APIView):
-        @api_etag() 
-        def get(self, request, *args, **kwargs):
-            return super(View, self).get(request, *args, **kwargs)
-    # END BAD CODE
-
-**Why's that?**
-It does not make sense to compute a default ETag here, because the processor would lock us out from the API by always issuing a `304` 
-response on conditional requests, even if the resource was modified meanwhile.
-Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument and there exists convenient 
-[mixin classes](#apietagmixin).
-
-You can use the decorator in regular `APIView`, and subclasses from the `rest_framework.generics` module, 
-but ensure to include a `queryset` attribute or override `get_queryset()`:
-
-    from rest_framework import generics
-    from rest_framework.response import Response
-    from rest_framework_extensions.utils import default_api_object_etag_func
-    from my_app.models import Book
-    
-    class BookCustomDestroyView(generics.DestroyAPIView):  
-        # include the queryset here to enable the object lookup 
-        queryset = Book.objects.all()
-    
-        @api_etag(etag_func=default_api_object_etag_func)
-        def delete(self, request, *args, **kwargs):
-            obj = Book.objects.get(id=kwargs['pk'])
-            # ... perform some custom operations here ...
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-The next difference to the `@etag` decorator is that it defines an explicit map of 
-required headers for each HTTP request verb, using the following default values for unsafe methods:
-
-    precondition_map = {'PUT': ['If-Match'],
-                        'PATCH': ['If-Match'],
-                        'DELETE': ['If-Match']}
-
-You can specify a custom set of headers in the decorator by passing the `precondition_map` keyword argument.
-For instance, this statement
-  
-    @api_etag(etag_func=default_api_object_etag_func, precondition_map={'PUT': ['X-mycorp-custom']})
-    def put(self, request, *args, **kwargs):
-        obj = Book.objects.get(id=kwargs['pk'])
-        # ... perform some custom operations here ...
-        obj.save()
-        return Response(status=status.HTTP_200_OK)
-
-checks for the presence of a custom header `X-mycorp-custom` in the request and permits the request, if it is present, 
-or returns a `428 PRECONDITION REQUIRED` response.
-
-Similarly, to disable all checks for a particular method simply pass an empty dict:
-
-    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
-    def put(self, request, *args, **kwargs):
-        obj = Book.objects.get(id=kwargs['pk'])
-        # ... perform some custom operations here ...
-        obj.save()
-        return Response(status=status.HTTP_200_OK)
-
-Please note that passing `None` in the `precondition_map` argument falls back to using the default map.
 
 #### Usage ETag with caching
 
@@ -1582,79 +1545,107 @@ After this response you can use existing cities data on the client.
 Concurrency control ensures the correct processing of data under concurrent operations by clients.
 There are two ways to implement concurrency control:
 
-* **Pessimistic concurrency control**. In this model, the client gets a lock, obtains
+* **Pessimistic concurrency control (PCC)**. In this model, the client gets a lock, obtains
 the current state of the resource, makes modifications, and then releases the lock.
 During this process, the server prevents other clients from acquiring a lock on the same resource.
 Relational databases operate in this manner.
-* **Optimistic concurrency control**. In this model, the client first gets a token.
+* **Optimistic concurrency control (OCC)**. In this model, the client first gets a token.
 Instead of obtaining a lock, the client attempts a write operation with the token included in the request.
 The operation succeeds if the token is still valid and fails otherwise.
 
 HTTP, being a stateless application control, is designed for optimistic concurrency control.
 According to [RFC 6585](https://tools.ietf.org/html/rfc6585), the server can optionally require 
-a condition for a request. This library returns a `428` status, if no ETag is supplied, but would be mandatory 
-for a request to succeed.
+a condition for a request. 
+This library provides a default implementation of OCC using `ETag` values in `If-Match` headers. 
+It returns a `428 PRECONDITION REQUIRED` status, if no header is supplied, but would be enforced 
+for a request to succeed. Enforcing a conditional request is optional, though, but is highly recommended 
+in production to avoid the lost-update problem.
 
-Update:
+Update requests usin `PUT/PATCH` verbs are handled as follows:
 
-                                            PUT/PATCH
-                                                +
-                                    +-----------+------------+
-                                    |         ETag           |
-                                    |         supplied?      |
-                                    ++-----------------+-----+
-                                     |                 |
-                                     Yes               No
-                                     |                 |
-               +---------------------++               ++-------------+
-               |   Do preconditions   |               | Precondition |
-               |   match?             |               | required?    |
-               +---+-----------------++               ++------------++
-                   |                 |                 |            |
-                   Yes               No                No           Yes
-                   |                 |                 |            |
-        +----------+------+  +-------+----------+  +---+-----+      |
-        |  Does resource  |  | 412 Precondition |  | 200 OK  |      |
-        |  exist?         |  | failed           |  | Update  |      |
-        ++---------------++  +------------------+  +---------+      |
-         |               |                              +-----------+------+
-         Yes             No                             | 428 Precondition |
-         |               |                              | required         |
-    +----+----+     +----+----+                         +------------------+
-    | 200 OK  |     | 404 Not |
-    | Update  |     | found   |
-    +---------+     +---------+
+                                   PUT/PATCH
+                                       +
+                           +-----------+------------+
+                           |         ETag           |
+                           |         supplied?      |
+                           ++-----------------+-----+
+                            |                 |
+                            Yes               No
+                            |                 |
+      +---------------------++               ++-------------+
+      |   Do preconditions   |               | Precondition |
+      |   match?             |               | required?    |
+      +--------+------------++               ++------------++
+               |            |                 |            |
+               Yes          No                No           Yes
+               |            |                 |            |
+               |    +-------+----------+      |  +---------+--------+
+               |    | 412 Precondition |      |  | 428 Precondition |
+               |    | failed           |      |  | required         |
+               |    +------------------+      |  +------------------+
+               |                              |
+           +---+------------------------------+---+
+           |              User has                |
+           |              permission?             |
+           +-----+----------------------------+---+
+                 |                            |
+                 Yes                          No
+                 |                            |
+        +--------+--------+             +-----+-----+
+        |  Does resource  |             | 403       |
+        |  exist?         |             | Forbidden |
+        ++-------------+--+             +-----------+
+         |             |
+         Yes           No
+         |             |
+    +----+----+   +----+----+
+    | 200 OK  |   | 404 Not |
+    | Update  |   | found   |
+    +---------+   +---------+
 
 
-Delete:
 
-                                              DELETE
-                                                +
-                                    +-----------+------------+
-                                    |         ETag           |
-                                    |         supplied?      |
-                                    ++-----------------+-----+
-                                     |                 |
-                                     Yes               No
-                                     |                 |
-               +---------------------++               ++-------------+
-               |   Do preconditions   |               | Precondition |
-               |   match?             |               | required?    |
-               +---+-----------------++               ++------------++
-                   |                 |                 |            |
-                   Yes               No                No           Yes
-                   |                 |                 |            |
-        +----------+------+  +-------+----------+  +---+-----+      |
-        |  Does resource  |  | 412 Precondition |  | 204 No  |      |
-        |  exist?         |  | failed           |  | content |      |
-        ++---------------++  +------------------+  +---------+      |
-         |               |                              +-----------+------+
-         Yes             No                             | 428 Precondition |
-         |               |                              | required         |
-    +----+----+     +----+----+                         +------------------+
-    | 204 No  |     | 404 Not |
-    | content |     | found   |
-    +---------+     +---------+
+`DELETE` requests are handled similarly:
+
+                                     DELETE
+                                       +
+                           +-----------+------------+
+                           |         ETag           |
+                           |         supplied?      |
+                           ++-----------------+-----+
+                            |                 |
+                            Yes               No
+                            |                 |
+      +---------------------++               ++-------------+
+      |   Do preconditions   |               | Precondition |
+      |   match?             |               | required?    |
+      +--------+------------++               ++------------++
+               |            |                 |            |
+               Yes          No                No           Yes
+               |            |                 |            |
+               |    +-------+----------+      |  +---------+--------+
+               |    | 412 Precondition |      |  | 428 Precondition |
+               |    | failed           |      |  | required         |
+               |    +------------------+      |  +------------------+
+               |                              |
+           +---+------------------------------+---+
+           |              User has                |
+           |              permission?             |
+           +-----+----------------------------+---+
+                 |                            |
+                 Yes                          No
+                 |                            |
+        +--------+--------+             +-----+-----+
+        |  Does resource  |             | 403       |
+        |  exist?         |             | Forbidden |
+        ++-------------+--+             +-----------+
+         |             |
+         Yes           No
+         |             |
+    +----+----+   +----+----+
+    | 204 No  |   | 404 Not |
+    | content |   | found   |
+    +---------+   +---------+
 
 
 
@@ -1663,7 +1654,7 @@ Delete:
 Here is an example implementation for all (C)RUD methods (except create, because it doesn't need concurrency control)
 wrapped with the default `etag` decorator. We use our [previous implementation](#custom-key-bit) of the `UpdatedAtKeyBit` that looks up the cache 
 for the last timestamp the particular object was updated on the server. This required us to add `post_save` and `post_delete` signals
-to our models explicitly. See [below](#apietagmixin) for an example using `@api_etag` and mixins that computes the key from persistent data.
+to our models explicitly. See [below](#apietagmixin) for an example using `@etag` and mixins that computes the key from persistent data.
 
     from rest_framework.viewsets import ModelViewSet
     from rest_framework_extensions.key_constructor import bits
@@ -1760,7 +1751,7 @@ If you specify `rebuild_after_method_evaluation` as `True` then Etag will be reb
 As you can see we didn't specify `rebuild_after_method_evaluation` for `destroy` method. That is because there is no
 sense to use returned ETag value on clients if object deletion already performed.
 
-With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PATCH` method would look like:
+With assuming that no precondition is mandatory, `rebuild_after_method_evaluation` parameter ETag calculation for `PUT`/`PATCH` method would look like:
 
                  +--------------+
                  |    Request   |
@@ -1793,6 +1784,7 @@ With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PAT
        |  Return    |
        |  response  |
        +------------+
+
 
 `If-None-Match` example for `DELETE` method:
 
@@ -1893,7 +1885,7 @@ There are other mixins for more granular Etag calculation in `rest_framework_ext
 *New in DRF-extensions 0.3.2*
 
 In analogy to `ETAGMixin` the `APIETAGMixin` exists. Just mix it into DRF viewsets or `APIViews` 
-and those methods will use the ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
+and those methods will use the API ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
 
 * *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods
 * *"DEFAULT\_API\_LIST\_ETAG\_FUNC"* for `list` method
@@ -1953,8 +1945,29 @@ There are other mixins for more granular ETag calculation in `rest_framework_ext
 * **APIDestroyETAGMixin** - only for `destroy` method
 * **APIUpdateETAGMixin** - only for `update` method
 
-By default, all mixins require the conditional requests, i.e. they use the default `precondition_map` from the 
-`APIETAGProcessor` class.
+By default, the requests for these mixins *CAN* be conditional, i.e. they do not use the `@precondition_required` decorator.
+The `APIETAGMixin` in principle *allows* optimistic concurrency control (OCC) using `ETag`s for DRF API views and viewsets.
+
+**Please note**: Update and delete operations are **optionally conditional**! 
+In other words, if the conditional header is present, the ETag values will be used for OCC, otherwise you will face the lost-update problem, if the resource was changed meanwhile.
+Use [OCCAPIETAGMixin](#occapietagmixin) to *enforce* the default pre-conditional header checks for update and delete in your views and viewsets.
+
+#### OCCAPIETAGMixin
+
+*New in DRF-extensions 0.3.2*
+
+A set of mixins that *enforce* optimistic concurrency control on your API resource manipulating operations is located in `rest_framework_extensions.concurrency.mixins`. 
+If you aim at fail-safe OCC, you should use `OCCAPIETAGMixin` in your view methods:
+
+    class OCCAPIETAGMixin(APIListETAGMixin,
+                          APIRetrieveETAGMixin,
+                          OCCAPIUpdateETAGMixin,
+                          OCCAPIDestroyETAGMixin):
+        pass
+
+It makes sure your manipulation operations using `PUT`, `PATCH`, and `DELETE` are indeed requiring a valid `ETag` in the `If-Match` header.
+`POST` requests are not included in OCC, since they append API resources and do not modify existing ones. 
+You may also write your own mixin classes to use a different `etag_func`, or decorate the view methods. 
 
 
 #### Gzipped ETags
@@ -2192,15 +2205,17 @@ You can read about versioning, deprecation policy and upgrading from
 
 #### 0.3.2
 
-*Jan 4, 2017*
+*Jan 6, 2017*
 
-* Added `rest_framework_extensions.exceptions.PreconditionRequiredException` as subclass of `rest_framework.exceptions.APIException`
-* Added `@api_etag` decorator function and `APIETAGProcessor` that uses *semantic* ETags per API resource, decoupled from views, such that it can be used in optimistic concurrency control 
-* Added new default key bits `RetrieveModelKeyBit` and `ListModelKeyBit` for computing the semantic fingerprint of a django model instance
-* Added `APIETAGMixin` to be used in DRF viewsets and views
+* Added DRF-compatible `rest_framework_extensions.exceptions.PreconditionRequiredException` as subclass of `rest_framework.exceptions.APIException`
+* Added generic `@precondition_required` decorator function and `rest_framework_extensions.decorators.PreconditionRequiredProcessor` that checks for a set of HTTP headers specified by a dictionary
+* Optimistic concurrency control (OCC) uses *semantic* ETags per API resource, decoupled from views and view methods by using new default key bits `RetrieveModelKeyBit` and `ListModelKeyBit` for computing the semantic fingerprint of a django model instance
+* Added `APIETAGMixin`s that can be used to compute the ETags per API resource
+* Added `rest_framework_extensions.etag.mixins.APIETAGMixin` to be used for *optional* optimistic concurrency control in DRF viewsets and views
+* Added `rest_framework_extensions.concurrency.mixins.OCCAPIETAGMixin` to be used for *enforced* optimistic concurrency control in DRF viewsets and views using the `@precondition_required` decorator
 * Added new settings for default implementation of the API ETag functions: `DEFAULT_API_OBJECT_ETAG_FUNC`, `DEFAULT_API_LIST_ETAG_FUNC`
-* Added test application for functional tests and demo as `tests_app/tests/functional/concurrency/conditional_request`
-* Added unit tests for the `@api_etag` decorator
+* Added test application for unit/functional tests, and demo application as `tests_app/tests/{unit|functional}/concurrency/conditional_request`
+* Added unit tests for the `@precondition_required` decorator
 * DRF 3.5.x, Django pre-1.10 compatibility of the key bit construction
 * (Test-)Code cleanup
 
