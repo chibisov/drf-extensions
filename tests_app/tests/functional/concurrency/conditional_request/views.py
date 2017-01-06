@@ -44,3 +44,28 @@ class BookCustomDestroyView(generics.DestroyAPIView):
         obj = Book.objects.get(id=kwargs['pk'])
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BookUnconditionalDestroyView(generics.DestroyAPIView):
+    """Test the decorator with DRF generic API views."""
+
+    # include the queryset here to enable the object lookup in `@api_etag`
+    queryset = Book.objects.all()
+
+    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
+    def delete(self, request, *args, **kwargs):
+        obj = Book.objects.get(id=kwargs['pk'])
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BookUnconditionalUpdateView(generics.UpdateAPIView):
+    """Test the decorator with DRF generic API views."""
+
+    # include the queryset here to enable the object lookup in `@api_etag`
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
+    def update(self, request, *args, **kwargs):
+        return super(BookUnconditionalUpdateView, self).update(request, *args, **kwargs)

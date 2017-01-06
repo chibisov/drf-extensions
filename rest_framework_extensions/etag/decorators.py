@@ -8,17 +8,18 @@ from django.utils.http import parse_etags, quote_etag
 from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
+from rest_framework_extensions.exceptions import PreconditionRequiredException
 
 from rest_framework_extensions.utils import prepare_header_name
 from rest_framework_extensions.settings import extensions_api_settings
 from django.utils import six
-
 
 logger = logging.getLogger('django.request')
 
 
 class ETAGProcessor(object):
     """Based on https://github.com/django/django/blob/master/django/views/decorators/http.py"""
+
     def __init__(self, etag_func=None, rebuild_after_method_evaluation=False):
         if not etag_func:
             etag_func = extensions_api_settings.DEFAULT_ETAG_FUNC
@@ -27,6 +28,7 @@ class ETAGProcessor(object):
 
     def __call__(self, func):
         this = self
+
         @wraps(func, assigned=available_attrs(func))
         def inner(self, request, *args, **kwargs):
             return this.process_conditional_request(
@@ -36,6 +38,7 @@ class ETAGProcessor(object):
                 args=args,
                 kwargs=kwargs,
             )
+
         return inner
 
     def process_conditional_request(self,
@@ -126,11 +129,11 @@ class ETAGProcessor(object):
 
     def _get_and_log_precondition_failed_response(self, request):
         logger.warning('Precondition Failed: %s', request.path,
-            extra={
-                'status_code': status.HTTP_200_OK,
-                'request': request
-            }
-        )
+                       extra={
+                           'status_code': status.HTTP_412_PRECONDITION_FAILED,
+                           'request': request
+                       }
+                       )
         return Response(status=status.HTTP_412_PRECONDITION_FAILED)
 
 
@@ -141,13 +144,59 @@ class APIETAGProcessor(ETAGProcessor):
     It does not make sense to compute a default ETag here, because the processor would always issue a 304 response,
     even if the response was modified meanwhile.
     Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument.
+
+    According to RFC 6585, conditional headers may be enforced for certain services that support conditional
+    requests. For optimistic locking, the server should respond status code 428 including a description on how
+    to resubmit the request successfully, see https://tools.ietf.org/html/rfc6585#section-3.
     """
-    def __init__(self, etag_func=None, rebuild_after_method_evaluation=False):
-        assert etag_func is not None, ('None-Type functions are not allowed for APIETag processing.'
-                                       'You must specify a function to calculate the API ETags '
+
+    # require a pre-conditional header (e.g. If-Match) for unsafe HTTP methods (RFC 6585)
+    # override this defaults, if required
+    precondition_map = {'PUT': ['If-Match'],
+                        'PATCH': ['If-Match'],
+                        'DELETE': ['If-Match']}
+
+    def __init__(self, etag_func=None, rebuild_after_method_evaluation=False, precondition_map=None):
+        assert etag_func is not None, ('None-type functions are not allowed for processing API ETags.'
+                                       'You must specify a proper function to calculate the API ETags '
                                        'using the "etag_func" keyword argument.')
+
+        if precondition_map is not None:
+            self.precondition_map = precondition_map
+        assert isinstance(self.precondition_map, dict), ('`precondition_map` must be a dict, where '
+                                                         'the key is the HTTP verb, and the value is a list of '
+                                                         'HTTP headers that must all be present for that request.')
+
         super(APIETAGProcessor, self).__init__(etag_func=etag_func,
                                                rebuild_after_method_evaluation=rebuild_after_method_evaluation)
+
+    def get_etags_and_matchers(self, request):
+        """Get the etags from the header and perform a validation against the required preconditions."""
+        # evaluate the preconditions, raises 428 if condition is not met
+        self.evaluate_preconditions(request)
+        # alright, headers are present, extract the values and match the conditions
+        return super(APIETAGProcessor, self).get_etags_and_matchers(request)
+
+    def evaluate_preconditions(self, request):
+        """Evaluate whether the precondition for the request is met."""
+        if request.method.upper() in self.precondition_map.keys():
+            required_headers = self.precondition_map.get(request.method.upper(), [])
+            # check the required headers
+            for header in required_headers:
+                if not request.META.get(prepare_header_name(header)):
+                    # raise an error for each header that does not match
+                    logger.warning('Precondition required: %s', request.path,
+                                   extra={
+                                       'status_code': status.HTTP_428_PRECONDITION_REQUIRED,
+                                       'request': request
+                                   }
+                                   )
+                    # raise an RFC 6585 compliant exception
+                    raise PreconditionRequiredException(detail='Precondition required. This "%s" request '
+                                                               'is required to be conditional. '
+                                                               'Try again using "%s".' % (request.method, header)
+                                                        )
+        return True
 
 
 etag = ETAGProcessor
