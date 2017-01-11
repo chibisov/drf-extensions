@@ -1,20 +1,27 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.utils.http import quote_etag
-from rest_framework import status
-from rest_framework import views
-from rest_framework.permissions import SAFE_METHODS
-from rest_framework.response import Response
 
-from rest_framework_extensions.etag.decorators import etag
+from rest_framework import views
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import SAFE_METHODS
+from rest_framework_extensions.exceptions import PreconditionRequiredException
+
+from rest_framework_extensions.etag.decorators import (etag, api_etag)
 from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.utils import prepare_header_name
+
 from tests_app.testutils import (
     override_extensions_api_settings,
 )
 
 factory = APIRequestFactory()
 UNSAFE_METHODS = ('POST', 'PUT', 'DELETE', 'PATCH')
+
+
+def dummy_api_etag_func(**kwargs):
+    return 'hello'
 
 
 def default_etag_func(**kwargs):
@@ -169,48 +176,20 @@ class ETAGProcessorTestBehaviorMixin(object):
 
         class TestView(views.APIView):
             @etag(calculate_etag)
-            def head(self, request, *args, **kwargs):
-                return Response('Response from HEAD method')
-
-            @etag(calculate_etag)
-            def options(self, request, *args, **kwargs):
-                return Response('Response from OPTIONS method')
-
-            @etag(calculate_etag)
-            def post(self, request, *args, **kwargs):
-                return Response('Response from POST method',
-                                status=status.HTTP_201_CREATED)
-
-            @etag(calculate_etag)
             def get(self, request, *args, **kwargs):
-                return Response('Response from GET method')
-
-            @etag(calculate_etag)
-            def put(self, request, *args, **kwargs):
-                return Response('Response from PUT method')
-
-            @etag(calculate_etag)
-            def patch(self, request, *args, **kwargs):
-                return Response('Response from PATCH method')
-
-            @etag(calculate_etag)
-            def delete(self, request, *args, **kwargs):
-                return Response('Response from DELETE method',  # return a dummy response, despite 204 ;-)
-                                status=status.HTTP_204_NO_CONTENT)
+                return Response('Response from method')
 
         self.view_instance = TestView()
         self.expected_etag_value = quote_etag(calculate_etag())
 
-    def run_for_methods(self, methods, condition_failed_status, experiments=None):
+    def run_for_methods(self, methods, condition_failed_status):
         for method in methods:
-            if experiments is None:
-                experiments = self.experiments
-            for exp in experiments:
+            for exp in self.experiments:
                 headers = {
                     prepare_header_name(self.header_name): exp['header_value']
                 }
                 request = getattr(factory, method.lower())('', **headers)
-                response = getattr(self.view_instance, method.lower())(request)
+                response = self.view_instance.get(request)
                 base_msg = (
                     'For "{method}" and {header_name} value {header_value} condition should'
                 ).format(
@@ -231,19 +210,13 @@ class ETAGProcessorTestBehaviorMixin(object):
                     ).format(response.get('Etag'))
                     self.assertEqual(response.get('Etag'), self.expected_etag_value, msg=msg)
                 else:
-                    if method.lower() == 'delete':
-                        success_status = status.HTTP_204_NO_CONTENT
-                    elif method.lower() == 'post':
-                        success_status = status.HTTP_201_CREATED
-                    else:
-                        success_status = status.HTTP_200_OK
                     msg = base_msg + (
-                        ' not fail and response must be returned with %s status. '
+                        ' not fail and response must be returned with 200 status. '
                         'But it is "{response_status}"'
-                    ).format(success_status, response_status=response.status_code)
-                    self.assertEqual(response.status_code, success_status, msg=msg)
+                    ).format(response_status=response.status_code)
+                    self.assertEqual(response.status_code, status.HTTP_200_OK, msg=msg)
                     msg = base_msg + 'not fail and response must be filled'
-                    self.assertEqual(response.data, 'Response from %s method' % method.upper(), msg=msg)
+                    self.assertEqual(response.data, 'Response from method', msg=msg)
                     self.assertEqual(response.get('Etag'), self.expected_etag_value, msg=msg)
 
 
@@ -353,3 +326,394 @@ class ETAGProcessorTestBehavior_if_match(ETAGProcessorTestBehaviorMixin, TestCas
             tuple(SAFE_METHODS) + UNSAFE_METHODS,
             condition_failed_status=status.HTTP_412_PRECONDITION_FAILED
         )
+
+
+class APIETAGProcessorTest(TestCase):
+    """Unit test cases for the APIETAGProcessor and decorator functionality."""
+
+    def setUp(self):
+        self.request = factory.get('')
+
+    def test_should_raise_assertion_error_if_etag_func_not_specified(self):
+        with self.assertRaises(AssertionError):
+            api_etag()
+
+    def test_should_raise_assertion_error_if_etag_func_not_specified_decorator(self):
+        with self.assertRaises(AssertionError):
+            class View(views.APIView):
+                @api_etag()
+                def get(self, request, *args, **kwargs):
+                    return super(View, self).get(request, *args, **kwargs)
+
+    def test_should_raise_assertion_error_if_precondition_map_not_a_dict(self):
+        with self.assertRaises(AssertionError):
+            api_etag(etag_func=dummy_api_etag_func, precondition_map=['header-name'])
+
+    def test_should_raise_assertion_error_if_precondition_map_not_a_dict_decorator(self):
+        with self.assertRaises(AssertionError):
+            class View(views.APIView):
+                @api_etag(dummy_api_etag_func, precondition_map=['header-name'])
+                def get(self, request, *args, **kwargs):
+                    return super(View, self).get(request, *args, **kwargs)
+
+    def test_should_add_object_etag_value(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func)
+            def get(self, request, *args, **kwargs):
+                return Response('Response from GET method')
+
+        view_instance = TestView()
+        response = view_instance.get(request=self.request)
+        expected_etag_value = dummy_api_etag_func()
+        self.assertEqual(response.get('Etag'), quote_etag(expected_etag_value))
+        self.assertEqual(response.data, 'Response from GET method')
+
+    def test_should_add_object_etag_value_empty_precondition_map_decorator(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func, precondition_map={})
+            def get(self, request, *args, **kwargs):
+                return Response('Response from GET method')
+
+        view_instance = TestView()
+        response = view_instance.get(request=self.request)
+        expected_etag_value = dummy_api_etag_func()
+        self.assertEqual(response.get('Etag'), quote_etag(expected_etag_value))
+        self.assertEqual(response.data, 'Response from GET method')
+
+    def test_should_add_object_etag_value_default_precondition_map_decorator(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func)
+            def get(self, request, *args, **kwargs):
+                return Response('Response from GET method')
+
+        view_instance = TestView()
+        response = view_instance.get(request=self.request)
+        expected_etag_value = dummy_api_etag_func()
+        self.assertEqual(response.get('Etag'), quote_etag(expected_etag_value))
+        self.assertEqual(response.data, 'Response from GET method')
+
+
+
+
+
+
+    def test_should_require_precondition_decorator_unsafe_methods_empty(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func, precondition_map={})
+            def put(self, request, *args, **kwargs):
+                return Response('Response from PUT method')
+
+            @api_etag(dummy_api_etag_func, precondition_map={})
+            def patch(self, request, *args, **kwargs):
+                return Response('Response from PATCH method')
+
+            @api_etag(dummy_api_etag_func, precondition_map={})
+            def delete(self, request, *args, **kwargs):
+                return Response('Response from DELETE method',
+                                status=status.HTTP_204_NO_CONTENT)
+
+        view_instance = TestView()
+        response = view_instance.put(request=factory.put(''))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, 'Response from PUT method')
+
+        response = view_instance.patch(request=factory.patch(''))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, 'Response from PATCH method')
+
+        response = view_instance.delete(request=factory.delete(''))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data, 'Response from DELETE method')
+
+    def test_should_require_precondition_decorator_unsafe_methods_explicit(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func, precondition_map={'PUT': ['If-Match']})
+            def put(self, request, *args, **kwargs):
+                return Response('Response from PUT method')
+
+            @api_etag(dummy_api_etag_func, precondition_map={'PATCH': ['If-Match']})
+            def patch(self, request, *args, **kwargs):
+                return Response('Response from PATCH method')
+
+            @api_etag(dummy_api_etag_func, precondition_map={'DELETE': ['If-Match']})
+            def delete(self, request, *args, **kwargs):
+                return Response('Response from DELETE method',
+                                status=status.HTTP_204_NO_CONTENT)
+
+        view_instance = TestView()
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.put(request=factory.put(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.patch(request=factory.patch(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.delete(request=factory.delete(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+    def test_precondition_decorator_unsafe_methods_if_none_match(self):
+        def dummy_etag_func(**kwargs):
+            return 'some_etag'
+
+        class TestView(views.APIView):
+            @api_etag(dummy_etag_func)
+            def put(self, request, *args, **kwargs):
+                return Response('Response from PUT method')
+
+            @api_etag(dummy_etag_func)
+            def patch(self, request, *args, **kwargs):
+                return Response('Response from PATCH method')
+
+            @api_etag(dummy_etag_func)
+            def delete(self, request, *args, **kwargs):
+                return Response('Response from DELETE method',
+                                status=status.HTTP_204_NO_CONTENT)
+
+        headers = {
+            prepare_header_name('if-none-match'): 'some_etag'
+        }
+
+        view_instance = TestView()
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.put(request=factory.put('', **headers))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.patch(request=factory.patch('', **headers))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.delete(request=factory.delete('', **headers))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+    def test_should_require_precondition_decorator_unsafe_methods_default(self):
+        class TestView(views.APIView):
+            @api_etag(dummy_api_etag_func)
+            def put(self, request, *args, **kwargs):
+                return Response('Response from PUT method')
+
+            @api_etag(dummy_api_etag_func)
+            def patch(self, request, *args, **kwargs):
+                return Response('Response from PATCH method')
+
+            @api_etag(dummy_api_etag_func)
+            def delete(self, request, *args, **kwargs):
+                return Response('Response from DELETE method',
+                                status=status.HTTP_204_NO_CONTENT)
+
+        view_instance = TestView()
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.put(request=factory.put(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.patch(request=factory.patch(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+        with self.assertRaises(PreconditionRequiredException) as cm:
+            view_instance.delete(request=factory.delete(''))
+        self.assertEqual(cm.exception.status_code, status.HTTP_428_PRECONDITION_REQUIRED)
+        self.assertIsNotNone(cm.exception.detail)
+
+
+class APIETAGProcessorTestBehaviorMixin(object):
+    def setUp(self):
+        def calculate_etag(**kwargs):
+            return '123'
+
+        class TestView(views.APIView):
+            @api_etag(calculate_etag)
+            def head(self, request, *args, **kwargs):
+                return Response('Response from HEAD method')
+
+            @api_etag(calculate_etag)
+            def options(self, request, *args, **kwargs):
+                return Response('Response from OPTIONS method')
+
+            @api_etag(calculate_etag, precondition_map={})
+            def post(self, request, *args, **kwargs):
+                return Response('Response from POST method',
+                                status=status.HTTP_201_CREATED)
+
+            @api_etag(calculate_etag)
+            def get(self, request, *args, **kwargs):
+                return Response('Response from GET method')
+
+            @api_etag(calculate_etag)
+            def put(self, request, *args, **kwargs):
+                return Response('Response from PUT method')
+
+            @api_etag(calculate_etag)
+            def patch(self, request, *args, **kwargs):
+                return Response('Response from PATCH method')
+
+            @api_etag(calculate_etag)
+            def delete(self, request, *args, **kwargs):
+                return Response('Response from DELETE method',
+                                status=status.HTTP_204_NO_CONTENT)
+
+        self.view_instance = TestView()
+        self.expected_etag_value = quote_etag(calculate_etag())
+
+    def run_for_methods(self, methods, condition_failed_status, experiments=None):
+        for method in methods:
+            if experiments is None:
+                experiments = self.experiments
+            for exp in experiments:
+                headers = {
+                    prepare_header_name(self.header_name): exp['header_value']
+                }
+                request = getattr(factory, method.lower())('', **headers)
+                response = getattr(self.view_instance, method.lower())(request)
+                base_msg = (
+                    'For "{method}" and {header_name} value {header_value} condition should'
+                ).format(
+                    method=method,
+                    header_name=self.header_name,
+                    header_value=exp['header_value'],
+                )
+                if exp['should_fail']:
+                    msg = base_msg + (
+                        ' fail and response must be returned with {condition_failed_status} status. '
+                        'But it is {response_status}'
+                    ).format(condition_failed_status=condition_failed_status, response_status=response.status_code)
+                    self.assertEqual(response.status_code, condition_failed_status, msg=msg)
+                    msg = base_msg + ' fail and response must be empty'
+                    self.assertEqual(response.data, None, msg=msg)
+                    msg = (
+                        'If precondition failed, then Etag must always be added to response. But it is {0}'
+                    ).format(response.get('Etag'))
+                    self.assertEqual(response.get('Etag'), self.expected_etag_value, msg=msg)
+                else:
+                    if method.lower() == 'delete':
+                        success_status = status.HTTP_204_NO_CONTENT
+                    elif method.lower() == 'post':
+                        success_status = status.HTTP_201_CREATED
+                    else:
+                        success_status = status.HTTP_200_OK
+                    msg = base_msg + (
+                        ' not fail and response must be returned with %s status. '
+                        'But it is "{response_status}"'
+                    ).format(success_status, response_status=response.status_code)
+                    self.assertEqual(response.status_code, success_status, msg=msg)
+                    msg = base_msg + 'not fail and response must be filled'
+                    self.assertEqual(response.data, 'Response from %s method' % method.upper(), msg=msg)
+                    self.assertEqual(response.get('Etag'), self.expected_etag_value, msg=msg)
+
+
+class APIETAGProcessorTestBehavior_if_match(APIETAGProcessorTestBehaviorMixin, TestCase):
+    def setUp(self):
+        super(APIETAGProcessorTestBehavior_if_match, self).setUp()
+        self.header_name = 'if-match'
+        self.experiments = [
+            {
+                'header_value': '123',
+                'should_fail': False
+            },
+            {
+                'header_value': '"123"',
+                'should_fail': False
+            },
+            {
+                'header_value': '321',
+                'should_fail': True
+            },
+            {
+                'header_value': '"321"',
+                'should_fail': True
+            },
+            {
+                'header_value': '"1234"',
+                'should_fail': True
+            },
+            {
+                'header_value': '"321" "123"',
+                'should_fail': False
+            },
+            {
+                'header_value': '321 "123"',
+                'should_fail': False
+            },
+            {
+                'header_value': '*',
+                'should_fail': False
+            },
+            {
+                'header_value': '"*"',
+                'should_fail': False
+            },
+            {
+                'header_value': '321 "*"',
+                'should_fail': False
+            },
+        ]
+
+    def test_for_all_methods(self):
+        self.run_for_methods(
+            tuple(SAFE_METHODS) + UNSAFE_METHODS,
+            condition_failed_status=status.HTTP_412_PRECONDITION_FAILED
+        )
+
+
+class APIETAGProcessorTestBehavior_if_none_match(APIETAGProcessorTestBehaviorMixin, TestCase):
+    def setUp(self):
+        super(APIETAGProcessorTestBehavior_if_none_match, self).setUp()
+        self.header_name = 'if-none-match'
+        self.experiments = [
+            {
+                'header_value': '123',
+                'should_fail': True
+            },
+            {
+                'header_value': '"123"',
+                'should_fail': True
+            },
+            {
+                'header_value': '321',
+                'should_fail': False
+            },
+            {
+                'header_value': '"321"',
+                'should_fail': False
+            },
+            {
+                'header_value': '"1234"',
+                'should_fail': False
+            },
+            {
+                'header_value': '"321" "123"',
+                'should_fail': True
+            },
+            {
+                'header_value': '321 "123"',
+                'should_fail': True
+            },
+            {
+                'header_value': '*',
+                'should_fail': True
+            },
+            {
+                'header_value': '"*"',
+                'should_fail': True
+            },
+            {
+                'header_value': '321 "*"',
+                'should_fail': True
+            },
+        ]
+
+    def test_for_safe_methods(self):
+        self.run_for_methods(SAFE_METHODS, condition_failed_status=status.HTTP_304_NOT_MODIFIED)
+
+    # NB: We don't test the unsafe methods here, since the PreconditionRequiredException would require us to hack the
+    # runner method. However, we tested the exceptions in the APIETAGProcessorTest class.
