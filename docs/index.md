@@ -2118,7 +2118,7 @@ To turn off protection you can set `DEFAULT_BULK_OPERATION_HEADER_NAME` as `None
 
 This mixin allows you to delete many instances with one `DELETE` request.
 
-    from rest_framework_extensions.mixins import ListDestroyModelMixin
+    from rest_framework_extensions.bulk_operations.mixins import ListDestroyModelMixin
 
     class UserViewSet(ListDestroyModelMixin, viewsets.ModelViewSet):
         serializer_class = UserSerializer
