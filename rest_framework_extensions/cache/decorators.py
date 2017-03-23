@@ -62,6 +62,13 @@ class CacheResponse(object):
             args=args,
             kwargs=kwargs
         )
+        timeout = self.calculate_timeout(
+            view_instance=view_instance,
+            view_method=view_method,
+            request=request,
+            args=args,
+            kwargs=kwargs
+        )
         response = self.cache.get(key)
         if not response:
             response = view_method(view_instance, request, *args, **kwargs)
@@ -69,7 +76,7 @@ class CacheResponse(object):
             response.render()  # should be rendered, before picklining while storing to cache
 
             if not response.status_code >= 400 or self.cache_errors:
-                self.cache.set(key, response, self.timeout)
+                self.cache.set(key, response, timeout)
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
@@ -93,6 +100,16 @@ class CacheResponse(object):
             args=args,
             kwargs=kwargs,
         )
+    
+    def calculate_timeout(self,
+                          view_instance,
+                          view_method,
+                          request,
+                          args,
+                          kwargs):
+        if isinstance(self.timeout, six.string_types):
+            self.timeout = getattr(view_instance, self.timeout)
+        return self.timeout
 
 
 cache_response = CacheResponse
