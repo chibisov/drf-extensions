@@ -1150,7 +1150,7 @@ Retrieves format info from request. Usage example:
 Retrieves active language for request. Usage example:
 
     class MyKeyConstructor(KeyConstructor):
-        user = LanguageKeyBit()
+        language = LanguageKeyBit()
 
 #### UserKeyBit
 
