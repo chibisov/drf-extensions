@@ -1254,6 +1254,15 @@ Inherits from `QueryParamsKeyBit` and returns data from used pagination params.
     class MyKeyConstructor(KeyConstructor):
         pagination = bits.PaginationKeyBit()
 
+
+#### PageNoPaginationKeyBit
+
+Inherits from `QueryParamsKeyBit` and returns data from used pagination params while using page number pagination.
+
+Used to distinguish different pages in the api.That is to distinguish api/news from api/news?page=2.
+
+    class MyKeyConstructor(KeyConstructor):
+        pagination = bits.PaginationKeyBit()
 #### ListSqlQueryKeyBit
 
 Retrieves sql query for `view.filter_queryset(view.get_queryset())` filtering.
