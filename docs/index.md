@@ -2177,6 +2177,8 @@ In DRF-extensions there is a magic variable too called `REST_FRAMEWORK_EXTENSION
         'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
     }
 
+**Please Note:** If you are using `django.core.cache.backends.locmem.LocMemCache` the DEFAULT_CACHE_RESPONSE_TIMEOUT will not have an effect. Instead use the django redis or memcache cache as your backend.
+
 #### Accessing settings
 
 If you need to access the values of DRF-extensions API settings in your project, you should use the `extensions_api_settings` object. For example:
