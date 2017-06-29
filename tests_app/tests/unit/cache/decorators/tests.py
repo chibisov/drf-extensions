@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
-from mock import Mock, patch
-
 from django.core.cache import caches
 from django.test import TestCase
-
-
+from mock import Mock, patch
 from rest_framework import views
 from rest_framework.response import Response
 
-from rest_framework_extensions.test import APIRequestFactory
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
+from rest_framework_extensions.test import APIRequestFactory
 from tests_app.testutils import override_extensions_api_settings
-
 
 factory = APIRequestFactory()
 
@@ -43,7 +39,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key').content, response.content)
+        self.assertEqual(self.cache.get('cache_response_key')[0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_function_which_specified_in_arguments(self):
@@ -57,7 +53,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key_from_func').content, response.content)
+        self.assertEqual(self.cache.get('cache_response_key_from_func')[0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_which_calculated_by_view_method__if__key_func__is_string(self):
@@ -71,7 +67,7 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key_from_method').content, response.content)
+        self.assertEqual(self.cache.get('cache_response_key_from_method')[0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_key_func_call_arguments(self):
@@ -145,7 +141,12 @@ class CacheResponseTest(TestCase):
         cached_response = Response(u'Cached response from method 4')
         view_instance.finalize_response(request=self.request, response=cached_response)
         cached_response.render()
-        self.cache.set('cache_response_key', cached_response)
+        response_dict = (
+            cached_response.rendered_content,
+            cached_response.status_code,
+            cached_response._headers
+        )
+        self.cache.set('cache_response_key', response_dict)
 
         response = view_instance.dispatch(request=self.request)
         self.assertEqual(
@@ -167,9 +168,9 @@ class CacheResponseTest(TestCase):
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
         data_from_cache = caches['special_cache'].get('cache_response_key')
-        self.assertTrue(hasattr(data_from_cache, 'content'))
+        self.assertEqual(len(data_from_cache), 3)
         self.assertEqual(
-            data_from_cache.content.decode('utf-8'),
+            data_from_cache[0].decode('utf-8'),
             u'"Response from method 5"')
 
     @override_extensions_api_settings(
@@ -187,8 +188,8 @@ class CacheResponseTest(TestCase):
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
         data_from_cache = caches['another_special_cache'].get('cache_response_key')
-        self.assertTrue(hasattr(data_from_cache, 'content'))
-        self.assertEqual(data_from_cache.content.decode('utf-8'), u'"Response from method 6"')
+        self.assertEqual(len(data_from_cache), 3)
+        self.assertEqual(data_from_cache[0].decode('utf-8'), u'"Response from method 6"')
 
     def test_should_reuse_cache_singleton(self):
         """
