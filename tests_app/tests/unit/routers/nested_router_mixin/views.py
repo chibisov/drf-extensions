@@ -18,3 +18,18 @@ class GroupViewSet(ModelViewSet):
 
 class PermissionViewSet(ModelViewSet):
     model = PermissionModel
+
+
+class CustomRegexUserViewSet(ModelViewSet):
+    lookup_value_regex = 'a'
+    model = UserModel
+
+
+class CustomRegexGroupViewSet(ModelViewSet):
+    lookup_value_regex = 'b'
+    model = GroupModel
+
+
+class CustomRegexPermissionViewSet(ModelViewSet):
+    lookup_value_regex = 'c'
+    model = PermissionModel

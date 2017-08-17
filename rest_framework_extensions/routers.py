@@ -179,8 +179,8 @@ class NestedRegistryItem(object):
         prefix = '/'
         current_item = self
         i = len(parents_query_lookups) - 1
-        parent_lookup_value_regex = getattr(self.parent_viewset, 'lookup_value_regex', '[^/.]+')
         while current_item:
+            parent_lookup_value_regex = getattr(current_item.parent_viewset, 'lookup_value_regex', '[^/.]+')
             prefix = '{parent_prefix}/(?P<{parent_pk_kwarg_name}>{parent_lookup_value_regex})/{prefix}'.format(
                 parent_prefix=current_item.parent_prefix,
                 parent_pk_kwarg_name=compose_parent_pk_kwarg_name(parents_query_lookups[i]),
