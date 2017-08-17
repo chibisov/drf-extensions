@@ -614,7 +614,7 @@ You can specify cache timeout in seconds, providing first argument:
 
 In the above example, the result of the `get()` view will be cached for 15 minutes.
 
-If you don't specify `cache_timeout` argument then value from `REST_FRAMEWORK_EXTENSIONS` settings will be used. By default it's `None`, which means "cache forever". You can change this default in settings:
+If you don't specify `timeout` argument then value from `REST_FRAMEWORK_EXTENSIONS` settings will be used. By default it's `None`, which means "cache forever". You can change this default in settings:
 
     REST_FRAMEWORK_EXTENSIONS = {
         'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
