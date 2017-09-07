@@ -117,6 +117,7 @@ class ETAGProcessor(object):
 
     def is_if_none_match_failed(self, res_etag, etags, if_none_match):
         if res_etag and if_none_match:
+            etags = [etag.strip('"') for etag in etags]
             return res_etag in etags or '*' in etags
         else:
             return False
