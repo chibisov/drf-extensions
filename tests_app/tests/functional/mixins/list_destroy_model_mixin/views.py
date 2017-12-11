@@ -25,7 +25,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class CommentViewSet(ListDestroyModelMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = CommentFilter
 
 
