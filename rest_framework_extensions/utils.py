@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import itertools
 from functools import wraps
+from distutils.version import LooseVersion
 
 from django import VERSION as django_version
 
@@ -37,7 +38,7 @@ def get_django_features():
 
 
 def get_rest_framework_version():
-    return tuple(map(int, rest_framework.VERSION.split('.')))
+    return tuple(LooseVersion(rest_framework.VERSION).version)
 
 
 def flatten(list_of_lists):

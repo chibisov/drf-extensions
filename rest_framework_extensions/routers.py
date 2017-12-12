@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion
+from distutils.version import LooseVersion
 from django.core.exceptions import ImproperlyConfigured
 try:
     from django.urls.resolvers import NoReverseMatch
 except ImportError:
     from django.core.urlresolvers import NoReverseMatch
 
-import rest_framework
 from rest_framework.routers import (
     DefaultRouter,
     SimpleRouter,
@@ -18,6 +17,8 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework_extensions.utils import flatten, compose_parent_pk_kwarg_name
 from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
+
+from .utils import get_rest_framework_version
 
 
 class ExtendedActionLinkRouterMixin(object):
@@ -212,9 +213,9 @@ class NestedRouterMixin(object):
         Return a view to use as the API root.
         Important to maintain compat with DRF 3.4.0
         """
-        if StrictVersion(rest_framework.VERSION) >= StrictVersion('3.4.0'):
+        if get_rest_framework_version() >= (3, 4, 0):
             return super(NestedRouterMixin, self).get_api_root_view(**kwargs)
-        if StrictVersion(rest_framework.VERSION) >= StrictVersion('2.4.3'):
+        if get_rest_framework_version() >= (2, 4, 3):
             return super(NestedRouterMixin, self).get_api_root_view()
         api_root_dict = {}
         list_name = self.routes[0].name
