@@ -119,7 +119,7 @@ class UserKeyBit(KeyBitBase):
         print(request)
         print(request)
         print(request)
-        if hasattr(request, 'user') and request.user.is_authenticated():
+        if hasattr(request, 'user') and request.user.is_authenticated:
             return force_text(self._get_id_from_user(request.user))
         else:
             return u'anonymous'
