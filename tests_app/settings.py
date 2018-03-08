@@ -3,7 +3,8 @@ import os
 import multiprocessing
 
 BASE_PATH = os.path.dirname(os.path.normpath(__file__))
-FILE_STORAGE_DIR = os.path.join(BASE_PATH, 'tests_file_storage', str(os.getpid()))
+FILE_STORAGE_DIR = os.path.join(
+    BASE_PATH, 'tests_file_storage', str(os.getpid()))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -118,9 +119,6 @@ PASSWORD_HASHERS = (
 )
 
 AUTH_USER_MODEL = 'auth.User'
-
-import django
-
 
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
