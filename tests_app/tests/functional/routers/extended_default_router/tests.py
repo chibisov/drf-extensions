@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.test import override_settings
-from django.url import NoReverseMatch
+from django.urls import NoReverseMatch
 
 from rest_framework_extensions.test import APITestCase
 
