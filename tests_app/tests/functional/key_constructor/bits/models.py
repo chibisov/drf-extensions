@@ -10,7 +10,10 @@ class KeyConstructorUserProperty(models.Model):
 
 
 class KeyConstructorUserModel(models.Model):
-    property = models.ForeignKey(KeyConstructorUserProperty)
+    property = models.ForeignKey(
+        KeyConstructorUserProperty,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         app_label = 'tests_app'
