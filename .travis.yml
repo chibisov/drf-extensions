@@ -8,7 +8,6 @@ python:
 env:
   - TOX_ENV=django.1.11
   - TOX_ENV=django.2.0
-  - TOX_ENV=django.1.8.lts
 
 matrix:
   fast_finish: true
