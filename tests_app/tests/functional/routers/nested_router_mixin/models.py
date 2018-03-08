@@ -44,7 +44,12 @@ class NestedRouterMixinBookModel(models.Model):
 
 
 class NestedRouterMixinCommentModel(models.Model):
-    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content_object = GenericForeignKey()
     text = models.CharField(max_length=30)
