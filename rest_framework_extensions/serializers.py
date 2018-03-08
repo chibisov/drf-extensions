@@ -28,7 +28,10 @@ class PartialUpdateSerializerMixin(object):
 
     def update(self, instance, validated_attrs):
         for attr, value in validated_attrs.items():
-            setattr(instance, attr, value)
+            if hasattr(getattr(instance, attr), 'set'):
+                getattr(instance, attr).set(value)
+            else:
+                setattr(instance, attr, value)
         if self.partial and isinstance(instance, self.Meta.model):
             instance.save(
                 update_fields=getattr(self, '_update_fields') or get_fields_for_partial_update(
