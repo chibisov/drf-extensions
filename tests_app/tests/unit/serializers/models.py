@@ -16,7 +16,11 @@ upload_to = os.path.join(settings.FILE_STORAGE_DIR, 'test_serializers')
 
 
 class CommentModel(models.Model):
-    user = models.ForeignKey(UserModel, related_name='comments')
+    user = models.ForeignKey(
+        UserModel,
+        related_name='comments',
+        on_delete=models.CASCADE,
+    )
     users_liked = models.ManyToManyField(UserModel, blank=True, null=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=200)
