@@ -33,28 +33,28 @@ class NestedRouterMixinTestBehaviourBase(APITestCase):
         }
 
         # add permissions to groups
-        self.groups['users'].permissions = [
+        self.groups['users'].permissions.set([
             self.permissions['read']
-        ]
-        self.groups['admins'].permissions = [
+        ])
+        self.groups['admins'].permissions.set([
             self.permissions['read'],
             self.permissions['update'],
-        ]
-        self.groups['super_admins'].permissions = [
+        ])
+        self.groups['super_admins'].permissions.set([
             self.permissions['read'],
             self.permissions['update'],
             self.permissions['delete'],
-        ]
+        ])
 
         # add groups to users
-        self.users['vova'].groups = [
+        self.users['vova'].groups.set([
             self.groups['users']
-        ]
+        ])
 
-        self.users['gena'].groups = [
+        self.users['gena'].groups.set([
             self.groups['admins'],
             self.groups['super_admins'],
-        ]
+        ])
 
 
 class NestedRouterMixinTestBehaviour__main_routes(NestedRouterMixinTestBehaviourBase):
