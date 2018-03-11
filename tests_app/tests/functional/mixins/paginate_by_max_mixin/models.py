@@ -9,3 +9,4 @@ class CommentForPaginateByMaxMixin(models.Model):
 
     class Meta:
         app_label = 'tests_app'
+        ordering = ['id']
