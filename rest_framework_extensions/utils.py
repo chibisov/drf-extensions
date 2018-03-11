@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import itertools
-from functools import wraps
 from distutils.version import LooseVersion
 
 from django import VERSION as django_version

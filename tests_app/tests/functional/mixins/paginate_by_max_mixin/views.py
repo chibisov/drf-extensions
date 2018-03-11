@@ -9,7 +9,7 @@ from .serializers import CommentSerializer
 class CommentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = WithMaxPagination
-    queryset = CommentForPaginateByMaxMixin.objects.all()
+    queryset = CommentForPaginateByMaxMixin.objects.all().order_by('id')
 
 
 class CommentWithoutPaginateByParamViewSet(viewsets.ReadOnlyModelViewSet):
