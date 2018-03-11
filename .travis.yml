@@ -1,4 +1,5 @@
 language: python
+cache: pip
 
 python:
   - "3.5"
@@ -11,6 +12,8 @@ env:
 
 matrix:
   fast_finish: true
+  exclude:
+      - { python: "2.7", env: DJANGO=2.0 }
 
 install:
   - pip install tox
