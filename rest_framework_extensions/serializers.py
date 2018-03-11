@@ -28,7 +28,7 @@ class PartialUpdateSerializerMixin(object):
 
     def update(self, instance, validated_attrs):
         for attr, value in validated_attrs.items():
-            if hasattr(getattr(instance, attr), 'set'):
+            if hasattr(getattr(instance, attr, None), 'set'):
                 getattr(instance, attr).set(value)
             else:
                 setattr(instance, attr, value)
