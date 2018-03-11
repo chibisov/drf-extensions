@@ -418,14 +418,14 @@ class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
         }
 
         # add groups to users
-        self.users['vova'].groups = [
+        self.users['vova'].groups.set([
             self.groups['users']
-        ]
+        ])
 
-        self.users['gena'].groups = [
+        self.users['gena'].groups.set([
             self.groups['admins'],
             self.groups['super_admins'],
-        ]
+        ])
 
     def test_users_detail(self):
         url = '/users/{0}/'.format(self.users['gena'].email)
