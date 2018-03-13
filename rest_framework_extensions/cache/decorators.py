@@ -68,8 +68,9 @@ class CacheResponse(object):
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before picklining while storing to cache
 
-            if not response.status_code >= 400 or self.cache_errors:
-                self.cache.set(key, response, self.timeout)
+            if key:
+                if not response.status_code >= 400 or self.cache_errors:
+                    self.cache.set(key, response, self.timeout)
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
