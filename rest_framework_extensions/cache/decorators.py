@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 
+from django.http.response import HttpResponse
 from django.utils.decorators import available_attrs
 
 
@@ -69,7 +70,16 @@ class CacheResponse(object):
             response.render()  # should be rendered, before picklining while storing to cache
 
             if not response.status_code >= 400 or self.cache_errors:
-                self.cache.set(key, response, self.timeout)
+                response_dict = (
+                    response.rendered_content,
+                    response.status_code,
+                    response._headers
+                )
+                self.cache.set(key, response_dict, self.timeout)
+        else:
+            content, status, headers = response
+            response = HttpResponse(content=content, status=status)
+            response._headers = headers
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
