@@ -69,6 +69,12 @@ class ExtendedActionLinkRouterMixin(object):
     _routs = routes[2:4] + routes[:2]  # first routes should be dynamic (because of urlpatterns position matters)
                                        # left self.routs for backward
 
+    def route_is_in(self, target_route, route_list):
+        for route in route_list:
+            if route.url == target_route.name and route.name == target_route.name and route.mapping == target_route.mapping and route.initkwargs == target_route.initkwargs:
+                return True
+        return False
+
     def get_routes(self, viewset):
         """
         Augment `self.routes` with any dynamically generated routes.
@@ -84,20 +90,27 @@ class ExtendedActionLinkRouterMixin(object):
             if self.is_dynamic_route(route):
                 # Dynamic routes (@list_route or @detail_route decorator)
                 if self.is_list_dynamic_route(route):
-                    ret += self.get_dynamic_routes_instances(
+                    temporary_route_list = self.get_dynamic_routes_instances(
                         viewset,
                         route,
                         self._filter_by_list_dynamic_routes(dynamic_routes)
                     )
+                    for temporary_route in temporary_route_list:
+                        if not self.route_is_in(temporary_route, ret):
+                            ret.append(temporary_route)
                 else:
-                    ret += self.get_dynamic_routes_instances(
+                    temporary_route_list = self.get_dynamic_routes_instances(
                         viewset,
                         route,
                         self._filter_by_detail_dynamic_routes(dynamic_routes)
                     )
+                    for temporary_route in temporary_route_list:
+                        if not self.route_is_in(temporary_route, ret):
+                            ret.append(temporary_route)
             else:
                 # Standard route
-                ret.append(route)
+                if route not in ret:
+                    ret.append(route)
 
         return ret
 
