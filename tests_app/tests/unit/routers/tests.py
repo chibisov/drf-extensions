@@ -20,19 +20,19 @@ class ExtendedDefaultRouterTest(TestCase):
         except IndexError:
             return None
 
-    def test_dynamic_routes_should_be_first_in_order(self):
+    def test_dynamic_list_route_should_come_before_detail_route(self):
         class BasicViewSet(viewsets.ViewSet):
             def list(self, request, *args, **kwargs):
                 return Response({'method': 'list'})
 
-            @detail_route()
+            @list_route()
             def detail1(self, request, *args, **kwargs):
                 return Response({'method': 'detail1'})
 
         routes = self.router.get_routes(BasicViewSet)
         expected = [
-            '{basename}-detail1',
             '{basename}-list',
+            '{basename}-detail1',
             '{basename}-detail'
         ]
         msg = '@detail_route methods should come first in routes order'
@@ -162,7 +162,7 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
-        self.assertEqual(action1_list_route.name, u'{basename}-action1-list')
+        self.assertEqual(action1_list_route.name, u'{basename}-action1')
         self.assertEqual(action2_detail_route.name, u'{basename}-action2')
 
     def test_list_route_and_detail_route_names__with_endpoints(self):
@@ -179,5 +179,5 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
-        self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
+        self.assertEqual(action1_list_route.name, u'{basename}-action-one')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
