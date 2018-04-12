@@ -1,13 +1,7 @@
 # Django settings for testproject project.
-import os
 import multiprocessing
 
-BASE_PATH = os.path.dirname(os.path.normpath(__file__))
-FILE_STORAGE_DIR = os.path.join(
-    BASE_PATH, 'tests_file_storage', str(os.getpid()))
-
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ['*']
@@ -63,7 +57,7 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = 'tests_app/tests/files'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
