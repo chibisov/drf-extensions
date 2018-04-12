@@ -8,8 +8,6 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework_extensions.test import APITestCase
 
-from rest_framework_extensions.compat import get_model_name
-
 from tests_app.testutils import basic_auth_header
 from .models import PermissionsComment
 
@@ -36,7 +34,7 @@ class ExtendedDjangoObjectPermissionTestMixin(object):
 
         # give everyone model level permissions, as we are not testing those
         everyone = Group.objects.create(name='everyone')
-        model_name = get_model_name(PermissionsComment)
+        model_name = PermissionsComment._meta.model_name
         app_label = PermissionsComment._meta.app_label
         f = '{0}_{1}'.format
         perms = {

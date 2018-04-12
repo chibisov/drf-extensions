@@ -8,7 +8,6 @@ from django.test import override_settings
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
-from rest_framework_extensions.utils import get_rest_framework_features
 
 from .models import (
     CommentForListUpdateModelMixin as Comment,
@@ -145,8 +144,6 @@ class ListUpdateModelMixinTestBehaviour__serializer_fields(APITestCase):
                 'surname': 'Chibisov'
             }
         ]
-        if not get_rest_framework_features()['write_only_fields']:
-            expected[0]['password'] = self.user.password
         self.assertEqual(resp.data, expected)
 
     def test_invalid_for_db_data(self):
@@ -172,10 +169,6 @@ class ListUpdateModelMixinTestBehaviour__serializer_fields(APITestCase):
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(self.get_fresh_user().last_name, data['surname'])
 
-    @unittest.skipIf(
-        not get_rest_framework_features()['write_only_fields'],
-        "Current DRF version doesn't support write_only_fields"
-    )
     def test_should_update_write_only_fields(self):
         data = {
             'password': '123'

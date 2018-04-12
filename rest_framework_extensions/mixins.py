@@ -6,7 +6,6 @@ from django.utils import six
 
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
-from rest_framework_extensions.utils import get_rest_framework_features
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from django.http import Http404

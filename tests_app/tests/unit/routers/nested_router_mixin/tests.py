@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from rest_framework.compat import get_regex_pattern
-from rest_framework_extensions.compat_drf import get_lookup_allowed_symbols
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
@@ -16,12 +15,10 @@ from .views import (
 
 class NestedRouterMixinTest(APITestCase):
     def get_lookup_regex(self, value):
-        return get_lookup_allowed_symbols(value)
-        # return '(?P<{0}>[^/]+)'.format(value)
+        return '(?P<{0}>[^/.]+)'.format(value)
 
     def get_parent_lookup_regex(self, value):
-        return get_lookup_allowed_symbols(compose_parent_pk_kwarg_name(value), force_dot=True)
-        # return '(?P<{0}>[^/.]+)'.format(compose_parent_pk_kwarg_name(value))
+        return '(?P<{0}>[^/.]+)'.format(compose_parent_pk_kwarg_name(value))
 
     def get_custom_regex_lookup(self, pk_kwarg_name, lookup_value_regex):
         """ Build lookup regex with custom regular expression. """
