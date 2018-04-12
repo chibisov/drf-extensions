@@ -10,4 +10,3 @@ class PermissionsComment(models.Model):
             ('view_permissionscomment', 'Can view comment'),
             # add, change, delete built in to django
         )
-        app_label = 'tests_app'
