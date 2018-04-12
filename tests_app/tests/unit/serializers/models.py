@@ -18,7 +18,7 @@ class CommentModel(models.Model):
         related_name='comments',
         on_delete=models.CASCADE,
     )
-    users_liked = models.ManyToManyField(UserModel, blank=True, null=True)
+    users_liked = models.ManyToManyField(UserModel, blank=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=200)
     attachment = models.FileField(
