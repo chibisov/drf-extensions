@@ -1,4 +1,4 @@
-from .concurrency.conditional_request.models import *
+# from .concurrency.conditional_request.models import *
 from .key_constructor.bits.models import *
 from .mixins.detail_serializer_mixin.models import *
 from .mixins.list_destroy_model_mixin.models import *

@@ -5,7 +5,7 @@ from django.utils import six
 
 
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
-from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
+# from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from django.http import Http404
@@ -46,12 +46,12 @@ class PaginateByMaxMixin(object):
         return super(PaginateByMaxMixin, self).get_page_size(request)
 
 
-class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):
-    pass
+# class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):
+#     pass
 
 
-class CacheResponseAndETAGMixin(ETAGMixin, CacheResponseMixin):
-    pass
+# class CacheResponseAndETAGMixin(ETAGMixin, CacheResponseMixin):
+#     pass
 
 
 class NestedViewSetMixin(object):
