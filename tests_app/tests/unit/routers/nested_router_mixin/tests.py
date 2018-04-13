@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from rest_framework.compat import get_regex_pattern
 from rest_framework_extensions.compat_drf import get_lookup_allowed_symbols
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.routers import ExtendedSimpleRouter
@@ -43,11 +44,11 @@ class NestedRouterMixinTest(APITestCase):
 
         # test user list
         self.assertEqual(router.urls[0].name, 'user-list')
-        self.assertEqual(router.urls[0]._regex, r'^users/$')
+        self.assertEqual(get_regex_pattern(router.urls[0]), r'^users/$')
 
         # test user detail
         self.assertEqual(router.urls[1].name, 'user-detail')
-        self.assertEqual(router.urls[1]._regex, r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
+        self.assertEqual(get_regex_pattern(router.urls[1]), r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
 
     def test_nested_route(self):
         router = ExtendedSimpleRouter()
@@ -58,22 +59,22 @@ class NestedRouterMixinTest(APITestCase):
 
         # test user list
         self.assertEqual(router.urls[0].name, 'user-list')
-        self.assertEqual(router.urls[0]._regex, r'^users/$')
+        self.assertEqual(get_regex_pattern(router.urls[0]), r'^users/$')
 
         # test user detail
         self.assertEqual(router.urls[1].name, 'user-detail')
-        self.assertEqual(router.urls[1]._regex, r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
+        self.assertEqual(get_regex_pattern(router.urls[1]), r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
 
         # test users group list
         self.assertEqual(router.urls[2].name, 'users-group-list')
-        self.assertEqual(router.urls[2]._regex, r'^users/{0}/groups/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[2]), r'^users/{0}/groups/$'.format(
                 self.get_parent_lookup_regex('user')
             )
         )
 
         # test users group detail
         self.assertEqual(router.urls[3].name, 'users-group-detail')
-        self.assertEqual(router.urls[3]._regex, r'^users/{0}/groups/{1}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[3]), r'^users/{0}/groups/{1}/$'.format(
                 self.get_parent_lookup_regex('user'),
                 self.get_lookup_regex('pk')
             ),
@@ -93,22 +94,22 @@ class NestedRouterMixinTest(APITestCase):
 
         # test user list
         self.assertEqual(router.urls[0].name, 'user-list')
-        self.assertEqual(router.urls[0]._regex, r'^users/$')
+        self.assertEqual(get_regex_pattern(router.urls[0]), r'^users/$')
 
         # test user detail
         self.assertEqual(router.urls[1].name, 'user-detail')
-        self.assertEqual(router.urls[1]._regex, r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
+        self.assertEqual(get_regex_pattern(router.urls[1]), r'^users/{0}/$'.format(self.get_lookup_regex('pk')))
 
         # test users group list
         self.assertEqual(router.urls[2].name, 'users-group-list')
-        self.assertEqual(router.urls[2]._regex, r'^users/{0}/groups/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[2]), r'^users/{0}/groups/$'.format(
                 self.get_parent_lookup_regex('user')
             )
         )
 
         # test users group detail
         self.assertEqual(router.urls[3].name, 'users-group-detail')
-        self.assertEqual(router.urls[3]._regex, r'^users/{0}/groups/{1}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[3]), r'^users/{0}/groups/{1}/$'.format(
                 self.get_parent_lookup_regex('user'),
                 self.get_lookup_regex('pk')
             ),
@@ -116,7 +117,7 @@ class NestedRouterMixinTest(APITestCase):
 
         # test users groups permission list
         self.assertEqual(router.urls[4].name, 'users-groups-permission-list')
-        self.assertEqual(router.urls[4]._regex, r'^users/{0}/groups/{1}/permissions/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[4]), r'^users/{0}/groups/{1}/permissions/$'.format(
                 self.get_parent_lookup_regex('group__user'),
                 self.get_parent_lookup_regex('group'),
             )
@@ -124,7 +125,7 @@ class NestedRouterMixinTest(APITestCase):
 
         # test users groups permission detail
         self.assertEqual(router.urls[5].name, 'users-groups-permission-detail')
-        self.assertEqual(router.urls[5]._regex, r'^users/{0}/groups/{1}/permissions/{2}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[5]), r'^users/{0}/groups/{1}/permissions/{2}/$'.format(
                 self.get_parent_lookup_regex('group__user'),
                 self.get_parent_lookup_regex('group'),
                 self.get_lookup_regex('pk')
@@ -156,30 +157,30 @@ class NestedRouterMixinTest(APITestCase):
 
         # test user list
         self.assertEqual(router.urls[0].name, 'user-list')
-        self.assertEqual(router.urls[0]._regex, r'^users/$')
+        self.assertEqual(get_regex_pattern(router.urls[0]), r'^users/$')
 
         # test user detail
         self.assertEqual(router.urls[1].name, 'user-detail')
-        self.assertEqual(router.urls[1]._regex, r'^users/{0}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[1]), r'^users/{0}/$'.format(
             self.get_custom_regex_lookup('pk', user_viewset_regex))
         )
 
         # test users group list
         self.assertEqual(router.urls[2].name, 'users-group-list')
-        self.assertEqual(router.urls[2]._regex, r'^users/{0}/groups/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[2]), r'^users/{0}/groups/$'.format(
                 self.get_custom_regex_parent_lookup('user', user_viewset_regex)
             )
         )
         # test users group detail
         self.assertEqual(router.urls[3].name, 'users-group-detail')
-        self.assertEqual(router.urls[3]._regex, r'^users/{0}/groups/{1}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[3]), r'^users/{0}/groups/{1}/$'.format(
                 self.get_custom_regex_parent_lookup('user', user_viewset_regex),
                 self.get_custom_regex_lookup('pk', group_viewset_regex)
             ),
         )
         # test users groups permission list
         self.assertEqual(router.urls[4].name, 'users-groups-permission-list')
-        self.assertEqual(router.urls[4]._regex, r'^users/{0}/groups/{1}/permissions/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[4]), r'^users/{0}/groups/{1}/permissions/$'.format(
                 self.get_custom_regex_parent_lookup('group__user', user_viewset_regex),
                 self.get_custom_regex_parent_lookup('group', group_viewset_regex),
             )
@@ -187,7 +188,7 @@ class NestedRouterMixinTest(APITestCase):
 
         # test users groups permission detail
         self.assertEqual(router.urls[5].name, 'users-groups-permission-detail')
-        self.assertEqual(router.urls[5]._regex, r'^users/{0}/groups/{1}/permissions/{2}/$'.format(
+        self.assertEqual(get_regex_pattern(router.urls[5]), r'^users/{0}/groups/{1}/permissions/{2}/$'.format(
                 self.get_custom_regex_parent_lookup('group__user', user_viewset_regex),
                 self.get_custom_regex_parent_lookup('group', group_viewset_regex),
                 self.get_custom_regex_lookup('pk', perm_viewset_regex)

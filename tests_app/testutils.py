@@ -3,6 +3,7 @@ import base64
 from mock import patch
 
 from rest_framework import HTTP_HEADER_ENCODING
+from rest_framework.compat import get_regex_pattern
 
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import KeyConstructor
@@ -11,7 +12,7 @@ from rest_framework_extensions.key_constructor.constructors import KeyConstructo
 def get_url_pattern_by_regex_pattern(patterns, pattern_string):
     # todo: test me
     for pattern in patterns:
-        if pattern.regex.pattern == pattern_string:
+        if get_regex_pattern(pattern) == pattern_string:
             return pattern
 
 

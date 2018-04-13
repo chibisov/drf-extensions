@@ -5,7 +5,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework_extensions.routers import ExtendedDefaultRouter
-from rest_framework_extensions.compat_drf import add_trailing_slash_if_needed
 
 
 class ExtendedDefaultRouterTest(TestCase):
@@ -21,19 +20,19 @@ class ExtendedDefaultRouterTest(TestCase):
         except IndexError:
             return None
 
-    def test_dynamic_routes_should_be_first_in_order(self):
+    def test_dynamic_list_route_should_come_before_detail_route(self):
         class BasicViewSet(viewsets.ViewSet):
             def list(self, request, *args, **kwargs):
                 return Response({'method': 'list'})
 
-            @detail_route()
+            @list_route()
             def detail1(self, request, *args, **kwargs):
                 return Response({'method': 'detail1'})
 
         routes = self.router.get_routes(BasicViewSet)
         expected = [
-            '{basename}-detail1',
             '{basename}-list',
+            '{basename}-detail1',
             '{basename}-detail'
         ]
         msg = '@detail_route methods should come first in routes order'
@@ -52,7 +51,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'get': 'action1'}, msg)
 
         msg = '@detail_route should use url with detail lookup'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action1/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/{lookup}/action1{trailing_slash}$', msg)
 
     def test_detail_route__with_methods(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -67,7 +66,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@detail_route should use url with detail lookup'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action1/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/{lookup}/action1{trailing_slash}$', msg)
 
     def test_detail_route__with_methods__and__with_url_path(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -82,7 +81,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@detail_route should use url with detail lookup and "url_path" value'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/{lookup}/action-one{trailing_slash}$', msg)
 
     def test_list_route(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -97,7 +96,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'get': 'action1'}, msg)
 
         msg = '@list_route should use url in list scope'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action1/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/action1{trailing_slash}$', msg)
 
     def test_list_route__with_methods(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -112,7 +111,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@list_route should use url in list scope'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action1/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/action1{trailing_slash}$', msg)
 
     def test_list_route__with_methods__and__with_url_path(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -127,7 +126,7 @@ class ExtendedDefaultRouterTest(TestCase):
         self.assertEqual(action1_route.mapping, {'post': 'action1'}, msg)
 
         msg = '@list_route should use url in list scope with "url_path" value'
-        self.assertEqual(action1_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'), msg)
+        self.assertEqual(action1_route.url, u'^{prefix}/action-one{trailing_slash}$', msg)
 
     def test_list_route_and_detail_route_with_exact_names(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -144,10 +143,10 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_detail_route = self.get_dynamic_route_by_def_name('action1_detail', routes)
 
         self.assertEqual(action1_list_route.mapping, {'get': 'action1'})
-        self.assertEqual(action1_list_route.url, add_trailing_slash_if_needed(u'^{prefix}/action-one/$'))
+        self.assertEqual(action1_list_route.url, u'^{prefix}/action-one{trailing_slash}$')
 
         self.assertEqual(action1_detail_route.mapping, {'get': 'action1_detail'})
-        self.assertEqual(action1_detail_route.url, add_trailing_slash_if_needed(u'^{prefix}/{lookup}/action-one/$'))
+        self.assertEqual(action1_detail_route.url, u'^{prefix}/{lookup}/action-one{trailing_slash}$')
 
     def test_list_route_and_detail_route_names(self):
         class BasicViewSet(viewsets.ViewSet):
@@ -163,7 +162,7 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
-        self.assertEqual(action1_list_route.name, u'{basename}-action1-list')
+        self.assertEqual(action1_list_route.name, u'{basename}-action1')
         self.assertEqual(action2_detail_route.name, u'{basename}-action2')
 
     def test_list_route_and_detail_route_names__with_endpoints(self):
@@ -180,5 +179,5 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
-        self.assertEqual(action1_list_route.name, u'{basename}-action-one-list')
+        self.assertEqual(action1_list_route.name, u'{basename}-action-one')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')

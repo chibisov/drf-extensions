@@ -18,7 +18,6 @@ from rest_framework_extensions.settings import extensions_api_settings
 
 def get_rest_framework_features():
     return {
-        'router_trailing_slash': get_rest_framework_version() >= (2, 3, 6),
         'allow_dot_in_lookup_regex_without_trailing_slash': get_rest_framework_version() >= (2, 3, 8),
         'use_dot_in_lookup_regex_by_default': get_rest_framework_version() >= (2, 4, 0),
         'max_paginate_by': get_rest_framework_version() >= (2, 3, 8),
