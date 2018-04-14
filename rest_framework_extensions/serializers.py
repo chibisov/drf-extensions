@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from rest_framework_extensions.compat import get_concrete_model
 from rest_framework_extensions.utils import get_model_opts_concrete_fields
 
 
 def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
-    opts = get_concrete_model(opts.model)._meta
+    opts = opts.model._meta.concrete_model._meta
     partial_fields = list((init_data or {}).keys()) + list((init_files or {}).keys())
     concrete_field_names = []
     for field in get_model_opts_concrete_fields(opts):

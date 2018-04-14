@@ -3,11 +3,10 @@
 from django.test import TestCase
 from django.core.files import File
 
-from rest_framework_extensions.utils import get_rest_framework_features
-from rest_framework_extensions.compat import BytesIO
+from django.utils.six import BytesIO
 
 from .serializers import CommentSerializer, UserSerializer, \
-    CommentSerializerWithExpandedUsersLiked, CommentSerializerWithAllowedUserId
+    CommentSerializerWithAllowedUserId
 from .models import UserModel, CommentModel
 
 
@@ -65,13 +64,7 @@ class PartialUpdateSerializerMixinTest(TestCase):
             'instance': self.get_comment(),
             'partial': True
         }
-        if get_rest_framework_features()['uses_single_request_data_in_serializers']:
-            serializer_three_kwargs['data'] = {'attachment': self.files[1]}
-        else:
-            serializer_three_kwargs.update({
-                'data': {},
-                'files': {'attachment': self.files[1]}
-            })
+        serializer_three_kwargs['data'] = {'attachment': self.files[1]}
         serializer_three = CommentSerializer(**serializer_three_kwargs)
         self.assertTrue(serializer_one.is_valid())
         self.assertTrue(serializer_two.is_valid())

@@ -10,37 +10,22 @@ class NestedRouterMixinUserModel(models.Model):
     groups = models.ManyToManyField(
         'NestedRouterMixinGroupModel', related_name='user_groups')
 
-    class Meta:
-        app_label = 'tests_app'
-
 
 class NestedRouterMixinGroupModel(models.Model):
     name = models.CharField(max_length=10)
     permissions = models.ManyToManyField('NestedRouterMixinPermissionModel')
 
-    class Meta:
-        app_label = 'tests_app'
-
 
 class NestedRouterMixinPermissionModel(models.Model):
     name = models.CharField(max_length=10)
-
-    class Meta:
-        app_label = 'tests_app'
 
 
 class NestedRouterMixinTaskModel(models.Model):
     title = models.CharField(max_length=30)
 
-    class Meta:
-        app_label = 'tests_app'
-
 
 class NestedRouterMixinBookModel(models.Model):
     title = models.CharField(max_length=30)
-
-    class Meta:
-        app_label = 'tests_app'
 
 
 class NestedRouterMixinCommentModel(models.Model):
@@ -53,6 +38,3 @@ class NestedRouterMixinCommentModel(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content_object = GenericForeignKey()
     text = models.CharField(max_length=30)
-
-    class Meta:
-        app_label = 'tests_app'

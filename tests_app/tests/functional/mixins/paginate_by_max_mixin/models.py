@@ -8,5 +8,4 @@ class CommentForPaginateByMaxMixin(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = 'tests_app'
         ordering = ['id']

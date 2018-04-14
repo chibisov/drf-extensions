@@ -58,11 +58,11 @@ class PrepareRestFrameworkSettingsPlugin(AlwaysOnPlugin):
 
 class PrepareFileStorageDir(AlwaysOnPlugin):
     def begin(self):
-        if not os.path.isdir(settings.FILE_STORAGE_DIR):
-            os.makedirs(settings.FILE_STORAGE_DIR)
+        if not os.path.isdir(settings.MEDIA_ROOT):
+            os.makedirs(settings.MEDIA_ROOT)
 
     def finalize(self, result):
-        shutil.rmtree(settings.FILE_STORAGE_DIR, ignore_errors=True)
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
 
 class FlushCache(AlwaysOnPlugin):

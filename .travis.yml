@@ -2,21 +2,22 @@ language: python
 cache: pip
 
 python:
+  - "3.6"
   - "3.5"
   - "3.4"
   - "2.7"
 
 env:
-  - TOX_ENV=django.1.11
-  - TOX_ENV=django.2.0
+  - TOXENV=django.1.11
+  - TOXENV=django.2.0
 
 matrix:
   fast_finish: true
   exclude:
-      - { python: "2.7", env: DJANGO=2.0 }
+      - { python: "2.7", env: TOXENV=django.2.0 }
 
 install:
   - pip install tox
 
 script:
-  - tox -e $TOX_ENV -- tests_app
+  - tox
