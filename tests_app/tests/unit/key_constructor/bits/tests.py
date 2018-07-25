@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
+from mock import PropertyMock
 
 from django.test import TestCase
 from django.utils.translation import override
@@ -244,7 +245,8 @@ class UserKeyBitTest(TestCase):
         }
         self.user = Mock()
         self.user.id = 123
-        self.user.is_authenticated = Mock(return_value=False)
+        self.is_authenticated = PropertyMock(return_value=False)
+        type(self.user).is_authenticated = self.is_authenticated
 
     def test_without_user_in_request(self):
         expected = u'anonymous'
@@ -257,7 +259,7 @@ class UserKeyBitTest(TestCase):
 
     def test_with_autenticated_user(self):
         self.kwargs['request'].user = self.user
-        self.kwargs['request'].user.is_authenticated.return_value = True
+        self.is_authenticated.return_value = True
         expected = u'123'
         self.assertEqual(UserKeyBit().get_data(**self.kwargs), expected)
 

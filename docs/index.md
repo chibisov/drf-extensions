@@ -868,7 +868,7 @@ Of course we can use custom `calculate_cache_key` methods and reuse them for dif
         def head(self, request, *args, **kwargs):
             city = ''
             user = self.request.user
-            if user.is_authenticated() and user.city:
+            if user.is_authenticated and user.city:
                 city = Response(user.city.name)
             if not city:
                 city = get_city_by_ip(request.META['REMOTE_ADDR'])
