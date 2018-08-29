@@ -72,6 +72,7 @@ class FlushCache(AlwaysOnPlugin):
 
     def _monkeypatch_testcase(self):
         old_run = TestCase.run
+
         def new_run(*args, **kwargs):
             cache.clear()
             return old_run(*args, **kwargs)
