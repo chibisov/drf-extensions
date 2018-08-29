@@ -17,6 +17,10 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 ## Installation:
 
     pip install drf-extensions
+    
+    or from github
+    
+    pip install https://github.com/chibisov/drf-extensions/archive/master.zip
 
 ## Some features
 
