@@ -2190,6 +2190,19 @@ If you need to access the values of DRF-extensions API settings in your project,
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
 
+#### 0.4.0
+
+*Sep 5, 2018*
+
+* Added support for django 1.11 and 2.0
+* Dropped support for django versions lower then 1.11
+* Nested routes with over 2 levels now respect `lookup_value_regex` 
+* Added support for DRF 3.8
+* Dropped support of older DRF version lower then 3.8
+* Cache only the renered response instead of rendering whole response object
+* The etag functionalties are not enabled by default, have to enable it manually
+
+
 #### 0.3.2
 
 *Jan 4, 2017*
