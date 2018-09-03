@@ -2200,6 +2200,7 @@ You can read about versioning, deprecation policy and upgrading from
 * Added support for DRF 3.8
 * Dropped support of older DRF version lower then 3.8
 * Cache only the renered response instead of rendering whole response object
+* The etag functionalties are not enabled by default, have to enable it manually
 
 
 #### 0.3.2
