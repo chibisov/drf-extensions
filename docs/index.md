@@ -1106,7 +1106,7 @@ But there is another way. You can send `params` in key constructor initializatio
 keys are bit names and values are bit `params` attribute value (look at `CountryView`):
 
     class CityKeyConstructor(DefaultKeyConstructor):
-        geoip = bits.RequestMetaKeyBit(params=['GEOIP_COUNTRY'])
+        geoip = bits.RequestMetaKeyBit(params=['GEOIP_CITY'])
 
     class CityView(views.APIView):
         @cache_response(key_func=CityKeyConstructor())
