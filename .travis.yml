@@ -4,17 +4,16 @@ cache: pip
 python:
   - "3.6"
   - "3.5"
-  - "3.4"
-  - "2.7"
 
 env:
   - TOXENV=django.1.11
   - TOXENV=django.2.0
+  - TOXENV=django.2.1
 
 matrix:
   fast_finish: true
-  exclude:
-      - { python: "2.7", env: TOXENV=django.2.0 }
+  include:
+      - { python: "2.7", env: TOXENV=django.1.11 }
 
 install:
   - pip install tox
