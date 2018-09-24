@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 from rest_framework_extensions.utils import get_model_opts_concrete_fields
 
 
 def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
     opts = opts.model._meta.concrete_model._meta
-    partial_fields = list((init_data or {}).keys()) + list((init_files or {}).keys())
+    partial_fields = list((init_data or {}).keys()) + \
+        list((init_files or {}).keys())
     concrete_field_names = []
     for field in get_model_opts_concrete_fields(opts):
         if not field.primary_key:
@@ -14,16 +14,17 @@ def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
     update_fields = []
     for field_name in partial_fields:
         if field_name in fields:
-            model_field_name = getattr(fields[field_name], 'source') or field_name
+            model_field_name = getattr(
+                fields[field_name], 'source') or field_name
             if model_field_name in concrete_field_names:
                 update_fields.append(model_field_name)
     return update_fields
 
 
-class PartialUpdateSerializerMixin(object):
+class PartialUpdateSerializerMixin:
     def save(self, **kwargs):
         self._update_fields = kwargs.get('update_fields', None)
-        return super(PartialUpdateSerializerMixin, self).save(**kwargs)
+        return super().save(**kwargs)
 
     def update(self, instance, validated_attrs):
         for attr, value in validated_attrs.items():
