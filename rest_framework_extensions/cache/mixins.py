@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
 
@@ -13,13 +12,13 @@ class BaseCacheResponseMixin(object):
 class ListCacheResponseMixin(BaseCacheResponseMixin):
     @cache_response(key_func='list_cache_key_func')
     def list(self, request, *args, **kwargs):
-        return super(ListCacheResponseMixin, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class RetrieveCacheResponseMixin(BaseCacheResponseMixin):
     @cache_response(key_func='object_cache_key_func')
     def retrieve(self, request, *args, **kwargs):
-        return super(RetrieveCacheResponseMixin, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class CacheResponseMixin(RetrieveCacheResponseMixin,
