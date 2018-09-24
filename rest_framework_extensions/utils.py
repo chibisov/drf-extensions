@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import itertools
 from distutils.version import LooseVersion
 
