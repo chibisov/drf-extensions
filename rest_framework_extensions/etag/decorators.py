@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 from functools import wraps
 
@@ -17,7 +16,7 @@ from django.utils import six
 logger = logging.getLogger('django.request')
 
 
-class ETAGProcessor(object):
+class ETAGProcessor:
     """Based on https://github.com/django/django/blob/master/django/views/decorators/http.py"""
 
     def __init__(self, etag_func=None, rebuild_after_method_evaluation=False):
@@ -60,9 +59,11 @@ class ETAGProcessor(object):
             if request.method in SAFE_METHODS:
                 response = Response(status=status.HTTP_304_NOT_MODIFIED)
             else:
-                response = self._get_and_log_precondition_failed_response(request=request)
+                response = self._get_and_log_precondition_failed_response(
+                    request=request)
         elif self.is_if_match_failed(res_etag, etags, if_match):
-            response = self._get_and_log_precondition_failed_response(request=request)
+            response = self._get_and_log_precondition_failed_response(
+                request=request)
         else:
             response = view_method(view_instance, request, *args, **kwargs)
             if self.rebuild_after_method_evaluation:
@@ -181,7 +182,8 @@ class APIETAGProcessor(ETAGProcessor):
     def evaluate_preconditions(self, request):
         """Evaluate whether the precondition for the request is met."""
         if request.method.upper() in self.precondition_map.keys():
-            required_headers = self.precondition_map.get(request.method.upper(), [])
+            required_headers = self.precondition_map.get(
+                request.method.upper(), [])
             # check the required headers
             for header in required_headers:
                 if not request.META.get(prepare_header_name(header)):
@@ -195,7 +197,8 @@ class APIETAGProcessor(ETAGProcessor):
                     # raise an RFC 6585 compliant exception
                     raise PreconditionRequiredException(detail='Precondition required. This "%s" request '
                                                                'is required to be conditional. '
-                                                               'Try again using "%s".' % (request.method, header)
+                                                               'Try again using "%s".' % (
+                                                                   request.method, header)
                                                         )
         return True
 
