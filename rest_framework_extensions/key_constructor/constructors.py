@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import hashlib
 import json
 
@@ -6,7 +5,7 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.settings import extensions_api_settings
 
 
-class KeyConstructor(object):
+class KeyConstructor:
     def __init__(self, memoize_for_request=None, params=None):
         if memoize_for_request is None:
             self.memoize_for_request = extensions_api_settings.DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST
@@ -87,7 +86,8 @@ class KeyConstructor(object):
                     params = bit_instance.params
                 except AttributeError:
                     params = None
-            result_dict[bit_name] = bit_instance.get_data(params=params, **kwargs)
+            result_dict[bit_name] = bit_instance.get_data(
+                params=params, **kwargs)
         return result_dict
 
 
