@@ -10,17 +10,17 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
 ## Requirements
 
-* Tested for python 2.7 and 3.4, 3.5 versions
+* Tested for python 3.4, 3.5 and 3.6 versions
 * Tested for releases of Django Rest Framework latest versions
 * Tested for Django from 1.11 to 2.0 versions
 
 ## Installation:
 
-    pip install drf-extensions
+    pip3 install drf-extensions
     
     or from github
     
-    pip install https://github.com/chibisov/drf-extensions/archive/master.zip
+    pip3 install https://github.com/chibisov/drf-extensions/archive/master.zip
 
 ## Some features
 
@@ -37,12 +37,12 @@ Read more in [documentation](http://chibisov.github.io/drf-extensions/docs)
 
 Running the tests:
 
-    $ pip install tox
+    $ pip3 install tox
     $ tox -- tests_app
 
 Running test for exact environment:
 
-    $ tox -e py27-drf2.3.5 -- tests_app
+    $ tox -e py35 -- tests_app
 
 Recreate envs before running tests:
 
