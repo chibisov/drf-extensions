@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.utils.encoding import force_text
 
 from rest_framework import status
@@ -7,7 +6,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
 
 
-class BulkOperationBaseMixin(object):
+class BulkOperationBaseMixin:
     def is_object_operation(self):
         return bool(self.get_object_lookup_value())
 
@@ -29,7 +28,7 @@ class BulkOperationBaseMixin(object):
 class ListDestroyModelMixin(BulkOperationBaseMixin):
     def delete(self, request, *args, **kwargs):
         if self.is_object_operation():
-            return super(ListDestroyModelMixin, self).destroy(request, *args, **kwargs)
+            return super().destroy(request, *args, **kwargs)
         else:
             return self.destroy_bulk(request, *args, **kwargs)
 
@@ -60,7 +59,7 @@ class ListDestroyModelMixin(BulkOperationBaseMixin):
 class ListUpdateModelMixin(BulkOperationBaseMixin):
     def patch(self, request, *args, **kwargs):
         if self.is_object_operation():
-            return super(ListUpdateModelMixin, self).partial_update(request, *args, **kwargs)
+            return super().partial_update(request, *args, **kwargs)
         else:
             return self.partial_update_bulk(request, *args, **kwargs)
 
