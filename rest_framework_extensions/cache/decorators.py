@@ -85,7 +85,7 @@ class CacheResponse:
                 response_triple = (
                     response.rendered_content,
                     response.status_code,
-                    response._headers
+                    response._headers.copy()
                 )
                 self.cache.set(key, response_triple, self.timeout)
         else:
