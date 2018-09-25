@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from functools import wraps
 
 from django.http.response import HttpResponse
@@ -14,7 +13,7 @@ def get_cache(alias):
     return caches[alias]
 
 
-class CacheResponse(object):
+class CacheResponse:
     def __init__(self,
                  timeout=None,
                  key_func=None,

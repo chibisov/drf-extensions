@@ -5,7 +5,6 @@ python:
   - "3.6"
   - "3.5"
   - "3.4"
-  - "2.7"
 
 env:
   - TOXENV=django.1.11
@@ -13,8 +12,6 @@ env:
 
 matrix:
   fast_finish: true
-  exclude:
-      - { python: "2.7", env: TOXENV=django.2.0 }
 
 install:
   - pip install tox

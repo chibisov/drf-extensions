@@ -11,7 +11,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 from django.http import Http404
 
 
-class DetailSerializerMixin(object):
+class DetailSerializerMixin:
     """
     Add custom serializer for detail view
     """
@@ -19,18 +19,19 @@ class DetailSerializerMixin(object):
     queryset_detail = None
 
     def get_serializer_class(self):
-        error_message = "'{0}' should include a 'serializer_detail_class' attribute".format(self.__class__.__name__)
+        error_message = "'{0}' should include a 'serializer_detail_class' attribute".format(
+            self.__class__.__name__)
         assert self.serializer_detail_class is not None, error_message
         if self._is_request_to_detail_endpoint():
             return self.serializer_detail_class
         else:
-            return super(DetailSerializerMixin, self).get_serializer_class()
+            return super().get_serializer_class()
 
     def get_queryset(self, *args, **kwargs):
         if self._is_request_to_detail_endpoint() and self.queryset_detail is not None:
             return self.queryset_detail.all()  # todo: test all()
         else:
-            return super(DetailSerializerMixin, self).get_queryset(*args, **kwargs)
+            return super().get_queryset(*args, **kwargs)
 
     def _is_request_to_detail_endpoint(self):
         if hasattr(self, 'lookup_url_kwarg'):
@@ -38,12 +39,12 @@ class DetailSerializerMixin(object):
         return lookup and lookup in self.kwargs
 
 
-class PaginateByMaxMixin(object):
+class PaginateByMaxMixin:
 
     def get_page_size(self, request):
         if self.page_size_query_param and self.max_page_size and request.query_params.get(self.page_size_query_param) == 'max':
             return self.max_page_size
-        return super(PaginateByMaxMixin, self).get_page_size(request)
+        return super().get_page_size(request)
 
 
 # class ReadOnlyCacheResponseAndETAGMixin(ReadOnlyETAGMixin, CacheResponseMixin):
@@ -54,10 +55,10 @@ class PaginateByMaxMixin(object):
 #     pass
 
 
-class NestedViewSetMixin(object):
+class NestedViewSetMixin:
     def get_queryset(self):
         return self.filter_queryset_by_parents_lookups(
-            super(NestedViewSetMixin, self).get_queryset()
+            super().get_queryset()
         )
 
     def filter_queryset_by_parents_lookups(self, queryset):

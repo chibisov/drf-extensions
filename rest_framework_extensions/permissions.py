@@ -7,7 +7,7 @@ class ExtendedDjangoObjectPermissions(DjangoObjectPermissions):
 
     def has_object_permission(self, request, view, obj):
         if self.hide_forbidden_for_read_objects:
-            return super(ExtendedDjangoObjectPermissions, self).has_object_permission(request, view, obj)
+            return super().has_object_permission(request, view, obj)
         else:
             model_cls = getattr(view, 'model', None)
             queryset = getattr(view, 'queryset', None)
@@ -15,7 +15,8 @@ class ExtendedDjangoObjectPermissions(DjangoObjectPermissions):
             if model_cls is None and queryset is not None:
                 model_cls = queryset.model
 
-            perms = self.get_required_object_permissions(request.method, model_cls)
+            perms = self.get_required_object_permissions(
+                request.method, model_cls)
             user = request.user
 
             return user.has_perms(perms, obj)

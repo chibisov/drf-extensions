@@ -1,8 +1,5 @@
-# -- coding: utf-8 --
-
 # Note that we import as `DjangoRequestFactory` and `DjangoClient` in order
 # to make it harder for the user to import the wrong thing without realizing.
-from __future__ import unicode_literals
 import django
 from django.conf import settings
 from django.test.client import Client as DjangoClient
@@ -28,7 +25,7 @@ class APIRequestFactory(RequestFactory):
         self.renderer_classes = {}
         for cls in self.renderer_classes_list:
             self.renderer_classes[cls.format] = cls
-        super(APIRequestFactory, self).__init__(**defaults)
+        super().__init__(**defaults)
 
     def _encode_data(self, data, format=None, content_type=None):
         """
@@ -120,13 +117,13 @@ class ForceAuthClientHandler(ClientHandler):
     def __init__(self, *args, **kwargs):
         self._force_user = None
         self._force_token = None
-        super(ForceAuthClientHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_response(self, request):
         # This is the simplest place we can hook into to patch the
         # request object.
         force_authenticate(request, self._force_user, self._force_token)
-        return super(ForceAuthClientHandler, self).get_response(request)
+        return super().get_response(request)
 
 
 class APIClient(APIRequestFactory, DjangoClient):
@@ -154,7 +151,7 @@ class APIClient(APIRequestFactory, DjangoClient):
     def request(self, **kwargs):
         # Ensure that any credentials set get added to every request.
         kwargs.update(self._credentials)
-        return super(APIClient, self).request(**kwargs)
+        return super().request(**kwargs)
 
 
 class APITransactionTestCase(testcases.TransactionTestCase):

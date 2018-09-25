@@ -3,7 +3,7 @@
 Gennady Chibisov      https://github.com/chibisov
 
 ## Core maintainer
-Asif Saifuddin        https://github.com/auvipy
+Asif Saif Uddin        https://github.com/auvipy
 
 
 ## Contributors
