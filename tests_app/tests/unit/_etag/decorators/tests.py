@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.utils.http import quote_etag
 
@@ -169,7 +168,7 @@ class ETAGProcessorTestBehavior_rebuild_after_method_evaluation(TestCase):
         self.assertEqual(response.data, 'Response from method')
 
 
-class ETAGProcessorTestBehaviorMixin(object):
+class ETAGProcessorTestBehaviorMixin:
     def setUp(self):
         def calculate_etag(**kwargs):
             return '123'
@@ -393,10 +392,6 @@ class APIETAGProcessorTest(TestCase):
         self.assertEqual(response.data, 'Response from GET method')
 
 
-
-
-
-
     def test_should_require_precondition_decorator_unsafe_methods_empty(self):
         class TestView(views.APIView):
             @api_etag(dummy_api_etag_func, precondition_map={})
@@ -526,7 +521,7 @@ class APIETAGProcessorTest(TestCase):
         self.assertIsNotNone(cm.exception.detail)
 
 
-class APIETAGProcessorTestBehaviorMixin(object):
+class APIETAGProcessorTestBehaviorMixin:
     def setUp(self):
         def calculate_etag(**kwargs):
             return '123'

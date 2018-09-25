@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from rest_framework.compat import get_regex_pattern
 from rest_framework_extensions.test import APITestCase
 from rest_framework_extensions.routers import ExtendedSimpleRouter
