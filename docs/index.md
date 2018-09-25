@@ -603,6 +603,11 @@ Second request will hit the cache. No sql evaluation, no database query. (~30 ms
 
 Reduction in response time depends on calculation complexity inside your API method. Sometimes it reduces from 1 second to 10ms, sometimes you win just 10ms.
 
+*New in DRF-extensions 0.4.0*
+
+The decorator will render and discard the original DRF response in favor of Django's `HttpResponse`. This allows the cache to retain a smaller memory footprint and eliminates the need to re-render responses on each request. Furthermore it eliminates the risk for users to unknowingly cache whole Serializers and QuerySets.
+
+You can disable this behavior in your test suite by using [dummy caching](https://docs.djangoproject.com/en/stable/topics/cache/#dummy-caching-for-development) for the DRF-extensions cache (set via `DEFAULT_USE_CACHE`). 
 #### Timeout
 
 You can specify cache timeout in seconds, providing first argument:

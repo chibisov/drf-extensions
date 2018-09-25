@@ -14,6 +14,18 @@ def get_cache(alias):
 
 
 class CacheResponse:
+    """
+    Store/Receive and return cached `HttpResponse` based on DRF response.
+
+
+    .. note::
+        This decorator will render and discard the original DRF response in
+        favor of Django's `HttpResponse`. The allows the cache to retain a
+        smaller memory footprint and eliminates the need to re-render
+        responses on each request. Furthermore it eliminates the risk for users
+        to unknowingly cache whole Serializers and QuerySets.
+
+    """
     def __init__(self,
                  timeout=None,
                  key_func=None,
@@ -62,21 +74,23 @@ class CacheResponse:
             args=args,
             kwargs=kwargs
         )
-        response = self.cache.get(key)
-        if not response:
+        response_triple = self.cache.get(key)
+        if not response_triple:
+            # render response to create and cache the content byte string
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
-            response.render()  # should be rendered, before picklining while storing to cache
+            response.render()
 
             if not response.status_code >= 400 or self.cache_errors:
-                response_dict = (
+                response_triple = (
                     response.rendered_content,
                     response.status_code,
                     response._headers
                 )
-                self.cache.set(key, response_dict, self.timeout)
+                self.cache.set(key, response_triple, self.timeout)
         else:
-            content, status, headers = response
+            # build smaller Django HttpResponse
+            content, status, headers = response_triple
             response = HttpResponse(content=content, status=status)
             response._headers = headers
 
