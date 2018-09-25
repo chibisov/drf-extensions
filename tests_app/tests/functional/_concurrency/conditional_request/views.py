@@ -68,4 +68,4 @@ class BookUnconditionalUpdateView(generics.UpdateAPIView):
 
     @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
     def update(self, request, *args, **kwargs):
-        return super(BookUnconditionalUpdateView, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)

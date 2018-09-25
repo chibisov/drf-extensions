@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import override_settings
 
 from rest_framework_extensions.test import APITestCase

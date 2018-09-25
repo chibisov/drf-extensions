@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import datetime
 
 from django.test import TestCase, override_settings
 
-from rest_framework_extensions.test import APIRequestFactory  # todo: use from rest_framework when released
-
+# todo: use from rest_framework when released
+from rest_framework_extensions.test import APIRequestFactory
 from .models import Comment
 
 

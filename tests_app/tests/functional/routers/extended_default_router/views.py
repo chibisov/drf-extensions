@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from rest_framework.viewsets import ModelViewSet
 
 from rest_framework_extensions.mixins import NestedViewSetMixin
