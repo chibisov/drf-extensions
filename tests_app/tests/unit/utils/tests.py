@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import contextlib
 try:
     from unittest import mock

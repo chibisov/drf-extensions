@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.contenttypes.models import ContentType
 
 from rest_framework.decorators import detail_route, list_route

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 from .views import (

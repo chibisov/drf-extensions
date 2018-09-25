@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 from rest_framework import viewsets, serializers
 from rest_framework import authentication
 
 try:
     from rest_framework.filters import DjangoObjectPermissionsFilter
 except ImportError:
-    class DjangoObjectPermissionsFilter(object):
+    class DjangoObjectPermissionsFilter:
         pass
 
 try:
     from rest_framework_extensions.permissions import ExtendedDjangoObjectPermissions
 except ImportError:
-    class ExtendedDjangoObjectPermissions(object):
+    class ExtendedDjangoObjectPermissions:
         pass
 
 from .models import PermissionsComment

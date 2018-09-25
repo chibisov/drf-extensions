@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 
 from django.contrib.auth.models import User, Group, Permission
@@ -12,7 +11,7 @@ from tests_app.testutils import basic_auth_header
 from .models import PermissionsComment
 
 
-class ExtendedDjangoObjectPermissionTestMixin(object):
+class ExtendedDjangoObjectPermissionTestMixin:
     def setUp(self):
         from guardian.shortcuts import assign_perm
 
