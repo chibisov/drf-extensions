@@ -2670,7 +2670,7 @@ class BackDoc(object):
 
     def run(self, argv):
         kwargs = self.get_kwargs(argv)
-        self.stdout.write(self.get_result_html(**kwargs).encode('utf-8'))
+        self.stdout.write(self.get_result_html(**kwargs))
 
     def get_kwargs(self, argv):
         parsed = dict(self.parser.parse_args(argv)._get_kwargs())
