@@ -7,6 +7,10 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 [![Build Status](https://travis-ci.org/chibisov/drf-extensions.svg?branch=master)](https://travis-ci.org/chibisov/drf-extensions)
 [![PyPI](https://img.shields.io/pypi/v/drf-extensions.svg)](https://pypi.python.org/pypi/drf-extensions)
 
+### Sponsor
+
+[Tidelift gives software development teams a single source for purchasing and maintaining their software, with professional grade assurances from the experts who know it best, while seamlessly integrating with existing tools.](https://tidelift.com/subscription/pkg/pypi-drf-extensions?utm_source=pypi-drf-extensions&utm_medium=referral&utm_campaign=readme)
+
 
 ## Requirements
 
