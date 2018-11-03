@@ -5,7 +5,7 @@ DRF-extensions is a collection of custom extensions for [Django REST Framework](
 Full documentation for project is available at [http://chibisov.github.io/drf-extensions/docs](http://chibisov.github.io/drf-extensions/docs)
 
 [![Build Status](https://travis-ci.org/chibisov/drf-extensions.svg?branch=master)](https://travis-ci.org/chibisov/drf-extensions)
-[![PyPI](https://img.shields.io/pypi/v/drf-extensions.svg)](https://pypi.python.org/pypi/drf-extensions)
+[![Backers on Open Collective](https://opencollective.com/drf-extensions/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/drf-extensions/sponsors/badge.svg)](#sponsors) [![PyPI](https://img.shields.io/pypi/v/drf-extensions.svg)](https://pypi.python.org/pypi/drf-extensions)
 
 ### Sponsor
 
@@ -148,3 +148,32 @@ Don't forget to merge `master` to `gh-pages` branch and push to origin:
 Publish to pypi:
 
     $ python setup.py publish
+
+## Contributors
+
+This project exists thanks to all the people who contribute. <img src="https://opencollective.com/drf-extensions/contributors.svg?width=890&button=false" />
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/drf-extensions#backer)]
+
+<a href="https://opencollective.com/drf-extensions#backers" target="_blank"><img src="https://opencollective.com/drf-extensions/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/drf-extensions#sponsor)]
+
+<a href="https://opencollective.com/drf-extensions/sponsor/0/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/1/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/2/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/3/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/4/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/5/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/6/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/7/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/8/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/drf-extensions/sponsor/9/website" target="_blank"><img src="https://opencollective.com/drf-extensions/sponsor/9/avatar.svg"></a>
+
+
