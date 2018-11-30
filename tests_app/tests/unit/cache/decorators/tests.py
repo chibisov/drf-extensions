@@ -126,6 +126,42 @@ class CacheResponseTest(TestCase):
         self.assertEqual(
             cache_response_decorator.cache.set.call_args_list[0][0][2], 3)
 
+    def test_should_store_response_in_cache_with_timeout_from_object_cache_timeout_property(self):
+        cache_response_decorator = cache_response(timeout='object_cache_timeout')
+        cache_response_decorator.cache.set = Mock()
+
+        class TestView(views.APIView):
+            object_cache_timeout = 20
+
+            @cache_response_decorator
+            def get(self, request, *args, **kwargs):
+                return Response('Response from method 4')
+
+        view_instance = TestView()
+        response = view_instance.dispatch(request=self.request)
+        self.assertTrue(
+            cache_response_decorator.cache.set.called,
+            'Cache saving should be performed')
+        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 20)
+
+    def test_should_store_response_in_cache_with_timeout_from_list_cache_timeout_property(self):
+        cache_response_decorator = cache_response(timeout='list_cache_timeout')
+        cache_response_decorator.cache.set = Mock()
+
+        class TestView(views.APIView):
+            list_cache_timeout = 10
+
+            @cache_response_decorator
+            def get(self, request, *args, **kwargs):
+                return Response('Response from method 4')
+
+        view_instance = TestView()
+        response = view_instance.dispatch(request=self.request)
+        self.assertTrue(
+            cache_response_decorator.cache.set.called,
+            'Cache saving should be performed')
+        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 10)
+
     def test_should_return_response_from_cache_if_it_is_in_it(self):
         def key_func(**kwargs):
             return 'cache_response_key'
