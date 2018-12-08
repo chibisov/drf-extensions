@@ -50,6 +50,7 @@ class CacheResponse:
 
     def __call__(self, func):
         this = self
+
         @wraps(func, assigned=available_attrs(func))
         def inner(self, request, *args, **kwargs):
             return this.process_cache_response(
@@ -67,6 +68,7 @@ class CacheResponse:
                                request,
                                args,
                                kwargs):
+
         key = self.calculate_key(
             view_instance=view_instance,
             view_method=view_method,
@@ -74,6 +76,9 @@ class CacheResponse:
             args=args,
             kwargs=kwargs
         )
+
+        timeout = self.calculate_timeout(view_instance=view_instance)
+
         response_triple = self.cache.get(key)
         if not response_triple:
             # render response to create and cache the content byte string
@@ -87,7 +92,7 @@ class CacheResponse:
                     response.status_code,
                     response._headers.copy()
                 )
-                self.cache.set(key, response_triple, self.timeout)
+                self.cache.set(key, response_triple, timeout)
         else:
             # build smaller Django HttpResponse
             content, status, headers = response_triple
@@ -116,6 +121,11 @@ class CacheResponse:
             args=args,
             kwargs=kwargs,
         )
+
+    def calculate_timeout(self, view_instance, **_):
+        if isinstance(self.timeout, six.string_types):
+            self.timeout = getattr(view_instance, self.timeout)
+        return self.timeout
 
 
 cache_response = CacheResponse

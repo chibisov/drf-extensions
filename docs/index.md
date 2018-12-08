@@ -745,6 +745,7 @@ You can change those settings for custom cache key generation:
           'rest_framework_extensions.utils.default_object_cache_key_func',
         'DEFAULT_LIST_CACHE_KEY_FUNC':
           'rest_framework_extensions.utils.default_list_cache_key_func',
+        'DEFAULT_CACHE_RESPONSE_TIMEOUT': None,
     }
 
 Mixin example usage:
@@ -778,6 +779,16 @@ Of course you can use custom [key constructor](#key-constructor):
         serializer_class = UserSerializer
         object_cache_key_func = CustomObjectKeyConstructor()
         list_cache_key_func = CustomListKeyConstructor()
+
+*New in DRF-extensions development*
+
+You can change cache timeout by providing `object_cache_timeout` or
+`list_cache_timeout` properties in view class:
+
+    class UserViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+        serializer_class = UserSerializer
+        object_cache_timeout = 3600 # one hours (in seconds) 
+        list_cache_timeout = 60 # one minute (in seconds)
 
 If you want to cache only `retrieve` method then you could use `rest_framework_extensions.cache.mixins.RetrieveCacheResponseMixin`.
 
@@ -2194,6 +2205,12 @@ If you need to access the values of DRF-extensions API settings in your project,
 
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
+
+
+#### Development version
+
+* Added ability to [use a specific cache timeouts](#cacheresponsemixin) for `CacheResponseMixin`
+
 
 #### 0.4.0
 
