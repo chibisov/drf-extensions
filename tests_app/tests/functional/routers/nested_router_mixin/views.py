@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -28,11 +28,11 @@ class UserViewSet(NestedViewSetMixin, ModelViewSet):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
-    @list_route(methods=['post'], url_path='users-list-action')
+    @action(detail=False, methods=['post'], url_path='users-list-action')
     def users_list_action(self, request, *args, **kwargs):
         return Response('users list action')
 
-    @detail_route(methods=['post'], url_path='users-action')
+    @action(detail=True, methods=['post'], url_path='users-action')
     def users_action(self, request, *args, **kwargs):
         return Response('users action')
 
@@ -41,11 +41,11 @@ class GroupViewSet(NestedViewSetMixin, ModelViewSet):
     queryset = GroupModel.objects.all()
     serializer_class = GroupSerializer
 
-    @list_route(url_path='groups-list-link')
+    @action(detail=False, url_path='groups-list-link')
     def groups_list_link(self, request, *args, **kwargs):
         return Response('groups list link')
 
-    @detail_route(url_path='groups-link')
+    @action(detail=True, url_path='groups-link')
     def groups_link(self, request, *args, **kwargs):
         return Response('groups link')
 
@@ -54,11 +54,11 @@ class PermissionViewSet(NestedViewSetMixin, ModelViewSet):
     queryset = PermissionModel.objects.all()
     serializer_class = PermissionSerializer
 
-    @list_route(methods=['post'], url_path='permissions-list-action')
+    @action(detail=False, methods=['post'], url_path='permissions-list-action')
     def permissions_list_action(self, request, *args, **kwargs):
         return Response('permissions list action')
 
-    @detail_route(methods=['post'], url_path='permissions-action')
+    @action(detail=True, methods=['post'], url_path='permissions-action')
     def permissions_action(self, request, *args, **kwargs):
         return Response('permissions action')
 
@@ -96,4 +96,4 @@ class UserViewSetWithEmailLookup(NestedViewSetMixin, ModelViewSet):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'email'
-    lookup_value_regex = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+    lookup_value_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
