@@ -6,15 +6,8 @@ python:
   - "3.5"
   - "3.4"
 
-env:
-  - TOXENV=django.1.11
-  - TOXENV=django.2.0
-
-matrix:
-  fast_finish: true
-
 install:
-  - pip install tox
+  - pip install tox tox-travis
 
 script:
   - tox
