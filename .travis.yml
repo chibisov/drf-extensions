@@ -1,10 +1,13 @@
 language: python
 cache: pip
+dist: xenial
+sudo: false
 
 python:
-  - "3.6"
-  - "3.5"
-  - "3.4"
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
 
 install:
   - pip install tox tox-travis
