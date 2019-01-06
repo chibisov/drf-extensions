@@ -1,20 +1,16 @@
 language: python
 cache: pip
+dist: xenial
+sudo: false
 
 python:
-  - "3.6"
-  - "3.5"
-  - "3.4"
-
-env:
-  - TOXENV=django.1.11
-  - TOXENV=django.2.0
-
-matrix:
-  fast_finish: true
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
 
 install:
-  - pip install tox
+  - pip install tox tox-travis
 
 script:
   - tox
