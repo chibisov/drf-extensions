@@ -29,8 +29,8 @@ class ListSqlQueryKeyBitTestBehaviour(APITestCase):
     def test_without_fk_in_db(self):
         # list
         response = self.client.get('/users/?property=1')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
 
         # retrieve
         response = self.client.get('/users/1/?property=1')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)

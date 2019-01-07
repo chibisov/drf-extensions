@@ -27,8 +27,8 @@ class ExtendedDjangoObjectPermissionTestMixin:
         # create custom permission
         Permission.objects.get_or_create(
             codename='view_permissionscomment',
-            name='Can view comment',
-            content_type=ContentType.objects.get_for_model(PermissionsComment)
+            content_type=ContentType.objects.get_for_model(PermissionsComment),
+            defaults={'name': 'Can view comment'},
         )
 
         # give everyone model level permissions, as we are not testing those
