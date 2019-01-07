@@ -10,7 +10,9 @@ except ImportError:
 try:
     from rest_framework_extensions.permissions import ExtendedDjangoObjectPermissions
 except ImportError:
-    class ExtendedDjangoObjectPermissions:
+    from rest_framework.permissions import DjangoObjectPermissions
+
+    class ExtendedDjangoObjectPermissions(DjangoObjectPermissions):
         pass
 
 from .models import PermissionsComment

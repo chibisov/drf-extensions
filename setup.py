@@ -56,7 +56,7 @@ setup(
     url='http://github.com/chibisov/drf-extensions',
     download_url='https://pypi.python.org/pypi/drf-extensions/',
     license='BSD',
-    install_requires=['djangorestframework>=3.8.1'],
+    install_requires=['djangorestframework>=3.7.7'],
     description='Extensions for Django REST Framework',
     long_description='DRF-extensions is a collection of custom extensions for Django REST Framework',
     author='Gennady Chibisov',
