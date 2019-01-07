@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
@@ -24,7 +24,7 @@ class ExtendedDefaultRouterTest(TestCase):
             def list(self, request, *args, **kwargs):
                 return Response({'method': 'list'})
 
-            @list_route()
+            @action(detail=False)
             def detail1(self, request, *args, **kwargs):
                 return Response({'method': 'detail1'})
 
@@ -39,7 +39,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_detail_route(self):
         class BasicViewSet(viewsets.ViewSet):
-            @detail_route()
+            @action(detail=True)
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -54,7 +54,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_detail_route__with_methods(self):
         class BasicViewSet(viewsets.ViewSet):
-            @detail_route(methods=['post'])
+            @action(detail=True, methods=['post'])
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -69,7 +69,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_detail_route__with_methods__and__with_url_path(self):
         class BasicViewSet(viewsets.ViewSet):
-            @detail_route(methods=['post'], url_path='action-one')
+            @action(detail=True, methods=['post'], url_path='action-one')
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -84,7 +84,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route()
+            @action(detail=False)
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -99,7 +99,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route__with_methods(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route(methods=['post'])
+            @action(detail=False, methods=['post'])
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -114,7 +114,7 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route__with_methods__and__with_url_path(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route(methods=['post'], url_path='action-one')
+            @action(detail=False, methods=['post'], url_path='action-one')
             def action1(self, request, *args, **kwargs):
                 pass
 
@@ -129,11 +129,11 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route_and_detail_route_with_exact_names(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route(url_path='action-one')
+            @action(detail=False, url_path='action-one')
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @detail_route(url_path='action-one')
+            @action(detail=True, url_path='action-one')
             def action1_detail(self, request, *args, **kwargs):
                 pass
 
@@ -149,11 +149,28 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route_and_detail_route_names(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route()
+            @action(detail=False)
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @detail_route()
+            @action(detail=True)
+            def action2(self, request, *args, **kwargs):
+                pass
+
+        routes = self.router.get_routes(BasicViewSet)
+        action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
+        action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
+
+        self.assertEqual(action1_list_route.name, u'{basename}-action1')
+        self.assertEqual(action2_detail_route.name, u'{basename}-action2')
+
+    def test_list_route_and_detail_route_default_names__with_endpoints(self):
+        class BasicViewSet(viewsets.ViewSet):
+            @action(detail=False, url_path='action_one')
+            def action1(self, request, *args, **kwargs):
+                pass
+
+            @action(detail=True, url_path='action-two')
             def action2(self, request, *args, **kwargs):
                 pass
 
@@ -166,11 +183,11 @@ class ExtendedDefaultRouterTest(TestCase):
 
     def test_list_route_and_detail_route_names__with_endpoints(self):
         class BasicViewSet(viewsets.ViewSet):
-            @list_route(url_path='action_one')
+            @action(detail=False, url_path='action_one', url_name='action_one')
             def action1(self, request, *args, **kwargs):
                 pass
 
-            @detail_route(url_path='action-two')
+            @action(detail=True, url_path='action-two', url_name='action-two')
             def action2(self, request, *args, **kwargs):
                 pass
 
@@ -178,5 +195,5 @@ class ExtendedDefaultRouterTest(TestCase):
         action1_list_route = self.get_dynamic_route_by_def_name('action1', routes)
         action2_detail_route = self.get_dynamic_route_by_def_name('action2', routes)
 
-        self.assertEqual(action1_list_route.name, u'{basename}-action-one')
+        self.assertEqual(action1_list_route.name, u'{basename}-action_one')
         self.assertEqual(action2_detail_route.name, u'{basename}-action-two')
