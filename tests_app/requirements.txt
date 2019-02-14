@@ -1,5 +1,5 @@
 nose
 django-nose
-django-filter==1.1
+django-filter==2.0.0
 mock
 ipdb

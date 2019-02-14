@@ -10,13 +10,13 @@ class NestedRegistryItem:
         self.parent_item = parent_item
         self.parent_viewset = parent_viewset
 
-    def register(self, prefix, viewset, base_name, parents_query_lookups):
+    def register(self, prefix, viewset, basename, parents_query_lookups):
         self.router._register(
             prefix=self.get_prefix(
                 current_prefix=prefix,
                 parents_query_lookups=parents_query_lookups),
             viewset=viewset,
-            base_name=base_name,
+            basename=basename,
         )
         return NestedRegistryItem(
             router=self.router,

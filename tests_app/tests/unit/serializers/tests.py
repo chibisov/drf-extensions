@@ -14,8 +14,8 @@ class PartialUpdateSerializerMixinTest(TestCase):
             File(BytesIO(u'file one'.encode('utf-8')), name='file1.txt'),
             File(BytesIO(u'file two'.encode('utf-8')), name='file2.txt'),
         ]
-        self.files[0]._set_size(8)
-        self.files[1]._set_size(8)
+        self.files[0].size = 8
+        self.files[1].size = 8
         self.user = UserModel.objects.create(name='gena')
         self.comment = CommentModel.objects.create(
             user=self.user,
