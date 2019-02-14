@@ -2204,7 +2204,7 @@ If you need to access the values of DRF-extensions API settings in your project,
 ### Release notes
 
 You can read about versioning, deprecation policy and upgrading from
-[Django REST framework documentation](http://django-rest-framework.org/topics/release-notes).
+[Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
 #### Development version
