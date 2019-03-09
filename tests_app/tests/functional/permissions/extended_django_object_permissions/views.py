@@ -2,10 +2,10 @@ from rest_framework import viewsets, serializers
 from rest_framework import authentication
 
 try:
-    from rest_framework.filters import DjangoObjectPermissionsFilter
+    # djangorestframework >= 3.9
+    from rest_framework_guardian.filters import DjangoObjectPermissionsFilter
 except ImportError:
-    class DjangoObjectPermissionsFilter:
-        pass
+    from rest_framework.filters import DjangoObjectPermissionsFilter
 
 try:
     from rest_framework_extensions.permissions import ExtendedDjangoObjectPermissions

@@ -1,7 +1,5 @@
 from django.test import TestCase
-from django.core.files import File
-
-from django.utils.six import BytesIO
+from django.core.files.base import ContentFile
 
 from .serializers import CommentSerializer, UserSerializer, \
     CommentSerializerWithAllowedUserId
@@ -11,8 +9,8 @@ from .models import UserModel, CommentModel
 class PartialUpdateSerializerMixinTest(TestCase):
     def setUp(self):
         self.files = [
-            File(BytesIO(u'file one'.encode('utf-8')), name='file1.txt'),
-            File(BytesIO(u'file two'.encode('utf-8')), name='file2.txt'),
+            ContentFile(u'file one'.encode('utf-8'), name='file1.txt'),
+            ContentFile(u'file two'.encode('utf-8'), name='file2.txt'),
         ]
         self.files[0].size = 8
         self.files[1].size = 8
@@ -74,8 +72,10 @@ class PartialUpdateSerializerMixinTest(TestCase):
         serializer_three.save()
 
         fresh_instance = self.get_comment()
-        self.assertEqual(
-            fresh_instance.attachment.read(), u'file two'.encode('utf-8'))
+
+        self.assertEqual(fresh_instance.attachment.read(), u'file two'.encode('utf-8'))
+        fresh_instance.attachment.close()
+
         self.assertEqual(fresh_instance.text, 'moon')
         self.assertEqual(fresh_instance.title, 'goodbye')
 
