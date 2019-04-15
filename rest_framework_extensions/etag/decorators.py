@@ -11,7 +11,6 @@ from rest_framework_extensions.exceptions import PreconditionRequiredException
 
 from rest_framework_extensions.utils import prepare_header_name
 from rest_framework_extensions.settings import extensions_api_settings
-from django.utils import six
 
 logger = logging.getLogger('django.request')
 
@@ -104,7 +103,7 @@ class ETAGProcessor:
                        request,
                        args,
                        kwargs):
-        if isinstance(self.etag_func, six.string_types):
+        if isinstance(self.etag_func, str):
             etag_func = getattr(view_instance, self.etag_func)
         else:
             etag_func = self.etag_func

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # Try to import six from Django, fallback to included `six`.
 
-from django.utils import six
-
 
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
@@ -73,7 +71,7 @@ class NestedViewSetMixin:
 
     def get_parents_query_dict(self):
         result = {}
-        for kwarg_name, kwarg_value in six.iteritems(self.kwargs):
+        for kwarg_name, kwarg_value in self.kwargs.items():
             if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX):
                 query_lookup = kwarg_name.replace(
                     extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX,

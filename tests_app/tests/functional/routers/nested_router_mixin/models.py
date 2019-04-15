@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
@@ -29,7 +28,7 @@ class NestedRouterMixinBookModel(models.Model):
 
 class NestedRouterMixinCommentModel(models.Model):
     content_type = models.ForeignKey(
-        ContentType,
+        "contenttypes.ContentType",
         blank=True,
         null=True,
         on_delete=models.CASCADE,

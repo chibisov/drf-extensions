@@ -8,7 +8,7 @@ from django.test import testcases
 from django.utils.http import urlencode
 from rest_framework.settings import api_settings
 from django.test.client import RequestFactory  # changed here
-from django.utils.encoding import force_bytes, six  # changed here
+from django.utils.encoding import force_bytes  # changed here
 
 
 def force_authenticate(request, user=None, token=None):
@@ -66,7 +66,7 @@ class APIRequestFactory(RequestFactory):
             )
 
             # Coerce text to bytes if required.
-            if isinstance(ret, six.text_type):
+            if isinstance(ret, str):
                 ret = bytes(ret.encode(renderer.charset))
 
         return ret, content_type

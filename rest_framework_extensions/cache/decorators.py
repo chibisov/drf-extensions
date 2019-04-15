@@ -5,7 +5,6 @@ from django.utils.decorators import available_attrs
 
 
 from rest_framework_extensions.settings import extensions_api_settings
-from django.utils import six
 
 
 def get_cache(alias):
@@ -110,7 +109,7 @@ class CacheResponse:
                       request,
                       args,
                       kwargs):
-        if isinstance(self.key_func, six.string_types):
+        if isinstance(self.key_func, str):
             key_func = getattr(view_instance, self.key_func)
         else:
             key_func = self.key_func
@@ -123,7 +122,7 @@ class CacheResponse:
         )
 
     def calculate_timeout(self, view_instance, **_):
-        if isinstance(self.timeout, six.string_types):
+        if isinstance(self.timeout, str):
             self.timeout = getattr(view_instance, self.timeout)
         return self.timeout
 
