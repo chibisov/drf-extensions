@@ -1,5 +1,6 @@
 # Django settings for testproject project.
 import multiprocessing
+import os
 
 DEBUG = True
 DEBUG_PROPAGATE_EXCEPTIONS = True
@@ -15,7 +16,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test',
+        'NAME': 'drf_extensions',
         'TEST_CHARSET': 'utf8',
     },
 }
