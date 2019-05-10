@@ -2207,11 +2207,16 @@ You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
-#### Development version
+#### 0.5.0
 
+* Maay 10, 2019 *
+
+* Dropped python 2.7 and 3.4
+* Fix possible header mutation issue 
 * Added ability to [use a specific cache timeouts](#cacheresponsemixin) for `CacheResponseMixin`
 * Test against Django 2.1, DRF 3.9 and django-filter 2.0.0
 * Dropped support of older DRF version lower than 3.9
+* Django 2.2 support added
 
 
 #### 0.4.0
