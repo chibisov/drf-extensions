@@ -79,41 +79,45 @@ was introduced in 2.3.8 version.
 
 #### Cache/ETAG mixins
 
-**ReadOnlyCacheResponseAndETAGMixin**
+<!--**ReadOnlyCacheResponseAndETAGMixin**-->
 
-This mixin combines `ReadOnlyETAGMixin` and `CacheResponseMixin`. It could be used with
-[ReadOnlyModelViewSet](http://www.django-rest-framework.org/api-guide/viewsets.html#readonlymodelviewset) and helps
-to process caching + etag calculation for `retrieve` and `list` methods:
+<!--This mixin combines `ReadOnlyETAGMixin` and `CacheResponseMixin`. It could be used with-->
+<!--[ReadOnlyModelViewSet](http://www.django-rest-framework.org/api-guide/viewsets.html#readonlymodelviewset) and helps-->
+<!--to process caching + etag calculation for `retrieve` and `list` methods:-->
 
-    from myapps.serializers import UserSerializer
-    from rest_framework_extensions.mixins import (
-        ReadOnlyCacheResponseAndETAGMixin
-    )
+<!--    from myapps.serializers import UserSerializer-->
+<!--    from rest_framework_extensions.mixins import (-->
+<!--        ReadOnlyCacheResponseAndETAGMixin-->
+<!--    )-->
 
-    class UserViewSet(ReadOnlyCacheResponseAndETAGMixin,
-                      viewsets.ReadOnlyModelViewSet):
-        serializer_class = UserSerializer
+<!--    class UserViewSet(ReadOnlyCacheResponseAndETAGMixin,-->
+<!--                      viewsets.ReadOnlyModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
 
-**CacheResponseAndETAGMixin**
+<!--**CacheResponseAndETAGMixin**-->
 
-This mixin combines `ETAGMixin` and `CacheResponseMixin`. It could be used with
-[ModelViewSet](http://www.django-rest-framework.org/api-guide/viewsets.html#modelviewset) and helps
-to process:
+<!--This mixin combines `ETAGMixin` and `CacheResponseMixin`. It could be used with-->
+<!--[ModelViewSet](http://www.django-rest-framework.org/api-guide/viewsets.html#modelviewset) and helps-->
+<!--to process:-->
 
-* Caching for `retrieve` and `list` methods
-* Etag for `retrieve`, `list`, `update` and `destroy` methods
+<!--* Caching for `retrieve` and `list` methods-->
+<!--* Etag for `retrieve`, `list`, `update` and `destroy` methods-->
 
-Usage:
+<!--Usage:-->
 
-    from myapps.serializers import UserSerializer
-    from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
+<!--    from myapps.serializers import UserSerializer-->
+<!--    from rest_framework_extensions.mixins import CacheResponseAndETAGMixin-->
 
-    class UserViewSet(CacheResponseAndETAGMixin,
-                      viewsets.ModelViewSet):
-        serializer_class = UserSerializer
+<!--    class UserViewSet(CacheResponseAndETAGMixin,-->
+<!--                      viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
 
-Please, read more about [caching](#caching), [key construction](#key-constructor) and [conditional requests](#conditional-requests).
+<!--Please, read more about [caching](#caching), [key construction](#key-constructor) and [conditional requests](#conditional-requests).-->
+The etag functionality is pending an overhaul has been temporarily removed since 0.4.0. 
 
+ReadOnlyCacheResponseAndETAGMixin and CacheResponseAndETAGMixin are no longer available to use.
+
+See discussion in [Issue #177](https://github.com/chibisov/drf-extensions/issues/177)
 
 ### Routers
 
@@ -1323,731 +1327,733 @@ Computes the semantic fingerprint of a particular objects returned by `view.get_
 
 ### Conditional requests
 
-*This documentation section uses information from [RESTful Web Services Cookbook](http://shop.oreilly.com/product/9780596801694.do) 10-th chapter.*
+The etag functionality is pending an overhaul has been temporarily removed since 0.4.0. 
 
-Conditional HTTP requests allow API clients to accomplish 2 goals:
+See discussion in [Issue #177](https://github.com/chibisov/drf-extensions/issues/177)
 
-1. Conditional HTTP GET saves client and server [time and bandwidth](#saving-time-and-bandwidth).
-* For unsafe requests such as PUT, POST, and DELETE, conditional requests provide [concurrency control](#concurrency-control).
+<!--*This documentation section uses information from [RESTful Web Services Cookbook](http://shop.oreilly.com/product/9780596801694.do) 10-th chapter.*-->
 
-The second goal addresses the lost update problem, where a resource is altered and saved by user B while user A is still editing.
-In both cases, the 'condition' included in the request needs to be a unique identifier (e.g. unique semantic fingerprint) of the requested resource in order to detect changes.
-This fingerprint can be transient (i.e. using the cache as with `UpdatedAtKeyBit`), or persistent, i.e. computed from the model instance attribute values from the database. 
-While the `UpdatedAtKeyBit` approach requires to add triggers to your models, the semantic fingerprint option is designed to be pluggable and does not require to alter your model code. 
+<!--Conditional HTTP requests allow API clients to accomplish 2 goals:-->
 
+<!--1. Conditional HTTP GET saves client and server [time and bandwidth](#saving-time-and-bandwidth).-->
+<!--* For unsafe requests such as PUT, POST, and DELETE, conditional requests provide [concurrency control](#concurrency-control).-->
 
-#### HTTP ETag
+<!--The second goal addresses the lost update problem, where a resource is altered and saved by user B while user A is still editing.-->
+<!--In both cases, the 'condition' included in the request needs to be a unique identifier (e.g. unique semantic fingerprint) of the requested resource in order to detect changes.-->
+<!--This fingerprint can be transient (i.e. using the cache as with `UpdatedAtKeyBit`), or persistent, i.e. computed from the model instance attribute values from the database. -->
+<!--While the `UpdatedAtKeyBit` approach requires to add triggers to your models, the semantic fingerprint option is designed to be pluggable and does not require to alter your model code. -->
 
-*An ETag or entity tag, is part of HTTP, the protocol for the World Wide Web. 
-It is one of several mechanisms that HTTP provides for web cache validation, and which allows a client to make conditional requests.* - [Wikipedia](http://en.wikipedia.org/wiki/HTTP_ETag)
 
-For ETag calculation and conditional request processing you should use the decorators from `rest_framework_extensions.etag.decorators`.
-The `@etag` decorator works similar to the native [django decorator](https://docs.djangoproject.com/en/dev/topics/conditional-view-processing/).
+<!--#### HTTP ETag-->
 
-<!-- THIS REFERS TO THE DEFAULT_OBJ_ETAG_FUNC -->
-The [default ETag function](#default-etag-function) used by the `@etag` decorator computes the value with respect to the particular view and HTTP method in the request and therefore *cannot detect changes in individual model instances*.
-If you need to compute the *semantic* fingerprint of a model independent of a particular view and method, implement your custom `etag_func`.
-Alternatively you could use the `@api_etag` decorator and specify the `viewset` in the view.
+<!--*An ETag or entity tag, is part of HTTP, the protocol for the World Wide Web. -->
+<!--It is one of several mechanisms that HTTP provides for web cache validation, and which allows a client to make conditional requests.* - [Wikipedia](http://en.wikipedia.org/wiki/HTTP_ETag)-->
 
+<!--For ETag calculation and conditional request processing you should use the decorators from `rest_framework_extensions.etag.decorators`.-->
+<!--The `@etag` decorator works similar to the native [django decorator](https://docs.djangoproject.com/en/dev/topics/conditional-view-processing/).-->
 
-    from rest_framework_extensions.etag.decorators import etag
+<!--<!-- THIS REFERS TO THE DEFAULT_OBJ_ETAG_FUNC -->
+<!--The [default ETag function](#default-etag-function) used by the `@etag` decorator computes the value with respect to the particular view and HTTP method in the request and therefore *cannot detect changes in individual model instances*.-->
+<!--If you need to compute the *semantic* fingerprint of a model independent of a particular view and method, implement your custom `etag_func`.-->
+<!--Alternatively you could use the `@api_etag` decorator and specify the `viewset` in the view.-->
 
-    class CityView(views.APIView):
-        @etag()
-        def get(self, request, *args, **kwargs):
-            cities = City.objects.all().values_list('name', flat=True)
-            return Response(cities)
 
-By default `@etag` would calculate the ETag header value with the same algorithm as [cache key](#cache-key) default calculation performs.
+<!--    from rest_framework_extensions.etag.decorators import etag-->
 
-    # Request
-    GET /cities/ HTTP/1.1
-    Accept: application/json
+<!--    class CityView(views.APIView):-->
+<!--        @etag()-->
+<!--        def get(self, request, *args, **kwargs):-->
+<!--            cities = City.objects.all().values_list('name', flat=True)-->
+<!--            return Response(cities)-->
 
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-    ETag: "e7b50490dc546d116635a14cfa58110306dd6c5434146b6740ec08bf0a78f9a2"
+<!--By default `@etag` would calculate the ETag header value with the same algorithm as [cache key](#cache-key) default calculation performs.-->
 
-    ['Moscow', 'London', 'Paris']
+<!--    # Request-->
+<!--    GET /cities/ HTTP/1.1-->
+<!--    Accept: application/json-->
 
-You can define a custom function for Etag value calculation with `etag_func` argument:
+<!--    # Response-->
+<!--    HTTP/1.1 200 OK-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    ETag: "e7b50490dc546d116635a14cfa58110306dd6c5434146b6740ec08bf0a78f9a2"-->
 
-    from rest_framework_extensions.etag.decorators import etag
+<!--    ['Moscow', 'London', 'Paris']-->
 
-    def calculate_etag(view_instance, view_method,
-                       request, args, kwargs):
-        return '.'.join([
-            len(args),
-            len(kwargs)
-        ])
+<!--You can define a custom function for Etag value calculation with `etag_func` argument:-->
 
-    class CityView(views.APIView):
-        @etag(etag_func=calculate_etag)
-        def get(self, request, *args, **kwargs):
-            cities = City.objects.all().values_list('name', flat=True)
-            return Response(cities)
+<!--    from rest_framework_extensions.etag.decorators import etag-->
 
+<!--    def calculate_etag(view_instance, view_method,-->
+<!--                       request, args, kwargs):-->
+<!--        return '.'.join([-->
+<!--            len(args),-->
+<!--            len(kwargs)-->
+<!--        ])-->
 
-You can implement a view method and use it for Etag calculation by specifying `etag_func` argument as string:
+<!--    class CityView(views.APIView):-->
+<!--        @etag(etag_func=calculate_etag)-->
+<!--        def get(self, request, *args, **kwargs):-->
+<!--            cities = City.objects.all().values_list('name', flat=True)-->
+<!--            return Response(cities)-->
 
-    from rest_framework_extensions.etag.decorators import etag
 
-    class CityView(views.APIView):
-        @etag(etag_func='calculate_etag_from_method')
-        def get(self, request, *args, **kwargs):
-            cities = City.objects.all().values_list('name', flat=True)
-            return Response(cities)
+<!--You can implement a view method and use it for Etag calculation by specifying `etag_func` argument as string:-->
 
-        def calculate_etag_from_method(self, view_instance, view_method,
-                                       request, args, kwargs):
-            return '.'.join([
-                len(args),
-                len(kwargs)
-            ])
+<!--    from rest_framework_extensions.etag.decorators import etag-->
 
-ETag calculation function will be called with following parameters:
+<!--    class CityView(views.APIView):-->
+<!--        @etag(etag_func='calculate_etag_from_method')-->
+<!--        def get(self, request, *args, **kwargs):-->
+<!--            cities = City.objects.all().values_list('name', flat=True)-->
+<!--            return Response(cities)-->
 
-* **view_instance** - view instance of decorated method
-* **view_method** - decorated method
-* **request** - decorated method request
-* **args** - decorated method positional arguments
-* **kwargs** - decorated method keyword arguments
+<!--        def calculate_etag_from_method(self, view_instance, view_method,-->
+<!--                                       request, args, kwargs):-->
+<!--            return '.'.join([-->
+<!--                len(args),-->
+<!--                len(kwargs)-->
+<!--            ])-->
 
+<!--ETag calculation function will be called with following parameters:-->
 
-#### Default ETag function
+<!--* **view_instance** - view instance of decorated method-->
+<!--* **view_method** - decorated method-->
+<!--* **request** - decorated method request-->
+<!--* **args** - decorated method positional arguments-->
+<!--* **kwargs** - decorated method keyword arguments-->
 
-If `@etag` decorator used without `etag_func` argument then default etag function will be used. You can change this function in
-settings:
 
-    REST_FRAMEWORK_EXTENSIONS = {
-        'DEFAULT_ETAG_FUNC':
-          'rest_framework_extensions.utils.default_etag_func'
-    }
-
-`default_etag_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for etag calculation.
-
-
-#### API ETag function
-<!-- This refers to the APIETagProcessor and @api_etag decorator -->
-
-*New in DRF-extensions 0.3.2*
-
-In addition, `APIETAGProcessor` explicitly requires a function that (ideally) creates an ETag value from model instances.
-If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. 
-Hence, the following snipped would not work:
-
-    # BEGIN BAD CODE:
-    class View(views.APIView):
-        @api_etag() 
-        def get(self, request, *args, **kwargs):
-            return super(View, self).get(request, *args, **kwargs)
-    # END BAD CODE
-
-**Why's that?**
-It does not make sense to compute a default ETag here, because the processor would lock us out from the API by always issuing a `304` 
-response on conditional requests, even if the resource was modified meanwhile.
-Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument and there exists convenient 
-[mixin classes](#apietagmixin).
-
-You can use the decorator in regular `APIView`, and subclasses from the `rest_framework.generics` module, 
-but ensure to include a `queryset` attribute or override `get_queryset()`:
-
-    from rest_framework import generics
-    from rest_framework.response import Response
-    from rest_framework_extensions.utils import default_api_object_etag_func
-    from my_app.models import Book
-    
-    class BookCustomDestroyView(generics.DestroyAPIView):  
-        # include the queryset here to enable the object lookup 
-        queryset = Book.objects.all()
-    
-        @api_etag(etag_func=default_api_object_etag_func)
-        def delete(self, request, *args, **kwargs):
-            obj = Book.objects.get(id=kwargs['pk'])
-            # ... perform some custom operations here ...
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-The next difference to the `@etag` decorator is that it defines an explicit map of 
-required headers for each HTTP request verb, using the following default values for unsafe methods:
-
-    precondition_map = {'PUT': ['If-Match'],
-                        'PATCH': ['If-Match'],
-                        'DELETE': ['If-Match']}
-
-You can specify a custom set of headers in the decorator by passing the `precondition_map` keyword argument.
-For instance, this statement
-  
-    @api_etag(etag_func=default_api_object_etag_func, precondition_map={'PUT': ['X-mycorp-custom']})
-    def put(self, request, *args, **kwargs):
-        obj = Book.objects.get(id=kwargs['pk'])
-        # ... perform some custom operations here ...
-        obj.save()
-        return Response(status=status.HTTP_200_OK)
+<!--#### Default ETag function-->
 
-checks for the presence of a custom header `X-mycorp-custom` in the request and permits the request, if it is present, 
-or returns a `428 PRECONDITION REQUIRED` response.
+<!--If `@etag` decorator used without `etag_func` argument then default etag function will be used. You can change this function in-->
+<!--settings:-->
 
-Similarly, to disable all checks for a particular method simply pass an empty dict:
+<!--    REST_FRAMEWORK_EXTENSIONS = {-->
+<!--        'DEFAULT_ETAG_FUNC':-->
+<!--          'rest_framework_extensions.utils.default_etag_func'-->
+<!--    }-->
+
+<!--`default_etag_func` uses [DefaultKeyConstructor](#default-key-constructor) as a base for etag calculation.-->
 
-    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})
-    def put(self, request, *args, **kwargs):
-        obj = Book.objects.get(id=kwargs['pk'])
-        # ... perform some custom operations here ...
-        obj.save()
-        return Response(status=status.HTTP_200_OK)
 
-Please note that passing `None` in the `precondition_map` argument falls back to using the default map.
+<!--#### API ETag function-->
+<!--<!-- This refers to the APIETagProcessor and @api_etag decorator -->
 
-#### Usage ETag with caching
+<!--*New in DRF-extensions 0.3.2*-->
 
-As you can see `@etag` and `@cache_response` decorators has similar key calculation approaches. 
-They both can take key from simple callable function. And more than this - in many cases they share the same calculation logic. 
-In the next example we use both decorators, which share one calculation function:
+<!--In addition, `APIETAGProcessor` explicitly requires a function that (ideally) creates an ETag value from model instances.-->
+<!--If the `@api_etag` decorator is used without `etag_func` the framework will raise an `AssertionError`. -->
+<!--Hence, the following snipped would not work:-->
+
+<!--    # BEGIN BAD CODE:-->
+<!--    class View(views.APIView):-->
+<!--        @api_etag() -->
+<!--        def get(self, request, *args, **kwargs):-->
+<!--            return super(View, self).get(request, *args, **kwargs)-->
+<!--    # END BAD CODE-->
+
+<!--**Why's that?**-->
+<!--It does not make sense to compute a default ETag here, because the processor would lock us out from the API by always issuing a `304` -->
+<!--response on conditional requests, even if the resource was modified meanwhile.-->
+<!--Therefore the `APIETAGProcessor` cannot be used without specifying an `etag_func` as keyword argument and there exists convenient -->
+<!--[mixin classes](#apietagmixin).-->
 
-    from rest_framework_extensions.etag.decorators import etag
-    from rest_framework_extensions.cache.decorators import cache_response
-    from rest_framework_extensions.key_constructor import bits
-    from rest_framework_extensions.key_constructor.constructors import (
-        KeyConstructor
-    )
+<!--You can use the decorator in regular `APIView`, and subclasses from the `rest_framework.generics` module, -->
+<!--but ensure to include a `queryset` attribute or override `get_queryset()`:-->
 
-    class CityGetKeyConstructor(KeyConstructor):
-        format = bits.FormatKeyBit()
-        language = bits.LanguageKeyBit()
+<!--    from rest_framework import generics-->
+<!--    from rest_framework.response import Response-->
+<!--    from rest_framework_extensions.utils import default_api_object_etag_func-->
+<!--    from my_app.models import Book-->
 
-    class CityView(views.APIView):
-        key_constructor_func = CityGetKeyConstructor()
+<!--    class BookCustomDestroyView(generics.DestroyAPIView):  -->
+<!--        # include the queryset here to enable the object lookup -->
+<!--        queryset = Book.objects.all()-->
 
-        @etag(key_constructor_func)
-        @cache_response(key_func=key_constructor_func)
-        def get(self, request, *args, **kwargs):
-            cities = City.objects.all().values_list('name', flat=True)
-            return Response(cities)
+<!--        @api_etag(etag_func=default_api_object_etag_func)-->
+<!--        def delete(self, request, *args, **kwargs):-->
+<!--            obj = Book.objects.get(id=kwargs['pk'])-->
+<!--            # ... perform some custom operations here ...-->
+<!--            obj.delete()-->
+<!--            return Response(status=status.HTTP_204_NO_CONTENT)-->
 
-Note the decorators order. First goes `@etag` and then goes `@cache_response`. We want firstly perform conditional processing and after it response processing.
 
-There is one more point for it. If conditional processing didn't fail then `key_constructor_func` would be called again in `@cache_response`.
-But in most cases first calculation is enough. To accomplish this goal you could use `KeyConstructor` initial argument `memoize_for_request`:
+<!--The next difference to the `@etag` decorator is that it defines an explicit map of -->
+<!--required headers for each HTTP request verb, using the following default values for unsafe methods:-->
 
-    >>> key_constructor_func = CityGetKeyConstructor(memoize_for_request=True)
-    >>> request1, request1 = 'request1', 'request2'
-    >>> print key_constructor_func(request=request1)  # full calculation
-    request1-key
-    >>> print key_constructor_func(request=request1)  # data from cache
-    request1-key
-    >>> print key_constructor_func(request=request2)  # full calculation
-    request2-key
-    >>> print key_constructor_func(request=request2)  # data from cache
-    request2-key
+<!--    precondition_map = {'PUT': ['If-Match'],-->
+<!--                        'PATCH': ['If-Match'],-->
+<!--                        'DELETE': ['If-Match']}-->
 
-By default `memoize_for_request` is `False`, but you can change it in settings:
+<!--You can specify a custom set of headers in the decorator by passing the `precondition_map` keyword argument.-->
+<!--For instance, this statement-->
+<!--    @api_etag(etag_func=default_api_object_etag_func, precondition_map={'PUT': ['X-mycorp-custom']})-->
+<!--    def put(self, request, *args, **kwargs):-->
+<!--        obj = Book.objects.get(id=kwargs['pk'])-->
+<!--        # ... perform some custom operations here ...-->
+<!--        obj.save()-->
+<!--        return Response(status=status.HTTP_200_OK)-->
 
-    REST_FRAMEWORK_EXTENSIONS = {
-        'DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST': True
-    }
-
-
-It's important to note that this memoization is thread safe.
-
-#### Saving time and bandwidth
-
-When a server returns `ETag` header, you should store it along with the representation data on the client.
-When making GET and HEAD requests for the same resource in the future, include the `If-None-Match` header
-to make these requests "conditional". 
-
-For example, retrieve all cities:
-
-    # Request
-    GET /cities/ HTTP/1.1
-    Accept: application/json
-
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-    ETag: "some_etag_value"
-
-    ['Moscow', 'London', 'Paris']
-
-If you make same request with `If-None-Match` and there exists a cached value for this request,
-then server will respond with `304` status code without body data.
-
-    # Request
-    GET /cities/ HTTP/1.1
-    Accept: application/json
-    If-None-Match: some_etag_value
-
-    # Response
-    HTTP/1.1 304 NOT MODIFIED
-    Content-Type: application/json; charset=UTF-8
-    Etag: "some_etag_value"
-
-After this response you can use existing cities data on the client. 
-
-
-
-
-
-
-
-
-#### Concurrency control
-
-Concurrency control ensures the correct processing of data under concurrent operations by clients.
-There are two ways to implement concurrency control:
-
-* **Pessimistic concurrency control**. In this model, the client gets a lock, obtains
-the current state of the resource, makes modifications, and then releases the lock.
-During this process, the server prevents other clients from acquiring a lock on the same resource.
-Relational databases operate in this manner.
-* **Optimistic concurrency control**. In this model, the client first gets a token.
-Instead of obtaining a lock, the client attempts a write operation with the token included in the request.
-The operation succeeds if the token is still valid and fails otherwise.
-
-HTTP, being a stateless application control, is designed for optimistic concurrency control.
-According to [RFC 6585](https://tools.ietf.org/html/rfc6585), the server can optionally require 
-a condition for a request. This library returns a `428` status, if no ETag is supplied, but would be mandatory 
-for a request to succeed.
-
-Update:
-
-                                            PUT/PATCH
-                                                +
-                                    +-----------+------------+
-                                    |         ETag           |
-                                    |         supplied?      |
-                                    ++-----------------+-----+
-                                     |                 |
-                                     Yes               No
-                                     |                 |
-               +---------------------++               ++-------------+
-               |   Do preconditions   |               | Precondition |
-               |   match?             |               | required?    |
-               +---+-----------------++               ++------------++
-                   |                 |                 |            |
-                   Yes               No                No           Yes
-                   |                 |                 |            |
-        +----------+------+  +-------+----------+  +---+-----+      |
-        |  Does resource  |  | 412 Precondition |  | 200 OK  |      |
-        |  exist?         |  | failed           |  | Update  |      |
-        ++---------------++  +------------------+  +---------+      |
-         |               |                              +-----------+------+
-         Yes             No                             | 428 Precondition |
-         |               |                              | required         |
-    +----+----+     +----+----+                         +------------------+
-    | 200 OK  |     | 404 Not |
-    | Update  |     | found   |
-    +---------+     +---------+
-
-
-Delete:
-
-                                              DELETE
-                                                +
-                                    +-----------+------------+
-                                    |         ETag           |
-                                    |         supplied?      |
-                                    ++-----------------+-----+
-                                     |                 |
-                                     Yes               No
-                                     |                 |
-               +---------------------++               ++-------------+
-               |   Do preconditions   |               | Precondition |
-               |   match?             |               | required?    |
-               +---+-----------------++               ++------------++
-                   |                 |                 |            |
-                   Yes               No                No           Yes
-                   |                 |                 |            |
-        +----------+------+  +-------+----------+  +---+-----+      |
-        |  Does resource  |  | 412 Precondition |  | 204 No  |      |
-        |  exist?         |  | failed           |  | content |      |
-        ++---------------++  +------------------+  +---------+      |
-         |               |                              +-----------+------+
-         Yes             No                             | 428 Precondition |
-         |               |                              | required         |
-    +----+----+     +----+----+                         +------------------+
-    | 204 No  |     | 404 Not |
-    | content |     | found   |
-    +---------+     +---------+
-
-
-
-**Example: transient key construction**
-
-Here is an example implementation for all (C)RUD methods (except create, because it doesn't need concurrency control)
-wrapped with the default `etag` decorator. We use our [previous implementation](#custom-key-bit) of the `UpdatedAtKeyBit` that looks up the cache 
-for the last timestamp the particular object was updated on the server. This required us to add `post_save` and `post_delete` signals
-to our models explicitly. See [below](#apietagmixin) for an example using `@api_etag` and mixins that computes the key from persistent data.
-
-    from rest_framework.viewsets import ModelViewSet
-    from rest_framework_extensions.key_constructor import bits
-    from rest_framework_extensions.key_constructor.constructors import (
-        KeyConstructor
-    )
-
-    from your_app.models import City
-    # use our own implementation that detects an update timestamp in the cache 
-    from your_app.key_bits import UpdatedAtKeyBit
-
-    class CityListKeyConstructor(KeyConstructor):
-        format = bits.FormatKeyBit()
-        language = bits.LanguageKeyBit()
-        pagination = bits.PaginationKeyBit()
-        list_sql_query = bits.ListSqlQueryKeyBit()
-        unique_view_id = bits.UniqueViewIdKeyBit()
-
-    class CityDetailKeyConstructor(KeyConstructor):
-        format = bits.FormatKeyBit()
-        language = bits.LanguageKeyBit()
-        retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
-        unique_view_id = bits.UniqueViewIdKeyBit()
-        updated_at = UpdatedAtKeyBit()
-
-    class CityViewSet(ModelViewSet):
-        list_key_func = CityListKeyConstructor(
-            memoize_for_request=True
-        )
-        obj_key_func = CityDetailKeyConstructor(
-            memoize_for_request=True
-        )
-
-        @etag(list_key_func)
-        @cache_response(key_func=list_key_func)
-        def list(self, request, *args, **kwargs):
-            return super(CityViewSet, self).list(request, *args, **kwargs)
-
-        @etag(obj_key_func)
-        @cache_response(key_func=obj_key_func)
-        def retrieve(self, request, *args, **kwargs):
-            return super(CityViewSet, self).retrieve(request, *args, **kwargs)
-
-        @etag(obj_key_func)
-        def update(self, request, *args, **kwargs):
-            return super(CityViewSet, self).update(request, *args, **kwargs)
-
-        @etag(obj_key_func)
-        def destroy(self, request, *args, **kwargs):
-            return super(CityViewSet, self).destroy(request, *args, **kwargs)
-
-
-#### ETag for unsafe methods
-
-From previous section you could see that unsafe methods, such `update` (PUT, PATCH) or `destroy` (DELETE), have the same `@etag`
-decorator wrapping manner as the safe methods.
-
-But every unsafe method has one distinction from safe method - it changes the data
-which could be used for Etag calculation. In our case it is `UpdatedAtKeyBit`. It means that we should calculate Etag:
-
-* Before building response - for `If-Match` and `If-None-Match` conditions validation
-* After building response (if necessary) - for clients
-
-`@etag` decorator has special attribute `rebuild_after_method_evaluation`, which by default is `False`.
-
-If you specify `rebuild_after_method_evaluation` as `True` then Etag will be rebuilt after method evaluation:
-
-    class CityViewSet(ModelViewSet):
-        ...
-        @etag(obj_key_func, rebuild_after_method_evaluation=True)
-        def update(self, request, *args, **kwargs):
-            return super(CityViewSet, self).update(request, *args, **kwargs)
-
-        @etag(obj_key_func)
-        def destroy(self, request, *args, **kwargs):
-            return super(CityViewSet, self).destroy(request, *args, **kwargs)
-
-    # Request
-    PUT /cities/1/ HTTP/1.1
-    Accept: application/json
-
-    {"name": "London"}
-
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-    ETag: "4e63ef056f47270272b96523f51ad938b5ea141024b767880eac047d10a0b339"
-
-    {
-      id: 1,
-      name: "London"
-    }
-
-As you can see we didn't specify `rebuild_after_method_evaluation` for `destroy` method. That is because there is no
-sense to use returned ETag value on clients if object deletion already performed.
-
-With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PATCH` method would look like:
-
-                 +--------------+
-                 |    Request   |
-                 +--------------+
-                        |
-           +--------------------------+
-           |  Calculate Etag          |
-           |  for condition matching  |
-           +--------------------------+
-                        |
-              +--------------------+
-              |  Do preconditions  |
-              |  match?            |
-              +--------------------+
-                  |           |
-                  Yes         No
-                  |           |
-      +--------------+  +--------------------+
-      |  Update the  |  |  412 Precondition  |
-      |  resource    |  |  failed            |
-      +--------------+  +--------------------+
-             |
-    +--------------------+
-    |  Calculate Etag    |
-    |  again and add it  |
-    |  to response       |
-    +--------------------+
-             |
-       +------------+
-       |  Return    |
-       |  response  |
-       +------------+
-
-`If-None-Match` example for `DELETE` method:
-
-    # Request
-    DELETE /cities/1/ HTTP/1.1
-    Accept: application/json
-    If-None-Match: some_etag_value
-
-    # Response
-    HTTP/1.1 304 NOT MODIFIED
-    Content-Type: application/json; charset=UTF-8
-    Etag: "some_etag_value"
-
-
-`If-Match` example for `DELETE` method:
-
-    # Request
-    DELETE /cities/1/ HTTP/1.1
-    Accept: application/json
-    If-Match: another_etag_value
-
-    # Response
-    HTTP/1.1 412 PRECONDITION FAILED
-    Content-Type: application/json; charset=UTF-8
-    Etag: "some_etag_value"
-
-
-#### ETAGMixin
-
-It is common to process etags for standard [viewset](http://www.django-rest-framework.org/api-guide/viewsets)
-`retrieve`, `list`, `update` and `destroy` methods.
-That is why `ETAGMixin` exists. Just mix it into viewset
-implementation and those methods will use functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
-
-* *"DEFAULT\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods
-* *"DEFAULT\_LIST\_ETAG\_FUNC"* for `list` method
-
-By default those functions are using [DefaultKeyConstructor](#default-key-constructor) and extends it:
-
-* With `RetrieveSqlQueryKeyBit` for *"DEFAULT\_OBJECT\_ETAG\_FUNC"*
-* With `ListSqlQueryKeyBit` and `PaginationKeyBit` for *"DEFAULT\_LIST\_ETAG\_FUNC"*
-
-You can change those settings for custom ETag generation:
-
-    REST_FRAMEWORK_EXTENSIONS = {
-        'DEFAULT_OBJECT_ETAG_FUNC':
-          'rest_framework_extensions.utils.default_object_etag_func',
-        'DEFAULT_LIST_ETAG_FUNC':
-          'rest_framework_extensions.utils.default_list_etag_func',
-    }
-
-Mixin example usage:
-
-    from myapps.serializers import UserSerializer
-    from rest_framework_extensions.etag.mixins import ETAGMixin
-
-    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-
-You can change etag function by providing `object_etag_func` or
-`list_etag_func` methods in view class:
-
-    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-
-        def object_etag_func(self, **kwargs):
-            return 'some key for object'
-
-        def list_etag_func(self, **kwargs):
-            return 'some key for list'
-
-Of course you can use custom [key constructor](#key-constructor):
-
-    from yourapp.key_constructors import (
-        CustomObjectKeyConstructor,
-        CustomListKeyConstructor,
-    )
-
-    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-        object_etag_func = CustomObjectKeyConstructor()
-        list_etag_func = CustomListKeyConstructor()
-
-It is important to note that ETags for unsafe method `update` is processed with parameter
-`rebuild_after_method_evaluation` equals `True`. You can read why from [this](#etag-for-unsafe-methods) section.
+<!--checks for the presence of a custom header `X-mycorp-custom` in the request and permits the request, if it is present, -->
+<!--or returns a `428 PRECONDITION REQUIRED` response.-->
 
-There are other mixins for more granular Etag calculation in `rest_framework_extensions.etag.mixins` module:
-
-* **ReadOnlyETAGMixin** - only for `retrieve` and `list` methods
-* **RetrieveETAGMixin** - only for `retrieve` method
-* **ListETAGMixin** - only for `list` method
-* **DestroyETAGMixin** - only for `destroy` method
-* **UpdateETAGMixin** - only for `update` method
-
-
-#### APIETagMixin
-
-*New in DRF-extensions 0.3.2*
-
-In analogy to `ETAGMixin` the `APIETAGMixin` exists. Just mix it into DRF viewsets or `APIViews` 
-and those methods will use the ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
-
-* *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods
-* *"DEFAULT\_API\_LIST\_ETAG\_FUNC"* for `list` method
-
-By default those functions are using custom key constructors that create the key from **persisted model attributes**:
-
-* `RetrieveModelKeyBit` (see [definition](#retrievemodelkeybit)) for *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"*
-* `ListModelKeyBit` (see [definition](#listmodelkeybit)) for *"DEFAULT\_API\_LIST\_ETAG\_FUNC"*
-
-You can change those settings globally for your custom ETag generation, or use the default values, which should cover 
-the most common use cases:
-
-    REST_FRAMEWORK_EXTENSIONS = {
-        'DEFAULT_API_OBJECT_ETAG_FUNC': 
-            'rest_framework_extensions.utils.default_api_object_etag_func',
-        'DEFAULT_API_LIST_ETAG_FUNC': 
-            'rest_framework_extensions.utils.default_api_list_etag_func',
-    }
-
-Mixin example usage:
-
-    from myapps.serializers import UserSerializer
-    from rest_framework_extensions.etag.mixins import APIETAGMixin
-
-    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-
-You can change etag function by providing `api_object_etag_func` or
-`api_list_etag_func` methods in view class:
-
-    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-
-        def api_object_etag_func(self, **kwargs):
-            return 'some key for object'
-
-        def api_list_etag_func(self, **kwargs):
-            return 'some key for list'
-
-Of course you can use custom [key constructors](#key-constructor):
-
-    from yourapp.key_constructors import (
-        CustomObjectKeyConstructor,
-        CustomListKeyConstructor,
-    )
-
-    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):
-        serializer_class = UserSerializer
-        api_object_etag_func = CustomObjectKeyConstructor()
-        api_list_etag_func = CustomListKeyConstructor()
-
-There are other mixins for more granular ETag calculation in `rest_framework_extensions.etag.mixins` module:
-
-* **APIReadOnlyETAGMixin** - only for `retrieve` and `list` methods
-* **APIRetrieveETAGMixin** - only for `retrieve` method
-* **APIListETAGMixin** - only for `list` method
-* **APIDestroyETAGMixin** - only for `destroy` method
-* **APIUpdateETAGMixin** - only for `update` method
-
-By default, all mixins require the conditional requests, i.e. they use the default `precondition_map` from the 
-`APIETAGProcessor` class.
-
-
-#### Gzipped ETags
-
-If you use [GZipMiddleware](https://docs.djangoproject.com/en/dev/ref/middleware/#module-django.middleware.gzip)
-and your client accepts Gzipped response, then you should return different ETags for compressed and not compressed responses.
-That's what `GZipMiddleware` does by default while processing response -
-it adds `;gzip` postfix to ETag response header if client requests compressed response.
-Lets see it in example. First request without compression:
-
-    # Request
-    GET /cities/ HTTP/1.1
-    Accept: application/json
-
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-    ETag: "e7b50490dc"
-
-    ['Moscow', 'London', 'Paris']
-
-Second request with compression:
-
-    # Request
-    GET /cities/ HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip
-
-    # Response
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-    Content-Length: 675
-    Content-Encoding: gzip
-    ETag: "e7b50490dc;gzip"
-
-    wS?n?0?_%o?cc?Ҫ?Eʒ?Cժʻ?a\1?a?^T*7q<>[Nvh?[?^9?x:/Ms?79?Fd/???ۦjES?ڽ?&??c%^?C[K۲%N?w{?졭2?m?}?Q&Egz??
-
-As you can see there is `;gzip` postfix in ETag response header.
-That's ok but there is one caveat - drf-extension doesn't know how you post-processed calculated ETag value.
-And your clients could have next problem with conditional request:
-
-* Client sends request to retrieve compressed data about cities to `/cities/`
-* DRF-extensions decorator calculates ETag header for response equals, for example, `123`
-* `GZipMiddleware` adds `;gzip` postfix to ETag header response, and now it equals `123;gzip`
-* Client retrieves response with ETag equals `123;gzip`
-* Client again makes request to retrieve compressed data about cities,
-but now it's conditional request with `If-None-Match` header equals `123;gzip`
-* DRF-extensions decorator calculates ETag value for processing conditional request.
-But it doesn't know, that `GZipMiddleware` added `;gzip` postfix for previous response.
-DRF-extensions decorator calculates ETag equals `123`, compares it with `123;gzip` and returns
-response with status code 200, because `123` != `123;gzip`
-
-You can solve this problem by stripping `;gzip` postfix on client side.
-
-But there are so many libraries that just magically uses ETag response header without allowing to
-pre-process conditional requests (for example, browser). If that's you case then you could add custom middleware which removes `;gzip`
-postfix from header:
-
-    # yourapp/middleware.py
-
-    class RemoveEtagGzipPostfix(object):
-        def process_response(self, request, response):
-            if response.has_header('ETag') and response['ETag'][-6:] == ';gzip"':
-                response['ETag'] = response['ETag'][:-6] + '"'
-            return response
-
-Don't forget to add this middleware in your settings before `GZipMiddleware`:
-
-    # settings.py
-    MIDDLEWARE_CLASSES = (
-        ...
-        'yourapp.RemoveEtagGzipPostfix',
-        'django.middleware.gzip.GZipMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        ...
-    )
+<!--Similarly, to disable all checks for a particular method simply pass an empty dict:-->
 
+<!--    @api_etag(etag_func=default_api_object_etag_func, precondition_map={})-->
+<!--    def put(self, request, *args, **kwargs):-->
+<!--        obj = Book.objects.get(id=kwargs['pk'])-->
+<!--        # ... perform some custom operations here ...-->
+<!--        obj.save()-->
+<!--        return Response(status=status.HTTP_200_OK)-->
+
+<!--Please note that passing `None` in the `precondition_map` argument falls back to using the default map.-->
+
+<!--#### Usage ETag with caching-->
+
+<!--As you can see `@etag` and `@cache_response` decorators has similar key calculation approaches. -->
+<!--They both can take key from simple callable function. And more than this - in many cases they share the same calculation logic. -->
+<!--In the next example we use both decorators, which share one calculation function:-->
+
+<!--    from rest_framework_extensions.etag.decorators import etag-->
+<!--    from rest_framework_extensions.cache.decorators import cache_response-->
+<!--    from rest_framework_extensions.key_constructor import bits-->
+<!--    from rest_framework_extensions.key_constructor.constructors import (-->
+<!--        KeyConstructor-->
+<!--    )-->
+
+<!--    class CityGetKeyConstructor(KeyConstructor):-->
+<!--        format = bits.FormatKeyBit()-->
+<!--        language = bits.LanguageKeyBit()-->
+
+<!--    class CityView(views.APIView):-->
+<!--        key_constructor_func = CityGetKeyConstructor()-->
+
+<!--        @etag(key_constructor_func)-->
+<!--        @cache_response(key_func=key_constructor_func)-->
+<!--        def get(self, request, *args, **kwargs):-->
+<!--            cities = City.objects.all().values_list('name', flat=True)-->
+<!--            return Response(cities)-->
+
+<!--Note the decorators order. First goes `@etag` and then goes `@cache_response`. We want firstly perform conditional processing and after it response processing.-->
+
+<!--There is one more point for it. If conditional processing didn't fail then `key_constructor_func` would be called again in `@cache_response`.-->
+<!--But in most cases first calculation is enough. To accomplish this goal you could use `KeyConstructor` initial argument `memoize_for_request`:-->
+
+<!--    >>> key_constructor_func = CityGetKeyConstructor(memoize_for_request=True)-->
+<!--    >>> request1, request1 = 'request1', 'request2'-->
+<!--    >>> print key_constructor_func(request=request1)  # full calculation-->
+<!--    request1-key-->
+<!--    >>> print key_constructor_func(request=request1)  # data from cache-->
+<!--    request1-key-->
+<!--    >>> print key_constructor_func(request=request2)  # full calculation-->
+<!--    request2-key-->
+<!--    >>> print key_constructor_func(request=request2)  # data from cache-->
+<!--    request2-key-->
+
+<!--By default `memoize_for_request` is `False`, but you can change it in settings:-->
+
+<!--    REST_FRAMEWORK_EXTENSIONS = {-->
+<!--        'DEFAULT_KEY_CONSTRUCTOR_MEMOIZE_FOR_REQUEST': True-->
+<!--    }-->
+
+
+<!--It's important to note that this memoization is thread safe.-->
+
+<!--#### Saving time and bandwidth-->
+
+<!--When a server returns `ETag` header, you should store it along with the representation data on the client.-->
+<!--When making GET and HEAD requests for the same resource in the future, include the `If-None-Match` header-->
+<!--to make these requests "conditional". -->
+
+<!--For example, retrieve all cities:-->
+
+<!--    # Request-->
+<!--    GET /cities/ HTTP/1.1-->
+<!--    Accept: application/json-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 200 OK-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    ETag: "some_etag_value"-->
+
+<!--    ['Moscow', 'London', 'Paris']-->
+
+<!--If you make same request with `If-None-Match` and there exists a cached value for this request,-->
+<!--then server will respond with `304` status code without body data.-->
+
+<!--    # Request-->
+<!--    GET /cities/ HTTP/1.1-->
+<!--    Accept: application/json-->
+<!--    If-None-Match: some_etag_value-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 304 NOT MODIFIED-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    Etag: "some_etag_value"-->
+
+<!--After this response you can use existing cities data on the client. -->
+
+
+
+
+
+
+
+
+<!--#### Concurrency control-->
+
+<!--Concurrency control ensures the correct processing of data under concurrent operations by clients.-->
+<!--There are two ways to implement concurrency control:-->
+
+<!--* **Pessimistic concurrency control**. In this model, the client gets a lock, obtains-->
+<!--the current state of the resource, makes modifications, and then releases the lock.-->
+<!--During this process, the server prevents other clients from acquiring a lock on the same resource.-->
+<!--Relational databases operate in this manner.-->
+<!--* **Optimistic concurrency control**. In this model, the client first gets a token.-->
+<!--Instead of obtaining a lock, the client attempts a write operation with the token included in the request.-->
+<!--The operation succeeds if the token is still valid and fails otherwise.-->
+
+<!--HTTP, being a stateless application control, is designed for optimistic concurrency control.-->
+<!--According to [RFC 6585](https://tools.ietf.org/html/rfc6585), the server can optionally require -->
+<!--a condition for a request. This library returns a `428` status, if no ETag is supplied, but would be mandatory -->
+<!--for a request to succeed.-->
+
+<!--Update:-->
+
+<!--                                            PUT/PATCH-->
+<!--                                                +-->
+<!--                                    +-----------+------------+-->
+<!--                                    |         ETag           |-->
+<!--                                    |         supplied?      |-->
+<!--                                    ++-----------------+-----+-->
+<!--                                     |                 |-->
+<!--                                     Yes               No-->
+<!--                                     |                 |-->
+<!--               +---------------------++               ++-------------+-->
+<!--               |   Do preconditions   |               | Precondition |-->
+<!--               |   match?             |               | required?    |-->
+<!--               +---+-----------------++               ++------------++-->
+<!--                   |                 |                 |            |-->
+<!--                   Yes               No                No           Yes-->
+<!--                   |                 |                 |            |-->
+<!--        +----------+------+  +-------+----------+  +---+-----+      |-->
+<!--        |  Does resource  |  | 412 Precondition |  | 200 OK  |      |-->
+<!--        |  exist?         |  | failed           |  | Update  |      |-->
+<!--        ++---------------++  +------------------+  +---------+      |-->
+<!--         |               |                              +-----------+------+-->
+<!--         Yes             No                             | 428 Precondition |-->
+<!--         |               |                              | required         |-->
+<!--    +----+----+     +----+----+                         +------------------+-->
+<!--    | 200 OK  |     | 404 Not |-->
+<!--    | Update  |     | found   |-->
+<!--    +---------+     +---------+-->
+
+
+<!--Delete:-->
+
+<!--                                              DELETE-->
+<!--                                                +-->
+<!--                                    +-----------+------------+-->
+<!--                                    |         ETag           |-->
+<!--                                    |         supplied?      |-->
+<!--                                    ++-----------------+-----+-->
+<!--                                     |                 |-->
+<!--                                     Yes               No-->
+<!--                                     |                 |-->
+<!--               +---------------------++               ++-------------+-->
+<!--               |   Do preconditions   |               | Precondition |-->
+<!--               |   match?             |               | required?    |-->
+<!--               +---+-----------------++               ++------------++-->
+<!--                   |                 |                 |            |-->
+<!--                   Yes               No                No           Yes-->
+<!--                   |                 |                 |            |-->
+<!--        +----------+------+  +-------+----------+  +---+-----+      |-->
+<!--        |  Does resource  |  | 412 Precondition |  | 204 No  |      |-->
+<!--        |  exist?         |  | failed           |  | content |      |-->
+<!--        ++---------------++  +------------------+  +---------+      |-->
+<!--         |               |                              +-----------+------+-->
+<!--         Yes             No                             | 428 Precondition |-->
+<!--         |               |                              | required         |-->
+<!--    +----+----+     +----+----+                         +------------------+-->
+<!--    | 204 No  |     | 404 Not |-->
+<!--    | content |     | found   |-->
+<!--    +---------+     +---------+-->
+
+
+
+<!--**Example: transient key construction**-->
+
+<!--Here is an example implementation for all (C)RUD methods (except create, because it doesn't need concurrency control)-->
+<!--wrapped with the default `etag` decorator. We use our [previous implementation](#custom-key-bit) of the `UpdatedAtKeyBit` that looks up the cache -->
+<!--for the last timestamp the particular object was updated on the server. This required us to add `post_save` and `post_delete` signals-->
+<!--to our models explicitly. See [below](#apietagmixin) for an example using `@api_etag` and mixins that computes the key from persistent data.-->
+
+<!--    from rest_framework.viewsets import ModelViewSet-->
+<!--    from rest_framework_extensions.key_constructor import bits-->
+<!--    from rest_framework_extensions.key_constructor.constructors import (-->
+<!--        KeyConstructor-->
+<!--    )-->
+
+<!--    from your_app.models import City-->
+<!--    # use our own implementation that detects an update timestamp in the cache -->
+<!--    from your_app.key_bits import UpdatedAtKeyBit-->
+
+<!--    class CityListKeyConstructor(KeyConstructor):-->
+<!--        format = bits.FormatKeyBit()-->
+<!--        language = bits.LanguageKeyBit()-->
+<!--        pagination = bits.PaginationKeyBit()-->
+<!--        list_sql_query = bits.ListSqlQueryKeyBit()-->
+<!--        unique_view_id = bits.UniqueViewIdKeyBit()-->
+
+<!--    class CityDetailKeyConstructor(KeyConstructor):-->
+<!--        format = bits.FormatKeyBit()-->
+<!--        language = bits.LanguageKeyBit()-->
+<!--        retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()-->
+<!--        unique_view_id = bits.UniqueViewIdKeyBit()-->
+<!--        updated_at = UpdatedAtKeyBit()-->
+
+<!--    class CityViewSet(ModelViewSet):-->
+<!--        list_key_func = CityListKeyConstructor(-->
+<!--            memoize_for_request=True-->
+<!--        )-->
+<!--        obj_key_func = CityDetailKeyConstructor(-->
+<!--            memoize_for_request=True-->
+<!--        )-->
+
+<!--        @etag(list_key_func)-->
+<!--        @cache_response(key_func=list_key_func)-->
+<!--        def list(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).list(request, *args, **kwargs)-->
+
+<!--        @etag(obj_key_func)-->
+<!--        @cache_response(key_func=obj_key_func)-->
+<!--        def retrieve(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).retrieve(request, *args, **kwargs)-->
+
+<!--        @etag(obj_key_func)-->
+<!--        def update(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).update(request, *args, **kwargs)-->
+
+<!--        @etag(obj_key_func)-->
+<!--        def destroy(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).destroy(request, *args, **kwargs)-->
+
+
+<!--#### ETag for unsafe methods-->
+
+<!--From previous section you could see that unsafe methods, such `update` (PUT, PATCH) or `destroy` (DELETE), have the same `@etag`-->
+<!--decorator wrapping manner as the safe methods.-->
+
+<!--But every unsafe method has one distinction from safe method - it changes the data-->
+<!--which could be used for Etag calculation. In our case it is `UpdatedAtKeyBit`. It means that we should calculate Etag:-->
+
+<!--* Before building response - for `If-Match` and `If-None-Match` conditions validation-->
+<!--* After building response (if necessary) - for clients-->
+
+<!--`@etag` decorator has special attribute `rebuild_after_method_evaluation`, which by default is `False`.-->
+
+<!--If you specify `rebuild_after_method_evaluation` as `True` then Etag will be rebuilt after method evaluation:-->
+
+<!--    class CityViewSet(ModelViewSet):-->
+<!--        ...-->
+<!--        @etag(obj_key_func, rebuild_after_method_evaluation=True)-->
+<!--        def update(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).update(request, *args, **kwargs)-->
+
+<!--        @etag(obj_key_func)-->
+<!--        def destroy(self, request, *args, **kwargs):-->
+<!--            return super(CityViewSet, self).destroy(request, *args, **kwargs)-->
+
+<!--    # Request-->
+<!--    PUT /cities/1/ HTTP/1.1-->
+<!--    Accept: application/json-->
+
+<!--    {"name": "London"}-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 200 OK-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    ETag: "4e63ef056f47270272b96523f51ad938b5ea141024b767880eac047d10a0b339"-->
+
+<!--    {-->
+<!--      id: 1,-->
+<!--      name: "London"-->
+<!--    }-->
+
+<!--As you can see we didn't specify `rebuild_after_method_evaluation` for `destroy` method. That is because there is no-->
+<!--sense to use returned ETag value on clients if object deletion already performed.-->
+
+<!--With `rebuild_after_method_evaluation` parameter Etag calculation for `PUT`/`PATCH` method would look like:-->
+
+<!--                 +--------------+-->
+<!--                 |    Request   |-->
+<!--                 +--------------+-->
+<!--                        |-->
+<!--           +--------------------------+-->
+<!--           |  Calculate Etag          |-->
+<!--           |  for condition matching  |-->
+<!--           +--------------------------+-->
+<!--                        |-->
+<!--              +--------------------+-->
+<!--              |  Do preconditions  |-->
+<!--              |  match?            |-->
+<!--              +--------------------+-->
+<!--                  |           |-->
+<!--                  Yes         No-->
+<!--                  |           |-->
+<!--      +--------------+  +--------------------+-->
+<!--      |  Update the  |  |  412 Precondition  |-->
+<!--      |  resource    |  |  failed            |-->
+<!--      +--------------+  +--------------------+-->
+<!--             |-->
+<!--    +--------------------+-->
+<!--    |  Calculate Etag    |-->
+<!--    |  again and add it  |-->
+<!--    |  to response       |-->
+<!--    +--------------------+-->
+<!--             |-->
+<!--       +------------+-->
+<!--       |  Return    |-->
+<!--       |  response  |-->
+<!--       +------------+-->
+
+<!--`If-None-Match` example for `DELETE` method:-->
+
+<!--    # Request-->
+<!--    DELETE /cities/1/ HTTP/1.1-->
+<!--    Accept: application/json-->
+<!--    If-None-Match: some_etag_value-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 304 NOT MODIFIED-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    Etag: "some_etag_value"-->
+
+
+<!--`If-Match` example for `DELETE` method:-->
+
+<!--    # Request-->
+<!--    DELETE /cities/1/ HTTP/1.1-->
+<!--    Accept: application/json-->
+<!--    If-Match: another_etag_value-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 412 PRECONDITION FAILED-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    Etag: "some_etag_value"-->
+
+
+<!--#### ETAGMixin-->
+
+<!--It is common to process etags for standard [viewset](http://www.django-rest-framework.org/api-guide/viewsets)-->
+<!--`retrieve`, `list`, `update` and `destroy` methods.-->
+<!--That is why `ETAGMixin` exists. Just mix it into viewset-->
+<!--implementation and those methods will use functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):-->
+
+<!--* *"DEFAULT\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods-->
+<!--* *"DEFAULT\_LIST\_ETAG\_FUNC"* for `list` method-->
+
+<!--By default those functions are using [DefaultKeyConstructor](#default-key-constructor) and extends it:-->
+
+<!--* With `RetrieveSqlQueryKeyBit` for *"DEFAULT\_OBJECT\_ETAG\_FUNC"*-->
+<!--* With `ListSqlQueryKeyBit` and `PaginationKeyBit` for *"DEFAULT\_LIST\_ETAG\_FUNC"*-->
+
+<!--You can change those settings for custom ETag generation:-->
+
+<!--    REST_FRAMEWORK_EXTENSIONS = {-->
+<!--        'DEFAULT_OBJECT_ETAG_FUNC':-->
+<!--          'rest_framework_extensions.utils.default_object_etag_func',-->
+<!--        'DEFAULT_LIST_ETAG_FUNC':-->
+<!--          'rest_framework_extensions.utils.default_list_etag_func',-->
+<!--    }-->
+
+<!--Mixin example usage:-->
+
+<!--    from myapps.serializers import UserSerializer-->
+<!--    from rest_framework_extensions.etag.mixins import ETAGMixin-->
+
+<!--    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+
+<!--You can change etag function by providing `object_etag_func` or-->
+<!--`list_etag_func` methods in view class:-->
+
+<!--    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+
+<!--        def object_etag_func(self, **kwargs):-->
+<!--            return 'some key for object'-->
+
+<!--        def list_etag_func(self, **kwargs):-->
+<!--            return 'some key for list'-->
+
+<!--Of course you can use custom [key constructor](#key-constructor):-->
+
+<!--    from yourapp.key_constructors import (-->
+<!--        CustomObjectKeyConstructor,-->
+<!--        CustomListKeyConstructor,-->
+<!--    )-->
+
+<!--    class UserViewSet(ETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+<!--        object_etag_func = CustomObjectKeyConstructor()-->
+<!--        list_etag_func = CustomListKeyConstructor()-->
+
+<!--It is important to note that ETags for unsafe method `update` is processed with parameter-->
+<!--`rebuild_after_method_evaluation` equals `True`. You can read why from [this](#etag-for-unsafe-methods) section.-->
+
+<!--There are other mixins for more granular Etag calculation in `rest_framework_extensions.etag.mixins` module:-->
+
+<!--* **ReadOnlyETAGMixin** - only for `retrieve` and `list` methods-->
+<!--* **RetrieveETAGMixin** - only for `retrieve` method-->
+<!--* **ListETAGMixin** - only for `list` method-->
+<!--* **DestroyETAGMixin** - only for `destroy` method-->
+<!--* **UpdateETAGMixin** - only for `update` method-->
+
+
+<!--#### APIETagMixin-->
+
+<!--*New in DRF-extensions 0.3.2*-->
+
+<!--In analogy to `ETAGMixin` the `APIETAGMixin` exists. Just mix it into DRF viewsets or `APIViews` -->
+<!--and those methods will use the ETag functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):-->
+
+<!--* *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"* for `retrieve`, `update` and `destroy` methods-->
+<!--* *"DEFAULT\_API\_LIST\_ETAG\_FUNC"* for `list` method-->
+
+<!--By default those functions are using custom key constructors that create the key from **persisted model attributes**:-->
+
+<!--* `RetrieveModelKeyBit` (see [definition](#retrievemodelkeybit)) for *"DEFAULT\_API\_OBJECT\_ETAG\_FUNC"*-->
+<!--* `ListModelKeyBit` (see [definition](#listmodelkeybit)) for *"DEFAULT\_API\_LIST\_ETAG\_FUNC"*-->
+
+<!--You can change those settings globally for your custom ETag generation, or use the default values, which should cover -->
+<!--the most common use cases:-->
+
+<!--    REST_FRAMEWORK_EXTENSIONS = {-->
+<!--        'DEFAULT_API_OBJECT_ETAG_FUNC': -->
+<!--            'rest_framework_extensions.utils.default_api_object_etag_func',-->
+<!--        'DEFAULT_API_LIST_ETAG_FUNC': -->
+<!--            'rest_framework_extensions.utils.default_api_list_etag_func',-->
+<!--    }-->
+
+<!--Mixin example usage:-->
+
+<!--    from myapps.serializers import UserSerializer-->
+<!--    from rest_framework_extensions.etag.mixins import APIETAGMixin-->
+
+<!--    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+
+<!--You can change etag function by providing `api_object_etag_func` or-->
+<!--`api_list_etag_func` methods in view class:-->
+
+<!--    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+
+<!--        def api_object_etag_func(self, **kwargs):-->
+<!--            return 'some key for object'-->
+
+<!--        def api_list_etag_func(self, **kwargs):-->
+<!--            return 'some key for list'-->
+
+<!--Of course you can use custom [key constructors](#key-constructor):-->
+
+<!--    from yourapp.key_constructors import (-->
+<!--        CustomObjectKeyConstructor,-->
+<!--        CustomListKeyConstructor,-->
+<!--    )-->
+
+<!--    class UserViewSet(APIETAGMixin, viewsets.ModelViewSet):-->
+<!--        serializer_class = UserSerializer-->
+<!--        api_object_etag_func = CustomObjectKeyConstructor()-->
+<!--        api_list_etag_func = CustomListKeyConstructor()-->
+
+<!--There are other mixins for more granular ETag calculation in `rest_framework_extensions.etag.mixins` module:-->
+
+<!--* **APIReadOnlyETAGMixin** - only for `retrieve` and `list` methods-->
+<!--* **APIRetrieveETAGMixin** - only for `retrieve` method-->
+<!--* **APIListETAGMixin** - only for `list` method-->
+<!--* **APIDestroyETAGMixin** - only for `destroy` method-->
+<!--* **APIUpdateETAGMixin** - only for `update` method-->
+
+<!--By default, all mixins require the conditional requests, i.e. they use the default `precondition_map` from the -->
+<!--`APIETAGProcessor` class.-->
+
+
+<!--#### Gzipped ETags-->
+
+<!--If you use [GZipMiddleware](https://docs.djangoproject.com/en/dev/ref/middleware/#module-django.middleware.gzip)-->
+<!--and your client accepts Gzipped response, then you should return different ETags for compressed and not compressed responses.-->
+<!--That's what `GZipMiddleware` does by default while processing response --->
+<!--it adds `;gzip` postfix to ETag response header if client requests compressed response.-->
+<!--Lets see it in example. First request without compression:-->
+
+<!--    # Request-->
+<!--    GET /cities/ HTTP/1.1-->
+<!--    Accept: application/json-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 200 OK-->
+<!--    Content-Type: application/json; charset=UTF-8-->
+<!--    ETag: "e7b50490dc"-->
+
+<!--    ['Moscow', 'London', 'Paris']-->
+
+<!--Second request with compression:-->
+
+<!--    # Request-->
+<!--    GET /cities/ HTTP/1.1-->
+<!--    Accept: application/json-->
+<!--    Accept-Encoding: gzip-->
+
+<!--    # Response-->
+<!--    HTTP/1.1 200 OK-->
+<!--    Content-Type: application/json-->
+<!--    Content-Length: 675-->
+<!--    Content-Encoding: gzip-->
+<!--    ETag: "e7b50490dc;gzip"-->
+
+<!--    wS?n?0?_%o?cc?Ҫ?Eʒ?Cժʻ?a\1?a?^T*7q<>[Nvh?[?^9?x:/Ms?79?Fd/???ۦjES?ڽ?&??c%^?C[K۲%N?w{?졭2?m?}?Q&Egz??-->
+
+<!--As you can see there is `;gzip` postfix in ETag response header.-->
+<!--That's ok but there is one caveat - drf-extension doesn't know how you post-processed calculated ETag value.-->
+<!--And your clients could have next problem with conditional request:-->
+
+<!--* Client sends request to retrieve compressed data about cities to `/cities/`-->
+<!--* DRF-extensions decorator calculates ETag header for response equals, for example, `123`-->
+<!--* `GZipMiddleware` adds `;gzip` postfix to ETag header response, and now it equals `123;gzip`-->
+<!--* Client retrieves response with ETag equals `123;gzip`-->
+<!--* Client again makes request to retrieve compressed data about cities,-->
+<!--but now it's conditional request with `If-None-Match` header equals `123;gzip`-->
+<!--* DRF-extensions decorator calculates ETag value for processing conditional request.-->
+<!--But it doesn't know, that `GZipMiddleware` added `;gzip` postfix for previous response.-->
+<!--DRF-extensions decorator calculates ETag equals `123`, compares it with `123;gzip` and returns-->
+<!--response with status code 200, because `123` != `123;gzip`-->
+
+<!--You can solve this problem by stripping `;gzip` postfix on client side.-->
+
+<!--But there are so many libraries that just magically uses ETag response header without allowing to-->
+<!--pre-process conditional requests (for example, browser). If that's you case then you could add custom middleware which removes `;gzip`-->
+<!--postfix from header:-->
+
+<!--    # yourapp/middleware.py-->
+
+<!--    class RemoveEtagGzipPostfix(object):-->
+<!--        def process_response(self, request, response):-->
+<!--            if response.has_header('ETag') and response['ETag'][-6:] == ';gzip"':-->
+<!--                response['ETag'] = response['ETag'][:-6] + '"'-->
+<!--            return response-->
+
+<!--Don't forget to add this middleware in your settings before `GZipMiddleware`:-->
+
+<!--    # settings.py-->
+<!--    MIDDLEWARE_CLASSES = (-->
+<!--        ...-->
+<!--        'yourapp.RemoveEtagGzipPostfix',-->
+<!--        'django.middleware.gzip.GZipMiddleware',-->
+<!--        'django.middleware.common.CommonMiddleware',-->
+<!--        ...-->
+<!--    )-->
 
 
 
