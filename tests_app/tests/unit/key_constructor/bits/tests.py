@@ -340,7 +340,7 @@ class PaginationKeyBitTest(TestCase):
             'params': None,
             'view_instance': Mock(spec_set=['paginator']),
             'view_method': None,
-            'request': factory.get('?page_size=10&page=1'),
+            'request': factory.get('?page_size=10&page=1&limit=5&offset=15&cursor=foo'),
             'args': None,
             'kwargs': None
         }
@@ -357,23 +357,32 @@ class PaginationKeyBitTest(TestCase):
     def test_view_with_page_kwarg(self):
         self.kwargs['view_instance'].paginator.page_query_param = 'page'
         self.kwargs['view_instance'].paginator.page_size_query_param = None
-        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page': u'1'})
+        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page': '1'})
 
     def test_view_with_paginate_by_param(self):
         self.kwargs['view_instance'].paginator.page_query_param = None
         self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
-        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': u'10'})
+        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': '10'})
 
     def test_view_with_all_pagination_attrs(self):
         self.kwargs['view_instance'].paginator.page_query_param = 'page'
         self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
-        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': u'10', 'page': u'1'})
+        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'page_size': '10', 'page': '1'})
 
     def test_view_with_all_pagination_attrs__without_query_params(self):
         self.kwargs['view_instance'].paginator.page_query_param = 'page'
         self.kwargs['view_instance'].paginator.page_size_query_param = 'page_size'
         self.kwargs['request'] = factory.get('')
         self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {})
+
+    def test_view_with_offset_pagination_attrs(self):
+        self.kwargs['view_instance'].paginator.limit_query_param = 'limit'
+        self.kwargs['view_instance'].paginator.offset_query_param = 'offset'
+        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'limit': '5', 'offset': '15'})
+
+    def test_view_with_cursor_pagination_attrs(self):
+        self.kwargs['view_instance'].paginator.cursor_query_param = 'cursor'
+        self.assertEqual(PaginationKeyBit().get_data(**self.kwargs), {'cursor': 'foo'})
 
 
 class ListSqlQueryKeyBitTest(TestCase):
