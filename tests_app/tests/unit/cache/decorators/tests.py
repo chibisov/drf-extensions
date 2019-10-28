@@ -286,3 +286,28 @@ class CacheResponseTest(TestCase):
     )
     def test_should_use_cache_error_from_decorator_if_it_is_specified(self):
         self.assertTrue(cache_response(cache_errors=True).cache_errors)
+
+    def test_should_return_response_with_tuple_headers(self):
+        def key_func(**kwargs):
+            return 'cache_response_key'
+
+        class TestView(views.APIView):
+            @cache_response(key_func=key_func)
+            def get(self, request, *args, **kwargs):
+                return Response(u'')
+
+        view_instance = TestView()
+        view_instance.headers = {'Test': 'foo'}
+        cached_response = Response(u'')
+        view_instance.finalize_response(request=self.request, response=cached_response)
+        cached_response.render()
+        response_dict = (
+            cached_response.rendered_content,
+            cached_response.status_code,
+            {k: list(v) for k, v in cached_response._headers.items()}
+        )
+        self.cache.set('cache_response_key', response_dict)
+
+        response = view_instance.dispatch(request=self.request)
+        self.assertTrue(all(isinstance(v, tuple) for v in response._headers.values()))
+        self.assertEqual(response._headers['test'], ('Test', 'foo'))
