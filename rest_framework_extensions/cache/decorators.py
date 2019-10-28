@@ -96,7 +96,8 @@ class CacheResponse:
             # build smaller Django HttpResponse
             content, status, headers = response_triple
             response = HttpResponse(content=content, status=status)
-            response._headers = headers
+            for k, v in headers.values():
+                response[k] = v
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
