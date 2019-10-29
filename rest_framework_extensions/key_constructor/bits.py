@@ -170,16 +170,22 @@ class PaginationKeyBit(QueryParamsKeyBit):
         {'page_size': 100, 'page': '1'}
 
     """
+    paginator_attrs = [
+        'page_query_param', 'page_size_query_param',
+        'limit_query_param', 'offset_query_param',
+        'cursor_query_param',
+    ]
+
     def get_data(self, **kwargs):
         kwargs['params'] = []
-        if hasattr(kwargs['view_instance'], 'paginator'):
-            if hasattr(kwargs['view_instance'].paginator, 'page_query_param'):
-                kwargs['params'].append(
-                    kwargs['view_instance'].paginator.page_query_param)
-            if hasattr(kwargs['view_instance'].paginator,
-                       'page_size_query_param'):
-                kwargs['params'].append(
-                    kwargs['view_instance'].paginator.page_size_query_param)
+        paginator = getattr(kwargs['view_instance'], 'paginator', None)
+
+        if paginator:
+            for attr in self.paginator_attrs:
+                param = getattr(paginator, attr, None)
+                if param:
+                    kwargs['params'].append(param)
+
         return super(PaginationKeyBit, self).get_data(**kwargs)
 
 
