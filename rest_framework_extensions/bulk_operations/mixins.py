@@ -15,7 +15,8 @@ class BulkOperationBaseMixin:
 
     def is_valid_bulk_operation(self):
         if extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME:
-            header_name = utils.prepare_header_name(extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME)
+            header_name = utils.prepare_header_name(
+                extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME)
             return bool(self.request.META.get(header_name, None)), {
                 'detail': 'Header \'{0}\' should be provided for bulk operation.'.format(
                     extensions_api_settings.DEFAULT_BULK_OPERATION_HEADER_NAME
@@ -67,8 +68,10 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
         is_valid, errors = self.is_valid_bulk_operation()
         if is_valid:
             queryset = self.filter_queryset(self.get_queryset())
-            update_bulk_dict = self.get_update_bulk_dict(serializer=self.get_serializer_class()(), data=request.data)
-            self.pre_save_bulk(queryset, update_bulk_dict)  # todo: test and document me
+            update_bulk_dict = self.get_update_bulk_dict(
+                serializer=self.get_serializer_class()(), data=request.data)
+            # todo: test and document me
+            self.pre_save_bulk(queryset, update_bulk_dict)
             try:
                 queryset.update(**update_bulk_dict)
             except ValueError as e:
@@ -76,7 +79,8 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
                     'detail': force_text(e)
                 }
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-            self.post_save_bulk(queryset, update_bulk_dict)  # todo: test and document me
+            # todo: test and document me
+            self.post_save_bulk(queryset, update_bulk_dict)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)

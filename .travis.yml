@@ -1,10 +1,10 @@
 language: python
 cache: pip
-dist: xenial
+dist: bionic
 sudo: false
 
 python:
-  - 3.5
+  - 3.8
   - 3.6
   - 3.7
 
