@@ -1,7 +1,6 @@
 import logging
-from functools import wraps
+from functools import wraps, WRAPPER_ASSIGNMENTS
 
-from django.utils.decorators import available_attrs
 from django.utils.http import parse_etags, quote_etag
 
 from rest_framework import status
@@ -27,7 +26,7 @@ class ETAGProcessor:
     def __call__(self, func):
         this = self
 
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func, assigned=WRAPPER_ASSIGNMENTS)
         def inner(self, request, *args, **kwargs):
             return this.process_conditional_request(
                 view_instance=self,
