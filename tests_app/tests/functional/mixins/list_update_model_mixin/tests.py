@@ -2,6 +2,7 @@ import json
 
 import unittest
 
+import django
 from django.test import override_settings
 
 from rest_framework_extensions.test import APITestCase
@@ -155,9 +156,14 @@ class ListUpdateModelMixinTestBehaviour__serializer_fields(APITestCase):
             self.fail('Errors with invalid for DB data should be caught')
         else:
             self.assertEqual(resp.status_code, 400)
-            expected_message = {
-                'detail': "invalid literal for int() with base 10: 'Not integer value'"
-            }
+            if django.VERSION < (3, 0, 0):
+                expected_message = {
+                    'detail': "invalid literal for int() with base 10: 'Not integer value'"
+                }
+            else:
+                expected_message = {
+                    'detail': "Field 'age' expected a number but got 'Not integer value'."
+                }
             self.assertEqual(resp.data, expected_message)
 
     def test_should_use_source_if_it_set_in_serializer(self):

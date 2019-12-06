@@ -1,7 +1,6 @@
-from functools import wraps
+from functools import wraps, WRAPPER_ASSIGNMENTS
 
 from django.http.response import HttpResponse
-from django.utils.decorators import available_attrs
 
 
 from rest_framework_extensions.settings import extensions_api_settings
@@ -50,7 +49,7 @@ class CacheResponse:
     def __call__(self, func):
         this = self
 
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func, assigned=WRAPPER_ASSIGNMENTS)
         def inner(self, request, *args, **kwargs):
             return this.process_cache_response(
                 view_instance=self,
