@@ -12,7 +12,7 @@ class BaseETAGMixin:
 class ListETAGMixin(BaseETAGMixin):
     @etag(etag_func='list_etag_func')
     def list(self, request, *args, **kwargs):
-        return super(ListETAGMixin, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class RetrieveETAGMixin(BaseETAGMixin):
