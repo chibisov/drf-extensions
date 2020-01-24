@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Backdoc is a tool for backbone-like documentation generation. 
@@ -9,8 +8,6 @@ https://github.com/chibisov/backdoc
 import sys
 import argparse
 
-# -*- coding: utf-8 -*-
-#!/usr/bin/env python
 # Copyright (c) 2012 Trent Mick.
 # Copyright (c) 2007-2008 ActiveState Corp.
 # License: MIT (http://www.opensource.org/licenses/mit-license.php)

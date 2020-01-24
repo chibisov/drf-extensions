@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Try to import six from Django, fallback to included `six`.
 
 

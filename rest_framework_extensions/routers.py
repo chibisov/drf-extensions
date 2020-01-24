@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from rest_framework.routers import DefaultRouter, SimpleRouter
 from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
 
