@@ -2,7 +2,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
 
 
-class BaseCacheResponseMixin(object):
+class BaseCacheResponseMixin:
     # todo: test me. Create generic test like
     # test_cache_reponse(view_instance, method, should_rebuild_after_method_evaluation)
     object_cache_key_func = extensions_api_settings.DEFAULT_OBJECT_CACHE_KEY_FUNC
