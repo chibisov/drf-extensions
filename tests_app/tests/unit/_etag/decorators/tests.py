@@ -221,7 +221,7 @@ class ETAGProcessorTestBehaviorMixin:
 
 class ETAGProcessorTestBehavior_if_none_match(ETAGProcessorTestBehaviorMixin, TestCase):
     def setUp(self):
-        super(ETAGProcessorTestBehavior_if_none_match, self).setUp()
+        super().setUp()
         self.header_name = 'if-none-match'
         self.experiments = [
             {
@@ -275,7 +275,7 @@ class ETAGProcessorTestBehavior_if_none_match(ETAGProcessorTestBehaviorMixin, Te
 
 class ETAGProcessorTestBehavior_if_match(ETAGProcessorTestBehaviorMixin, TestCase):
     def setUp(self):
-        super(ETAGProcessorTestBehavior_if_match, self).setUp()
+        super().setUp()
         self.header_name = 'if-match'
         self.experiments = [
             {
@@ -342,7 +342,7 @@ class APIETAGProcessorTest(TestCase):
             class View(views.APIView):
                 @api_etag()
                 def get(self, request, *args, **kwargs):
-                    return super(View, self).get(request, *args, **kwargs)
+                    return super().get(request, *args, **kwargs)
 
     def test_should_raise_assertion_error_if_precondition_map_not_a_dict(self):
         with self.assertRaises(AssertionError):
@@ -353,7 +353,7 @@ class APIETAGProcessorTest(TestCase):
             class View(views.APIView):
                 @api_etag(dummy_api_etag_func, precondition_map=['header-name'])
                 def get(self, request, *args, **kwargs):
-                    return super(View, self).get(request, *args, **kwargs)
+                    return super().get(request, *args, **kwargs)
 
     def test_should_add_object_etag_value(self):
         class TestView(views.APIView):
@@ -608,7 +608,7 @@ class APIETAGProcessorTestBehaviorMixin:
 
 class APIETAGProcessorTestBehavior_if_match(APIETAGProcessorTestBehaviorMixin, TestCase):
     def setUp(self):
-        super(APIETAGProcessorTestBehavior_if_match, self).setUp()
+        super().setUp()
         self.header_name = 'if-match'
         self.experiments = [
             {
@@ -662,7 +662,7 @@ class APIETAGProcessorTestBehavior_if_match(APIETAGProcessorTestBehaviorMixin, T
 
 class APIETAGProcessorTestBehavior_if_none_match(APIETAGProcessorTestBehaviorMixin, TestCase):
     def setUp(self):
-        super(APIETAGProcessorTestBehavior_if_none_match, self).setUp()
+        super().setUp()
         self.header_name = 'if-none-match'
         self.experiments = [
             {

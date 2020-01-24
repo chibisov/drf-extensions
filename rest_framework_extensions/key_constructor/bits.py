@@ -7,13 +7,13 @@ from django.utils.encoding import force_text
 from rest_framework_extensions import compat
 
 
-class AllArgsMixin(object):
+class AllArgsMixin:
 
     def __init__(self, params='*'):
-        super(AllArgsMixin, self).__init__(params)
+        super().__init__(params)
 
 
-class KeyBitBase(object):
+class KeyBitBase:
     def __init__(self, params=None):
         self.params = params
 
@@ -186,7 +186,7 @@ class PaginationKeyBit(QueryParamsKeyBit):
                 if param:
                     kwargs['params'].append(param)
 
-        return super(PaginationKeyBit, self).get_data(**kwargs)
+        return super().get_data(**kwargs)
 
 
 class SqlQueryKeyBitBase(KeyBitBase):

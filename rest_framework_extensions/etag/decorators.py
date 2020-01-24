@@ -167,7 +167,7 @@ class APIETAGProcessor(ETAGProcessor):
                                                          'the key is the HTTP verb, and the value is a list of '
                                                          'HTTP headers that must all be present for that request.')
 
-        super(APIETAGProcessor, self).__init__(etag_func=etag_func,
+        super().__init__(etag_func=etag_func,
                                                rebuild_after_method_evaluation=rebuild_after_method_evaluation)
 
     def get_etags_and_matchers(self, request):
@@ -175,7 +175,7 @@ class APIETAGProcessor(ETAGProcessor):
         # evaluate the preconditions, raises 428 if condition is not met
         self.evaluate_preconditions(request)
         # alright, headers are present, extract the values and match the conditions
-        return super(APIETAGProcessor, self).get_etags_and_matchers(request)
+        return super().get_etags_and_matchers(request)
 
     def evaluate_preconditions(self, request):
         """Evaluate whether the precondition for the request is met."""
