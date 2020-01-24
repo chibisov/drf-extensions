@@ -2213,9 +2213,19 @@ You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
+#### Development version
+
+* Added support for Django 3.0 (#276)
+* Dropped support for Django 2.0
+* Added support for DRF 3.10 and 3.11 (#261, #279)
+* Added support for Python 3.8 (#282)
+* Added paginate decorator (#266)
+* Added limit/offset and cursor pagination to PaginationKeyBit (#204)
+
+
 #### 0.5.0
 
-* Maay 10, 2019 *
+*May 10, 2019*
 
 * Dropped python 2.7 and 3.4
 * Fix possible header mutation issue 
