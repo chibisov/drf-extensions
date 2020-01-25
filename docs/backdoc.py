@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Backdoc is a tool for backbone-like documentation generation. 
@@ -9,8 +8,6 @@ https://github.com/chibisov/backdoc
 import sys
 import argparse
 
-# -*- coding: utf-8 -*-
-#!/usr/bin/env python
 # Copyright (c) 2012 Trent Mick.
 # Copyright (c) 2007-2008 ActiveState Corp.
 # License: MIT (http://www.opensource.org/licenses/mit-license.php)
@@ -185,7 +182,7 @@ def markdown(text, html4tags=False, tab_width=DEFAULT_TAB_WIDTH,
                     link_patterns=link_patterns,
                     use_file_vars=use_file_vars).convert(text)
 
-class Markdown(object):
+class Markdown:
     # The dict of "extras" to enable in processing -- a mapping of
     # extra name to argument for the extra. Most extras do not have an
     # argument, in which case the value is None.
@@ -2095,7 +2092,7 @@ def _dedent(text, tabsize=8, skip_first_line=False):
     return ''.join(lines)
 
 
-class _memoized(object):
+class _memoized:
    """Decorator that caches a function's return value each time it is called.
    If called later with the same arguments, the cached value is returned, and
    not re-evaluated.
@@ -2660,7 +2657,7 @@ def force_text(text):
         return text.decode('utf-8')
 
 
-class BackDoc(object):
+class BackDoc:
     def __init__(self, markdown_converter, template_html, stdin, stdout):
         self.markdown_converter = markdown_converter
         self.template_html = force_text(template_html)

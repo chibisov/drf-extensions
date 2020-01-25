@@ -14,7 +14,7 @@ factory = APIRequestFactory()
 
 class CacheResponseTest(TestCase):
     def setUp(self):
-        super(CacheResponseTest, self).setUp()
+        super().setUp()
         self.request = factory.get('')
         self.cache = caches[extensions_api_settings.DEFAULT_USE_CACHE]
 
@@ -253,7 +253,7 @@ class CacheResponseTest(TestCase):
 
             def __init__(self, status, *args, **kwargs):
                 self.status = status
-                super(TestView, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
 
             @cache_response_decorator
             def get(self, request, *args, **kwargs):
@@ -273,7 +273,7 @@ class CacheResponseTest(TestCase):
 
             def __init__(self, status, *args, **kwargs):
                 self.status = status
-                super(TestView, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
 
             @cache_response_decorator
             def get(self, request, *args, **kwargs):

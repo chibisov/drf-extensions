@@ -1,7 +1,6 @@
 import logging
-from functools import wraps
+from functools import wraps, WRAPPER_ASSIGNMENTS
 
-from django.utils.decorators import available_attrs
 from django.utils.http import parse_etags, quote_etag
 
 from rest_framework import status
@@ -27,7 +26,7 @@ class ETAGProcessor:
     def __call__(self, func):
         this = self
 
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func, assigned=WRAPPER_ASSIGNMENTS)
         def inner(self, request, *args, **kwargs):
             return this.process_conditional_request(
                 view_instance=self,
@@ -168,7 +167,7 @@ class APIETAGProcessor(ETAGProcessor):
                                                          'the key is the HTTP verb, and the value is a list of '
                                                          'HTTP headers that must all be present for that request.')
 
-        super(APIETAGProcessor, self).__init__(etag_func=etag_func,
+        super().__init__(etag_func=etag_func,
                                                rebuild_after_method_evaluation=rebuild_after_method_evaluation)
 
     def get_etags_and_matchers(self, request):
@@ -176,7 +175,7 @@ class APIETAGProcessor(ETAGProcessor):
         # evaluate the preconditions, raises 428 if condition is not met
         self.evaluate_preconditions(request)
         # alright, headers are present, extract the values and match the conditions
-        return super(APIETAGProcessor, self).get_etags_and_matchers(request)
+        return super().get_etags_and_matchers(request)
 
     def evaluate_preconditions(self, request):
         """Evaluate whether the precondition for the request is met."""

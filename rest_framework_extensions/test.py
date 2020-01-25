@@ -103,7 +103,7 @@ class APIRequestFactory(RequestFactory):
         return self.generic('OPTIONS', path, data, content_type, **extra)
 
     def request(self, **kwargs):
-        request = super(APIRequestFactory, self).request(**kwargs)
+        request = super().request(**kwargs)
         request._dont_enforce_csrf_checks = not self.enforce_csrf_checks
         return request
 
@@ -128,7 +128,7 @@ class ForceAuthClientHandler(ClientHandler):
 
 class APIClient(APIRequestFactory, DjangoClient):
     def __init__(self, enforce_csrf_checks=False, **defaults):
-        super(APIClient, self).__init__(**defaults)
+        super().__init__(**defaults)
         self.handler = ForceAuthClientHandler(enforce_csrf_checks)
         self._credentials = {}
 

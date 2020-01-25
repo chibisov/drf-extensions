@@ -39,4 +39,4 @@ class CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet(DetailSerializer
     queryset_detail = Comment.objects.filter(id=1)
 
     def get_queryset(self):
-        return super(CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet, self).get_queryset()
+        return super().get_queryset()

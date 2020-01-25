@@ -80,14 +80,14 @@ class CommentViewSet(NestedViewSetMixin, ModelViewSet):
 
 class TaskCommentViewSet(CommentViewSet):
     def get_queryset(self):
-        return super(TaskCommentViewSet, self).get_queryset().filter(
+        return super().get_queryset().filter(
             content_type=ContentType.objects.get_for_model(TaskModel)
         )
 
 
 class BookCommentViewSet(CommentViewSet):
     def get_queryset(self):
-        return super(BookCommentViewSet, self).get_queryset().filter(
+        return super().get_queryset().filter(
             content_type=ContentType.objects.get_for_model(BookModel)
         )
 
