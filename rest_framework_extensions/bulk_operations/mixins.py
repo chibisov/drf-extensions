@@ -1,4 +1,4 @@
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -76,7 +76,7 @@ class ListUpdateModelMixin(BulkOperationBaseMixin):
                 queryset.update(**update_bulk_dict)
             except ValueError as e:
                 errors = {
-                    'detail': force_text(e)
+                    'detail': force_str(e)
                 }
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             # todo: test and document me
