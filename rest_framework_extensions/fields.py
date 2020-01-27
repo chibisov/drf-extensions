@@ -3,7 +3,8 @@ from rest_framework.relations import HyperlinkedRelatedField
 
 class ResourceUriField(HyperlinkedRelatedField):
     """
-    Represents a hyperlinking uri that points to the detail view for that object.
+    Represents a hyperlinking uri that points to the
+    detail view for that object.
 
     Example:
         class SurveySerializer(serializers.ModelSerializer):

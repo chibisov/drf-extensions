@@ -2,7 +2,6 @@
 The `compat` module provides support for backwards compatibility with older
 versions of django/python, and compatibility wrappers around optional packages.
 """
-from __future__ import unicode_literals
 
 
 # handle different QuerySet representations

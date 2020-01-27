@@ -2,7 +2,7 @@ from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
 from django.db.models.sql.datastructures import EmptyResultSet
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from rest_framework_extensions import compat
 
@@ -48,9 +48,11 @@ class KeyBitDictBase(KeyBitBase):
                 params = source_dict.keys()
 
             for key in params:
-                value = source_dict.get(self.prepare_key_for_value_retrieving(key))
+                value = source_dict.get(
+                    self.prepare_key_for_value_retrieving(key))
                 if value is not None:
-                    data[self.prepare_key_for_value_assignment(key)] = force_text(value)
+                    data[self.prepare_key_for_value_assignment(
+                        key)] = force_str(value)
 
         return data
 
@@ -66,7 +68,7 @@ class KeyBitDictBase(KeyBitBase):
 
 class UniqueViewIdKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return u'.'.join([
+        return '.'.join([
             view_instance.__module__,
             view_instance.__class__.__name__
         ])
@@ -74,7 +76,7 @@ class UniqueViewIdKeyBit(KeyBitBase):
 
 class UniqueMethodIdKeyBit(KeyBitBase):
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return u'.'.join([
+        return '.'.join([
             view_instance.__module__,
             view_instance.__class__.__name__,
             view_method.__name__
@@ -84,12 +86,12 @@ class UniqueMethodIdKeyBit(KeyBitBase):
 class LanguageKeyBit(KeyBitBase):
     """
     Return example:
-        u'en'
+        'en'
 
     """
 
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return force_text(get_language())
+        return force_str(get_language())
 
 
 class FormatKeyBit(KeyBitBase):
@@ -102,7 +104,7 @@ class FormatKeyBit(KeyBitBase):
     """
 
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
-        return force_text(request.accepted_renderer.format)
+        return force_str(request.accepted_renderer.format)
 
 
 class UserKeyBit(KeyBitBase):
@@ -116,9 +118,9 @@ class UserKeyBit(KeyBitBase):
 
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         if hasattr(request, 'user') and request.user and request.user.is_authenticated:
-            return force_text(self._get_id_from_user(request.user))
+            return force_str(self._get_id_from_user(request.user))
         else:
-            return u'anonymous'
+            return 'anonymous'
 
     def _get_id_from_user(self, user):
         return user.id
@@ -130,13 +132,15 @@ class HeadersKeyBit(KeyBitDictBase):
         {'accept-language': u'ru', 'x-geobase-id': '123'}
 
     """
+
     def get_source_dict(self, params, view_instance, view_method, request, args, kwargs):
         return request.META
 
     def prepare_key_for_value_retrieving(self, key):
         from rest_framework_extensions.utils import prepare_header_name
 
-        return prepare_header_name(key.lower())  # Accept-Language => http_accept_language
+        # Accept-Language => http_accept_language
+        return prepare_header_name(key.lower())
 
     def prepare_key_for_value_assignment(self, key):
         return key.lower()  # Accept-Language => accept-language
@@ -195,7 +199,7 @@ class SqlQueryKeyBitBase(KeyBitBase):
             return None
         else:
             try:
-                return force_text(queryset.query.__str__())
+                return force_str(queryset.query.__str__())
             except EmptyResultSet:
                 return None
 
@@ -205,13 +209,14 @@ class ModelInstanceKeyBitBase(KeyBitBase):
     Return the actual contents of the query set.
     This class is similar to the `SqlQueryKeyBitBase`.
     """
+
     def _get_queryset_query_values(self, queryset):
         if isinstance(queryset, EmptyQuerySet) or queryset.count() == 0:
             return None
         else:
             try:
                 # run through the instances and collect all values in ordered fashion
-                return compat.queryset_to_value_list(force_text(queryset.values_list()))
+                return compat.queryset_to_value_list(force_str(queryset.values_list()))
             except EmptyResultSet:
                 return None
 
@@ -241,6 +246,7 @@ class RetrieveModelKeyBit(ModelInstanceKeyBitBase):
     Return example:
         u"[(3, False)]"
     """
+
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         lookup_value = view_instance.kwargs[view_instance.lookup_field]
         try:
@@ -259,6 +265,7 @@ class ListModelKeyBit(ModelInstanceKeyBitBase):
     Return example:
         u"[(1, True), (2, True), (3, False)]"
     """
+
     def get_data(self, params, view_instance, view_method, request, args, kwargs):
         queryset = view_instance.filter_queryset(view_instance.get_queryset())
         return self._get_queryset_query_values(queryset)

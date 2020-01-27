@@ -36,7 +36,7 @@ def prepare_header_name(name):
 
 def get_unique_method_id(view_instance, view_method):
     # todo: test me as UniqueMethodIdKeyBit
-    return u'.'.join([
+    return '.'.join([
         view_instance.__module__,
         view_instance.__class__.__name__,
         view_method.__name__

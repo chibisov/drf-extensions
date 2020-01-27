@@ -14,9 +14,9 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
 ## Requirements
 
-* Tested for python 3.5, 3.6 and 3.7 versions
-* Tested for releases of Django Rest Framework 3.9 and 3.10
-* Tested for Django from 1.11 to 2.2 versions
+* Tested for Python 3.6, 3.7 and 3.8
+* Tested for Django Rest Framework 3.9, 3.10 and 3.11
+* Tested for Django 1.11, 2.1, 2.2 and 3.0
 * Tested for django-filter 2.1.0
 
 ## Installation:
@@ -47,7 +47,7 @@ Running the tests:
 
 Running test for exact environment:
 
-    $ tox -e py35 -- tests_app
+    $ tox -e py38 -- tests_app
 
 Recreate envs before running tests:
 

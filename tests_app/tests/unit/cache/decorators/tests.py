@@ -38,7 +38,8 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key')[0], response.content)
+        self.assertEqual(self.cache.get('cache_response_key')
+                         [0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_function_which_specified_in_arguments(self):
@@ -52,7 +53,8 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key_from_func')[0], response.content)
+        self.assertEqual(self.cache.get(
+            'cache_response_key_from_func')[0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_should_store_response_in_cache_by_key_which_calculated_by_view_method__if__key_func__is_string(self):
@@ -66,7 +68,8 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(request=self.request)
-        self.assertEqual(self.cache.get('cache_response_key_from_method')[0], response.content)
+        self.assertEqual(self.cache.get(
+            'cache_response_key_from_method')[0], response.content)
         self.assertEqual(type(response), Response)
 
     def test_key_func_call_arguments(self):
@@ -83,7 +86,8 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         response = view_instance.dispatch(self.request, 'hello', hello='world')
-        self.assertEqual(called_with_kwargs.get('view_instance'), view_instance)
+        self.assertEqual(called_with_kwargs.get(
+            'view_instance'), view_instance)
         # self.assertEqual(called_with_kwargs.get('view_method'), view_instance.get)  # todo: test me
         self.assertEqual(called_with_kwargs.get('args'), ('hello',))
         self.assertEqual(called_with_kwargs.get('kwargs'), {'hello': 'world'})
@@ -127,7 +131,8 @@ class CacheResponseTest(TestCase):
             cache_response_decorator.cache.set.call_args_list[0][0][2], 3)
 
     def test_should_store_response_in_cache_with_timeout_from_object_cache_timeout_property(self):
-        cache_response_decorator = cache_response(timeout='object_cache_timeout')
+        cache_response_decorator = cache_response(
+            timeout='object_cache_timeout')
         cache_response_decorator.cache.set = Mock()
 
         class TestView(views.APIView):
@@ -142,7 +147,8 @@ class CacheResponseTest(TestCase):
         self.assertTrue(
             cache_response_decorator.cache.set.called,
             'Cache saving should be performed')
-        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 20)
+        self.assertEqual(
+            cache_response_decorator.cache.set.call_args_list[0][0][2], 20)
 
     def test_should_store_response_in_cache_with_timeout_from_list_cache_timeout_property(self):
         cache_response_decorator = cache_response(timeout='list_cache_timeout')
@@ -160,7 +166,8 @@ class CacheResponseTest(TestCase):
         self.assertTrue(
             cache_response_decorator.cache.set.called,
             'Cache saving should be performed')
-        self.assertEqual(cache_response_decorator.cache.set.call_args_list[0][0][2], 10)
+        self.assertEqual(
+            cache_response_decorator.cache.set.call_args_list[0][0][2], 10)
 
     def test_should_return_response_from_cache_if_it_is_in_it(self):
         def key_func(**kwargs):
@@ -173,8 +180,9 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.headers = {}
-        cached_response = Response(u'Cached response from method 4')
-        view_instance.finalize_response(request=self.request, response=cached_response)
+        cached_response = Response('Cached response from method 4')
+        view_instance.finalize_response(
+            request=self.request, response=cached_response)
         cached_response.render()
         response_dict = (
             cached_response.rendered_content,
@@ -186,7 +194,7 @@ class CacheResponseTest(TestCase):
         response = view_instance.dispatch(request=self.request)
         self.assertEqual(
             response.content.decode('utf-8'),
-            u'"Cached response from method 4"')
+            '"Cached response from method 4"')
 
     @override_extensions_api_settings(
         DEFAULT_USE_CACHE='special_cache'
@@ -222,9 +230,11 @@ class CacheResponseTest(TestCase):
 
         view_instance = TestView()
         view_instance.dispatch(request=self.request)
-        data_from_cache = caches['another_special_cache'].get('cache_response_key')
+        data_from_cache = caches['another_special_cache'].get(
+            'cache_response_key')
         self.assertEqual(len(data_from_cache), 3)
-        self.assertEqual(data_from_cache[0].decode('utf-8'), u'"Response from method 6"')
+        self.assertEqual(data_from_cache[0].decode(
+            'utf-8'), u'"Response from method 6"')
 
     def test_should_reuse_cache_singleton(self):
         """
@@ -233,7 +243,8 @@ class CacheResponseTest(TestCase):
         """
         cache_response_instance = cache_response()
         another_cache_response_instance = cache_response()
-        self.assertTrue(cache_response_instance.cache is another_cache_response_instance.cache)
+        self.assertTrue(
+            cache_response_instance.cache is another_cache_response_instance.cache)
 
     def test_dont_cache_response_with_error_if_cache_error_false(self):
         cache_response_decorator = cache_response(cache_errors=False)
@@ -299,7 +310,8 @@ class CacheResponseTest(TestCase):
         view_instance = TestView()
         view_instance.headers = {'Test': 'foo'}
         cached_response = Response(u'')
-        view_instance.finalize_response(request=self.request, response=cached_response)
+        view_instance.finalize_response(
+            request=self.request, response=cached_response)
         cached_response.render()
         response_dict = (
             cached_response.rendered_content,
@@ -309,5 +321,6 @@ class CacheResponseTest(TestCase):
         self.cache.set('cache_response_key', response_dict)
 
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(all(isinstance(v, tuple) for v in response._headers.values()))
+        self.assertTrue(all(isinstance(v, tuple)
+                            for v in response._headers.values()))
         self.assertEqual(response._headers['test'], ('Test', 'foo'))
