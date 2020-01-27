@@ -216,7 +216,7 @@ class ModelInstanceKeyBitBase(KeyBitBase):
         else:
             try:
                 # run through the instances and collect all values in ordered fashion
-                return compat.queryset_to_value_list(force_text(queryset.values_list()))
+                return compat.queryset_to_value_list(force_str(queryset.values_list()))
             except EmptyResultSet:
                 return None
 

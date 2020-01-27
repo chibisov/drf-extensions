@@ -1025,7 +1025,7 @@ At the moment we have API, but it's not cached. Lets cache it and create our cus
     # views.py
     import datetime
     from django.core.cache import cache
-    from django.utils.encoding import force_text
+    from django.utils.encoding import force_str
     from yourapp.serializers import GroupSerializer, ProfileSerializer
     from rest_framework_extensions.cache.decorators import cache_response
     from rest_framework_extensions.key_constructor.constructors import (
@@ -1045,7 +1045,7 @@ At the moment we have API, but it's not cached. Lets cache it and create our cus
             if not value:
                 value = datetime.datetime.utcnow()
                 cache.set(key, value=value)
-            return force_text(value)
+            return force_str(value)
 
     class CustomObjectKeyConstructor(DefaultKeyConstructor):
         retrieve_sql = RetrieveSqlQueryKeyBit()
