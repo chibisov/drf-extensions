@@ -1,5 +1,5 @@
 from rest_framework.compat import get_regex_pattern
-from rest_framework_extensions.test import APITestCase
+from rest_framework.test import APITestCase
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
 from .views import (

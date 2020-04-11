@@ -5,7 +5,7 @@ import unittest
 import django
 from django.test import override_settings
 
-from rest_framework_extensions.test import APITestCase
+from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework_extensions import utils
 

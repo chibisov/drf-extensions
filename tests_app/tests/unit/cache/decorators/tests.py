@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
-from rest_framework_extensions.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory
 from tests_app.testutils import override_extensions_api_settings
 
 factory = APIRequestFactory()

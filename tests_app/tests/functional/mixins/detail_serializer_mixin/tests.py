@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase, override_settings
 
 # todo: use from rest_framework when released
-from rest_framework_extensions.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory
 from .models import Comment
 
 
