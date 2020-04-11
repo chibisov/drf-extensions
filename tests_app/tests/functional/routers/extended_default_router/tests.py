@@ -1,7 +1,7 @@
 from django.test import override_settings
 from django.urls import NoReverseMatch
 
-from rest_framework_extensions.test import APITestCase
+from rest_framework.test import APITestCase
 
 
 @override_settings(ROOT_URLCONF='tests_app.tests.functional.routers.extended_default_router.urls')
