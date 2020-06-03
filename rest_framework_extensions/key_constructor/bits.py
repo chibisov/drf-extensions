@@ -1,6 +1,6 @@
 from django.utils.translation import get_language
 from django.db.models.query import EmptyQuerySet
-from django.db.models.sql.datastructures import EmptyResultSet
+from django.core.exceptions import EmptyResultSet
 
 from django.utils.encoding import force_str
 
