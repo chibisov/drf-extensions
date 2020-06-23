@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.core.files.base import ContentFile
+from rest_framework_extensions.serializers import get_fields_for_partial_update
 
 from .serializers import CommentSerializer, UserSerializer, \
-    CommentSerializerWithAllowedUserId
+    CommentSerializerWithGroupedFields, CommentSerializerWithAllowedUserId
 from .models import UserModel, CommentModel
 
 
@@ -47,6 +48,30 @@ class PartialUpdateSerializerMixinTest(TestCase):
         self.assertEqual(saved_object.user, self.user)
         self.assertEqual(saved_object.title, 'hola')
         self.assertEqual(saved_object.text, 'world')
+
+    def test_update_fields_correctly_determined(self):
+        serializer = CommentSerializerWithGroupedFields(
+            instance=self.comment,
+            data={'text_content': {'title': 'hola', 'text': 'group'},
+                  'title_from_source': 'hola', 'attachment': self.files[1]},
+            partial=True)
+        update_fields = get_fields_for_partial_update(
+            serializer.Meta,
+            serializer.get_initial(),
+            serializer.fields.fields)
+        self.assertListEqual(update_fields, ['attachment', 'text', 'title'])
+
+    def test_should_save_grouped_partial(self):
+        serializer = CommentSerializerWithGroupedFields(
+            instance=self.comment,
+            data={'text_content': {'title': 'hola', 'text': 'group'}},
+            partial=True)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.user, self.user)
+        self.assertEqual(self.comment.title, 'hola')
+        self.assertEqual(self.comment.text, 'group')
 
     def test_should_save_only_fields_from_data_for_partial_update(self):
         # it's important to use different instances for Comment,
