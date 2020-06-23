@@ -18,7 +18,15 @@ def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
                 fields[field_name], 'source') or field_name
             if model_field_name in concrete_field_names:
                 update_fields.append(model_field_name)
-    return update_fields
+
+    # recurse on nested fields of same ('*') instance
+    for k, v in (init_data or {}).items():
+        if isinstance(v, dict) and k in fields and fields[k].source == '*':
+            recursive_fields = get_fields_for_partial_update(
+                opts, v, fields[k].fields.fields)
+            update_fields.extend(recursive_fields)
+
+    return sorted(set(update_fields))
 
 
 class PartialUpdateSerializerMixin:
