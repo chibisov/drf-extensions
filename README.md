@@ -16,7 +16,7 @@ Full documentation for project is available at [http://chibisov.github.io/drf-ex
 
 * Tested for Python 3.6, 3.7 and 3.8
 * Tested for Django Rest Framework 3.9, 3.10 and 3.11
-* Tested for Django 1.11, 2.1, 2.2 and 3.0
+* Tested for Django 2.2 and 3.0
 * Tested for django-filter 2.1.0
 
 ## Installation:
