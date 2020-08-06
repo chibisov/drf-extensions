@@ -1,6 +1,7 @@
 from mock import Mock
 from mock import PropertyMock
 
+import django
 from django.test import TestCase
 from django.utils.translation import override
 
@@ -399,12 +400,15 @@ class ListSqlQueryKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset(self):
-        expected = (u'SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
-                    u'FROM "unit_bittestmodel" '
-                    u'WHERE "unit_bittestmodel"."is_active" = True{space}')
+        if django.VERSION >= (3, 1):
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE "unit_bittestmodel"."is_active"')
+        else:
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE "unit_bittestmodel"."is_active" = True')
 
-        space = ''
-        expected = expected.format(space=space)
         response = ListSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
 
@@ -471,11 +475,14 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field(self):
-        expected = (u'SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
-                    u'FROM "unit_bittestmodel" '
-                    u'WHERE ("unit_bittestmodel"."is_active" = True {space}AND "unit_bittestmodel"."id" = 123{space})')
-        space = ''
-        expected = expected.format(space=space)
+        if django.VERSION >= (3, 1):
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE ("unit_bittestmodel"."is_active" AND "unit_bittestmodel"."id" = 123)')
+        else:
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE ("unit_bittestmodel"."is_active" = True AND "unit_bittestmodel"."id" = 123)')
 
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
