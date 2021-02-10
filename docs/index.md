@@ -2213,7 +2213,18 @@ You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
-#### Development version
+#### 0.7.0
+
+* Added support for Django 3.1 
+* Dropped support below Django 2.2
+* Added support for DRF 3.12
+* fix(PartialUpdateSerializerMixin): support nesting on same instance 
+
+
+
+#### 0.6.0
+
+*Jan 27, 2020*
 
 * Added support for Django 3.0 (#276)
 * Dropped support for Django 2.0
