@@ -184,10 +184,15 @@ class CacheResponseTest(TestCase):
         view_instance.finalize_response(
             request=self.request, response=cached_response)
         cached_response.render()
+        # django 3.0 has not .items() method, django 3.2 has not ._headers
+        if hasattr(cached_response, '_headers'):
+            headers = cached_response._headers
+        else:
+            headers = {k: (k, v) for k, v in cached_response.items()}
         response_dict = (
             cached_response.rendered_content,
             cached_response.status_code,
-            cached_response._headers
+            headers
         )
         self.cache.set('cache_response_key', response_dict)
 
@@ -313,14 +318,23 @@ class CacheResponseTest(TestCase):
         view_instance.finalize_response(
             request=self.request, response=cached_response)
         cached_response.render()
+        # django 3.0 has not .items() method, django 3.2 has not ._headers
+        if hasattr(cached_response, '_headers'):
+            headers = {k: list(v) for k, v in cached_response._headers.items()}
+        else:
+            headers = {k: (k, v) for k, v in cached_response.items()}
         response_dict = (
             cached_response.rendered_content,
             cached_response.status_code,
-            {k: list(v) for k, v in cached_response._headers.items()}
+            headers
         )
         self.cache.set('cache_response_key', response_dict)
 
         response = view_instance.dispatch(request=self.request)
-        self.assertTrue(all(isinstance(v, tuple)
+        # django 3.0 has not .items() method, django 3.2 has not ._headers
+        if hasattr(response, '_headers'):
+            self.assertTrue(all(isinstance(v, tuple)
                             for v in response._headers.values()))
-        self.assertEqual(response._headers['test'], ('Test', 'foo'))
+            self.assertEqual(response._headers['test'], ('Test', 'foo'))
+        else:
+            self.assertEqual(response['test'], 'foo')

@@ -85,10 +85,15 @@ class CacheResponse:
             response.render()
 
             if not response.status_code >= 400 or self.cache_errors:
+                # django 3.0 has not .items() method, django 3.2 has not ._headers
+                if hasattr(response, '_headers'):
+                    headers = response._headers.copy()
+                else:
+                    headers = {k: (k, v) for k, v in response.items()}
                 response_triple = (
                     response.rendered_content,
                     response.status_code,
-                    response._headers.copy()
+                    headers
                 )
                 self.cache.set(key, response_triple, timeout)
         else:
@@ -97,7 +102,6 @@ class CacheResponse:
             response = HttpResponse(content=content, status=status)
             for k, v in headers.values():
                 response[k] = v
-
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []
 
