@@ -487,6 +487,30 @@ Request example:
       name: "Serpuhov"
     }
 
+#### Crypto Fields
+CryptoBinaryField and CryptoCharField are a django-rest-framework fields for handling encryption through serialisation. Inputs are String object and internal
+python representation is Binary object for CryptoBinaryField and String object for CryptoCharField
+
+It takes the optional parameter `salt` (Django SECRET_KEY imported from setting as default). If set it use custom cryptographic salt
+
+It takes the optional parameter `password` ("Non_nobis1solum?nati!sumus" as default). If set it use a custom password in encryption. **It is highly recommended to use custom one!!**
+
+It takes the optional parameter `ttl` (None as default). If set it manage the number of seconds old a message may be for it to be valid. If the message is older than ttl seconds (from the time it was originally created) field will return None and encrypted message will not be enabled for decryption.
+
+    from rest_framework_extensions.fields import CryptoBinaryField
+
+    class CryptoSerializer(serializers.Serializer):
+        crypto_char = CryptoCharField()
+
+Example with parameters
+
+    from rest_framework import serializers
+    from drf_extra_fields.crypto_fields import CryptoCharField
+    
+    
+    class CryptoSerializer(serializers.Serializer):
+      crypto_char = CryptoCharField(salt="custom salt", password="custom password", ttl=1000)
+
 
 ### Permissions
 
@@ -2212,6 +2236,8 @@ If you need to access the values of DRF-extensions API settings in your project,
 You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
+#### Development version
+* Added fields [CryptoBinaryField and CryptoCharField](#crypto-fields)
 
 #### 0.7.0
 
