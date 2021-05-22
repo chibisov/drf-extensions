@@ -11,6 +11,9 @@ python:
   - 3.8
 
 install:
+  - apt-get install build-essential libssl-dev libffi-dev \
+    python3-dev cargo
+  - python -m pip install -U pip
   - pip install tox tox-travis
 
 script:
