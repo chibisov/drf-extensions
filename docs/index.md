@@ -2213,6 +2213,11 @@ You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
+#### 0.7.1
+
+* Added support for Django 3.2
+* Dropped drf 3.11
+
 #### 0.7.0
 
 * Added support for Django 3.1 
