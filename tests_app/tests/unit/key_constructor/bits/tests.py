@@ -471,6 +471,7 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
         }
         self.kwargs['view_instance'].kwargs = {'id': 123}
         self.kwargs['view_instance'].lookup_field = 'id'
+        self.kwargs['view_instance'].lookup_url_kwarg = None
         self.kwargs['view_instance'].get_queryset = Mock(return_value=BitTestModel.objects.all())
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
@@ -483,6 +484,22 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
             expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
                         'FROM "unit_bittestmodel" '
                         'WHERE ("unit_bittestmodel"."is_active" = True AND "unit_bittestmodel"."id" = 123)')
+
+        response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
+        self.assertEqual(response, expected)
+
+
+    def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field__and_get_kwarg_from_kwarg_lookup(self):
+        self.kwargs['view_instance'].kwargs = {'custom_kwarg_id': 456}
+        self.kwargs['view_instance'].lookup_url_kwarg = 'custom_kwarg_id'
+        if django.VERSION >= (3, 1):
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE ("unit_bittestmodel"."is_active" AND "unit_bittestmodel"."id" = 456)')
+        else:
+            expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
+                        'FROM "unit_bittestmodel" '
+                        'WHERE ("unit_bittestmodel"."is_active" = True AND "unit_bittestmodel"."id" = 456)')
 
         response = RetrieveSqlQueryKeyBit().get_data(**self.kwargs)
         self.assertEqual(response, expected)
