@@ -5,7 +5,7 @@ Source repository is available at [https://github.com/chibisov/drf-extensions](h
 
 ### Viewsets
 
-Extensions for [viewsets](http://django-rest-framework.org/api-guide/viewsets.html).
+Extensions for [viewsets](https://www.django-rest-framework.org/api-guide/viewsets/).
 
 #### DetailSerializerMixin
 
