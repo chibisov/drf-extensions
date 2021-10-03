@@ -41,7 +41,7 @@ If you use `DetailSerializerMixin` and don't specify `queryset_detail` attribute
 
 *New in DRF-extensions 0.2.2*
 
-This mixin allows to paginate results by [max\_paginate\_by](http://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
+This mixin allows to paginate results by [max\_paginate\_by](https://www.django-rest-framework.org/api-guide/pagination#pagination-in-the-generic-views)
 value. This approach is useful when clients want to take as much paginated data as possible,
 but don't want to bother about backend limitations.
 
@@ -73,7 +73,7 @@ And now you can send requests with `?page_size=max` argument:
     }
 
 This mixin could be used only with Django Rest Framework >= 2.3.8, because
-[max\_paginate\_by](http://www.django-rest-framework.org/topics/release-notes#238)
+[max\_paginate\_by](https://www.django-rest-framework.org/community/release-notes/#382)
 was introduced in 2.3.8 version.
 
 
@@ -97,7 +97,7 @@ was introduced in 2.3.8 version.
 <!--**CacheResponseAndETAGMixin**-->
 
 <!--This mixin combines `ETAGMixin` and `CacheResponseMixin`. It could be used with-->
-<!--[ModelViewSet](http://www.django-rest-framework.org/api-guide/viewsets.html#modelviewset) and helps-->
+<!--[ModelViewSet](https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset) and helps-->
 <!--to process:-->
 
 <!--* Caching for `retrieve` and `list` methods-->
@@ -121,7 +121,7 @@ See discussion in [Issue #177](https://github.com/chibisov/drf-extensions/issues
 
 ### Routers
 
-Extensions for [routers](http://django-rest-framework.org/api-guide/routers.html).
+Extensions for [routers](https://www.django-rest-framework.org/api-guide/routers/).
 
 You will need to use custom `ExtendedDefaultRouter` or `ExtendedSimpleRouter` for routing if you want to take advantages of described extensions. For example you have standard implementation:
 
@@ -159,7 +159,7 @@ routers. `ExtendedRouterMixin` has all set of drf-extensions features. For examp
 
 *New in DRF-extensions 0.2.4*
 
-Nested routes allows you create nested resources with [viewsets](http://www.django-rest-framework.org/api-guide/viewsets.html).
+Nested routes allows you create nested resources with [viewsets](https://www.django-rest-framework.org/api-guide/viewsets/).
 
 For example:
 
@@ -405,13 +405,13 @@ Lets use new viewsets in router:
 
 ### Serializers
 
-Extensions for [serializers](http://www.django-rest-framework.org/api-guide/serializers) functionality.
+Extensions for [serializers](https://www.django-rest-framework.org/api-guide/serializers/) functionality.
 
 #### PartialUpdateSerializerMixin
 
 *New in DRF-extensions 0.2.3*
 
-By default every saving of [ModelSerializer](http://www.django-rest-framework.org/api-guide/serializers#modelserializer)
+By default every saving of [ModelSerializer](https://www.django-rest-framework.org/api-guide/serializers#modelserializer)
 saves the whole object. Even partial update just patches model instance. For example:
 
     from myapps.models import City
@@ -457,7 +457,7 @@ To use `update_fields` for every partial update you should mixin `PartialUpdateS
 
 ### Fields
 
-Set of serializer fields that extends [default fields](http://www.django-rest-framework.org/api-guide/fields) functionality.
+Set of serializer fields that extends [default fields](https://www.django-rest-framework.org/api-guide/fields/) functionality.
 
 #### ResourceUriField
 
@@ -543,7 +543,7 @@ Now lets see request response for user that has no permissions for viewing `Comm
 
     {u'detail': u'You do not have permission to perform this action.'}
 
-`ExtenedDjangoObjectPermissions` could be used only with Django Rest Framework >= 2.3.8, because [DjangoObjectPermissions](http://www.django-rest-framework.org/topics/release-notes#238) was introduced in 2.3.8 version.
+`ExtenedDjangoObjectPermissions` could be used only with Django Rest Framework >= 2.3.8, because [DjangoObjectPermissions](https://www.django-rest-framework.org/topics/release-notes#238) was introduced in 2.3.8 version.
 
 
 ### Caching
@@ -730,7 +730,7 @@ You can change default behaviour by changing `DEFAULT_CACHE_ERRORS` setting:
 
 #### CacheResponseMixin
 
-It is common to cache standard [viewset](http://www.django-rest-framework.org/api-guide/viewsets) `retrieve` and `list`
+It is common to cache standard [viewset](https://www.django-rest-framework.org/api-guide/viewsets/) `retrieve` and `list`
 methods. That is why `CacheResponseMixin` exists. Just mix it into viewset implementation and those methods will
 use functions, defined in `REST_FRAMEWORK_EXTENSIONS` [settings](#settings):
 
@@ -2182,7 +2182,7 @@ Bulk partial update example - set `email_provider` of every user as `google`, if
 
 DRF-extensions follows Django Rest Framework approach in settings implementation.
 
-[In Django Rest Framework](http://www.django-rest-framework.org/api-guide/settings) you specify custom settings by changing `REST_FRAMEWORK` variable in settings file:
+[In Django Rest Framework](https://www.django-rest-framework.org/api-guide/settings/) you specify custom settings by changing `REST_FRAMEWORK` variable in settings file:
 
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': (
@@ -2332,7 +2332,7 @@ with DRF 2.4.x
 
 *July 7, 2014*
 
-* Added tests for [Django REST Framework 2.3.14](http://www.django-rest-framework.org/topics/release-notes#2314)
+* Added tests for [Django REST Framework 2.3.14](https://www.django-rest-framework.org/topics/release-notes#2314)
 * Added [Bulk operations](#bulk-operations)
 * Fixed [extended routers](#routers) compatibility issue with [default controller decorators](http://www.django-rest-framework.org/api-guide/viewsets#marking-extra-methods-for-routing)
 * Documented [pluggable router mixins](#pluggable-router-mixins)
