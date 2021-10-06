@@ -1,4 +1,5 @@
-from rest_framework.generics import get_object_or_404
+from django.core.exceptions import ValidationError
+from django.http import Http404
 
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
@@ -55,17 +56,20 @@ class PaginateByMaxMixin:
 
 class NestedViewSetMixin:
     def get_queryset(self):
-        return self.filter_queryset_by_parents_lookups(
-            super().get_queryset()
-        )
+        queryset = super().get_queryset()
+
+        return self.filter_queryset_by_parents_lookups(queryset)
 
     def filter_queryset_by_parents_lookups(self, queryset):
         parents_query_dict = self.get_parents_query_dict()
 
-        if parents_query_dict:
-            return get_object_or_404(queryset, **parents_query_dict)
+        if not parents_query_dict:
+            return queryset
 
-        return queryset
+        try:
+            return queryset.filter(**parents_query_dict)
+        except (TypeError, ValueError, ValidationError):
+            raise Http404
 
     def get_parents_query_dict(self):
         result = {}
