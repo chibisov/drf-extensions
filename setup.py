@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from setuptools import setup
 import re
 import os
@@ -56,7 +56,7 @@ setup(
     url='http://github.com/chibisov/drf-extensions',
     download_url='https://pypi.python.org/pypi/drf-extensions/',
     license='BSD',
-    install_requires=['djangorestframework>=3.9.3'],
+    install_requires=['djangorestframework>=3.10.3'],
     description='Extensions for Django REST Framework',
     long_description='DRF-extensions is a collection of custom extensions for Django REST Framework',
     author='Asif Saif Uddin, Gennady Chibisov',
