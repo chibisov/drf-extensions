@@ -1,5 +1,5 @@
 import itertools
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import rest_framework
 
@@ -14,7 +14,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 
 
 def get_rest_framework_version():
-    return tuple(LooseVersion(rest_framework.VERSION).version)
+    return Version(rest_framework.VERSION).release
 
 
 def flatten(list_of_lists):
