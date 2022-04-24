@@ -1,22 +1,11 @@
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from django.core.exceptions import ValidationError
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
+from django.http import Http404
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin, ListDestroyModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework import status, exceptions
-from django.http import Http404
-from django.shortcuts import get_object_or_404 as _get_object_or_404
-
-
-def get_object_or_404(queryset, *filter_args, **filter_kwargs):
-    """
-    Same as Django's standard shortcut, but make sure to also raise 404
-    if the filter_kwargs don't match the required types.
-    """
-    try:
-        return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
-    except (TypeError, ValueError, ValidationError):
-        raise Http404
+from rest_framework.generics import get_object_or_404
 
 
 class DetailSerializerMixin:
