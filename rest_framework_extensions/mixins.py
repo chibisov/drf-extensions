@@ -88,11 +88,13 @@ class NestedViewSetMixin:
             return
         current_model = self.get_queryset().model
         # TODO
-        # 1. for model__submodel case.
+        # 1. for model__submodel case(Done).
         # 2. for generic relations case.
         for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
-            parent_model = current_model._meta.get_field(
-                parent_model_lookup_name).related_model
+            parent_model = current_model
+            for lookup_name in parent_model_lookup_name.split("__"):
+                parent_model = parent_model._meta.get_field(
+                    lookup_name).related_model
             for parent_viewset_class in self.parent_viewsets:
                 parent_viewset = parent_viewset_class()
                 parent_viewset_model = getattr(
