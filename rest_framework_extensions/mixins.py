@@ -52,6 +52,40 @@ class PaginateByMaxMixin:
 #     pass
 
 
+class BulkCreateModelMixin:
+    """
+    Builk create model instance.
+    Just post data like:
+    [
+        {"name": "xxx"},
+        {"name": "xxx2"},
+    ]
+    """
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        s = super().get_serializer(*args, **kwargs)
+        return s
+
+
+class MultiSerializerViewSetMixin:
+    """
+    serializer_action_classes = {
+        list: ListSerializer,
+        <action_name>: Serializer,
+        ...
+    }
+    """
+    serializer_action_classes = {}
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
+
+
+
 class NestedViewSetMixin:
     parent_viewsets = set()
 
