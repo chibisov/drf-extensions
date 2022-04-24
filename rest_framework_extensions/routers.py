@@ -17,6 +17,7 @@ class NestedRegistryItem:
             viewset=viewset,
             basename=basename,
         )
+        viewset.parent_viewsets.add(self.parent_viewset)
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,

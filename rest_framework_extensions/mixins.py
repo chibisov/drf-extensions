@@ -1,8 +1,21 @@
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
+from django.core.exceptions import ValidationError
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin, ListDestroyModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from django.http import Http404
+from django.shortcuts import get_object_or_404 as _get_object_or_404
+
+
+def get_object_or_404(queryset, *filter_args, **filter_kwargs):
+    """
+    Same as Django's standard shortcut, but make sure to also raise 404
+    if the filter_kwargs don't match the required types.
+    """
+    try:
+        return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
+    except (TypeError, ValueError, ValidationError):
+        raise Http404
 
 
 class DetailSerializerMixin:
@@ -50,6 +63,47 @@ class PaginateByMaxMixin:
 
 
 class NestedViewSetMixin:
+    parent_viewsets = set()
+
+    def check_parent_object_permissions(self, request):
+        # if parent viewset haven't init yet, then will raise no "kwargs" attribute error, but it doesn't matter, just ignore
+        try:
+            parents_query_dict = self.get_parents_query_dict()
+        except:
+            return
+        if not parents_query_dict:
+            return
+        current_model = self.get_queryset().model
+        # TODO
+        # 1. for model__submodel case.
+        # 2. for generic relations case.
+        for parent_model_key, parent_model_filter_value in reversed(parents_query_dict.items()):
+            parent_model = current_model._meta.get_field(
+                parent_model_key).related_model
+            for parent_viewset_class in self.parent_viewsets:
+                parent_viewset = parent_viewset_class()
+                parent_viewset_model = getattr(
+                    parent_viewset, "model", None) or parent_viewset.queryset.model
+                if parent_viewset_model == parent_model:
+                    parent_obj = get_object_or_404(
+                        parent_viewset_model.objects.all(),
+                        **{parent_viewset.lookup_field: parent_model_filter_value}
+                    )
+                    parent_viewset.check_object_permissions(
+                        request, parent_obj
+                    )
+            current_model = parent_model
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        if self.parent_viewsets:
+            self.check_parent_object_permissions(request)
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
+        if self.parent_viewsets:
+            self.check_parent_object_permissions(request)
+
     def get_queryset(self):
         return self.filter_queryset_by_parents_lookups(
             super().get_queryset()
