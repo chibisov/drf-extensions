@@ -77,9 +77,9 @@ class NestedViewSetMixin:
         # TODO
         # 1. for model__submodel case.
         # 2. for generic relations case.
-        for parent_model_key, parent_model_filter_value in reversed(parents_query_dict.items()):
+        for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
             parent_model = current_model._meta.get_field(
-                parent_model_key).related_model
+                parent_model_lookup_name).related_model
             for parent_viewset_class in self.parent_viewsets:
                 parent_viewset = parent_viewset_class()
                 parent_viewset_model = getattr(
@@ -87,7 +87,7 @@ class NestedViewSetMixin:
                 if parent_viewset_model == parent_model:
                     parent_obj = get_object_or_404(
                         parent_viewset_model.objects.all(),
-                        **{parent_viewset.lookup_field: parent_model_filter_value}
+                        **{parent_viewset.lookup_field: parent_model_lookup_value}
                     )
                     parent_viewset.check_object_permissions(
                         request, parent_obj
