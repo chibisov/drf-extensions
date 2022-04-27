@@ -2,10 +2,43 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from django.core.exceptions import ValidationError
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from django.http import Http404
+from django.db import models
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin, ListDestroyModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework import status, exceptions
 from rest_framework.generics import get_object_or_404
+
+class BulkCreateModelMixin:
+    """
+    Builk create model instance.
+    Just post data like:
+    [
+        {"name": "xxx"},
+        {"name": "xxx2"},
+    ]
+    """
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        s = super().get_serializer(*args, **kwargs)
+        return s
+
+
+class MultiSerializerViewSetMixin:
+    """
+    serializer_action_classes = {
+        list: ListSerializer,
+        <action_name>: Serializer,
+        ...
+    }
+    """
+    serializer_classes = {}
+    def get_serializer_class(self):
+        try:
+            return self.serializer_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
 
 
 class DetailSerializerMixin:
@@ -52,40 +85,6 @@ class PaginateByMaxMixin:
 #     pass
 
 
-class BulkCreateModelMixin:
-    """
-    Builk create model instance.
-    Just post data like:
-    [
-        {"name": "xxx"},
-        {"name": "xxx2"},
-    ]
-    """
-
-    def get_serializer(self, *args, **kwargs):
-        if isinstance(kwargs.get('data', {}), list):
-            kwargs['many'] = True
-        s = super().get_serializer(*args, **kwargs)
-        return s
-
-
-class MultiSerializerViewSetMixin:
-    """
-    serializer_action_classes = {
-        list: ListSerializer,
-        <action_name>: Serializer,
-        ...
-    }
-    """
-    serializer_action_classes = {}
-    def get_serializer_class(self):
-        try:
-            return self.serializer_action_classes[self.action]
-        except (KeyError, AttributeError):
-            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
-
-
-
 class NestedViewSetMixin:
     parent_viewsets = set()
 
@@ -93,14 +92,19 @@ class NestedViewSetMixin:
         parent_query_dicts = self.get_parents_query_dict()
         if parent_query_dicts:
             parent_name, parent_value = list(parent_query_dicts.items())[-1]
-            items = serializer.validated_data
-            if not isinstance(items, list):
-                items = [items]
-            for item in items:
-                if item.get(parent_name, None) is None:
+            instance_datas = serializer.validated_data
+            if not isinstance(instance_datas, list):
+                instance_datas = [instance_datas]
+            for instance_data in instance_datas:
+                if instance_data.get(parent_name, None) is None:
                     raise exceptions.PermissionDenied(
                         detail=f"You must specific '{parent_name}'", code=status.HTTP_403_FORBIDDEN)
-                if item.get(parent_name, None) != parent_value:
+                received_parent_value = instance_data.get(parent_name, None)
+                print(received_parent_value)
+                if not isinstance(received_parent_value, (str, int)):
+                    received_parent_value = getattr(
+                        received_parent_value, self.parent_viewset.lookup_field)
+                if str(received_parent_value) != str(parent_value):
                     raise exceptions.PermissionDenied(
                         detail=f"You don't have permission to operate item that belone to '{parent_name}:{parent_value}'", code=status.HTTP_403_FORBIDDEN)
 
@@ -112,6 +116,13 @@ class NestedViewSetMixin:
         self.check_ownership(serializer)
         super().perform_update(serializer)
 
+    def get_parent_model(self, current_model, parent_model_lookup_name):
+        parent_model = current_model
+        for lookup_name in parent_model_lookup_name.split("__"):
+            parent_model = parent_model._meta.get_field(
+                lookup_name).related_model
+        return parent_model
+
     def check_parent_object_permissions(self, request):
         # if parent viewset haven't init yet, then will raise no "kwargs" attribute error, but it doesn't matter, just ignore
         try:
@@ -122,25 +133,21 @@ class NestedViewSetMixin:
             return
         current_model = self.get_queryset().model
         # TODO
-        # 1. for model__submodel case(Done).
+        # 1. for model__submodel case.
         # 2. for generic relations case.
         for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
-            parent_model = current_model
-            for lookup_name in parent_model_lookup_name.split("__"):
-                parent_model = parent_model._meta.get_field(
-                    lookup_name).related_model
-            for parent_viewset_class in self.parent_viewsets:
-                parent_viewset = parent_viewset_class()
-                parent_viewset_model = getattr(
-                    parent_viewset, "model", None) or parent_viewset.queryset.model
-                if parent_viewset_model == parent_model:
-                    parent_obj = get_object_or_404(
-                        parent_viewset_model.objects.all(),
-                        **{parent_viewset.lookup_field: parent_model_lookup_value}
-                    )
-                    parent_viewset.check_object_permissions(
-                        request, parent_obj
-                    )
+            parent_model = get_parent_model(
+                current_model, parent_model_lookup_name)
+            parent_viewset = self.parent_viewset()
+            parent_viewset_model = getattr(
+                parent_viewset, "model", None) or parent_viewset.queryset.model
+            parent_obj = get_object_or_404(
+                parent_viewset_model.objects.all(),
+                **{parent_viewset.lookup_field: parent_model_lookup_value}
+            )
+            parent_viewset.check_object_permissions(
+                request, parent_obj
+            )
             current_model = parent_model
 
     def check_permissions(self, request):
