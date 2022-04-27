@@ -8,6 +8,38 @@ from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework import status, exceptions
 from rest_framework.generics import get_object_or_404
 
+class BulkCreateModelMixin:
+    """
+    Builk create model instance.
+    Just post data like:
+    [
+        {"name": "xxx"},
+        {"name": "xxx2"},
+    ]
+    """
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        s = super().get_serializer(*args, **kwargs)
+        return s
+
+
+class MultiSerializerViewSetMixin:
+    """
+    serializer_action_classes = {
+        list: ListSerializer,
+        <action_name>: Serializer,
+        ...
+    }
+    """
+    serializer_classes = {}
+    def get_serializer_class(self):
+        try:
+            return self.serializer_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
+
 
 class DetailSerializerMixin:
     """
@@ -100,7 +132,6 @@ class NestedViewSetMixin:
             return
         current_model = self.get_queryset().model
         # TODO
-        # 1. for model__submodel case.
         # 2. for generic relations case.
         for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
             parent_model = self.get_parent_model(
