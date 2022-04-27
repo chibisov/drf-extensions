@@ -103,7 +103,7 @@ class NestedViewSetMixin:
         # 1. for model__submodel case.
         # 2. for generic relations case.
         for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
-            parent_model = get_parent_model(
+            parent_model = self.get_parent_model(
                 current_model, parent_model_lookup_name)
             parent_viewset = self.parent_viewset()
             parent_viewset_model = getattr(
@@ -118,14 +118,13 @@ class NestedViewSetMixin:
             current_model = parent_model
 
     def check_permissions(self, request):
-        print(self.get_permissions())
         super().check_permissions(request)
-        if self.parent_viewsets:
+        if self.parent_viewset:
             self.check_parent_object_permissions(request)
 
     def check_object_permissions(self, request, obj):
         super().check_object_permissions(request, obj)
-        if self.parent_viewsets:
+        if self.parent_viewset:
             self.check_parent_object_permissions(request)
 
     def get_queryset(self):
