@@ -54,7 +54,7 @@ class PaginateByMaxMixin:
 
 
 class NestedViewSetMixin:
-    parent_viewsets = set()
+    parent_viewset = None
 
     def check_ownership(self, serializer):
         parent_query_dicts = self.get_parents_query_dict()
