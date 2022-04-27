@@ -100,7 +100,6 @@ class NestedViewSetMixin:
                     raise exceptions.PermissionDenied(
                         detail=f"You must specific '{parent_name}'", code=status.HTTP_403_FORBIDDEN)
                 received_parent_value = instance_data.get(parent_name, None)
-                print(received_parent_value)
                 if not isinstance(received_parent_value, (str, int)):
                     received_parent_value = getattr(
                         received_parent_value, self.parent_viewset.lookup_field)
@@ -133,10 +132,9 @@ class NestedViewSetMixin:
             return
         current_model = self.get_queryset().model
         # TODO
-        # 1. for model__submodel case.
         # 2. for generic relations case.
         for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
-            parent_model = get_parent_model(
+            parent_model = self.get_parent_model(
                 current_model, parent_model_lookup_name)
             parent_viewset = self.parent_viewset()
             parent_viewset_model = getattr(
@@ -152,12 +150,12 @@ class NestedViewSetMixin:
 
     def check_permissions(self, request):
         super().check_permissions(request)
-        if self.parent_viewsets:
+        if self.parent_viewset:
             self.check_parent_object_permissions(request)
 
     def check_object_permissions(self, request, obj):
         super().check_object_permissions(request, obj)
-        if self.parent_viewsets:
+        if self.parent_viewset:
             self.check_parent_object_permissions(request)
 
     def get_queryset(self):
