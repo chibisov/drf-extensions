@@ -1,3 +1,4 @@
+from copy import deepcopy
 from rest_framework.routers import DefaultRouter, SimpleRouter
 from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
 
@@ -10,19 +11,21 @@ class NestedRegistryItem:
         self.parent_viewset = parent_viewset
 
     def register(self, prefix, viewset, basename, parents_query_lookups):
+        # deepcopy to make sure one viewset class only has one parent viewset
+        copied_viewset = deepcopy(viewset)
         self.router._register(
             prefix=self.get_prefix(
                 current_prefix=prefix,
                 parents_query_lookups=parents_query_lookups),
-            viewset=viewset,
+            viewset=copied_viewset,
             basename=basename,
         )
-        viewset.parent_viewsets.add(self.parent_viewset)
+        copied_viewset.parent_viewset = self.parent_viewset
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,
             parent_item=self,
-            parent_viewset=viewset
+            parent_viewset=copied_viewset
         )
 
     def get_prefix(self, current_prefix, parents_query_lookups):
