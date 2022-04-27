@@ -151,7 +151,6 @@ class NestedViewSetMixin:
             current_model = parent_model
 
     def check_permissions(self, request):
-        print(self.get_permissions())
         super().check_permissions(request)
         if self.parent_viewsets:
             self.check_parent_object_permissions(request)
