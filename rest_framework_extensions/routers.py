@@ -4,28 +4,40 @@ from rest_framework_extensions.utils import compose_parent_pk_kwarg_name
 
 
 class NestedRegistryItem:
-    def __init__(self, router, parent_prefix, parent_item=None, parent_viewset=None):
+    def __init__(self, router, parent_prefix, parent_item=None, parent_viewset=None, parent_lookups=[]):
         self.router = router
         self.parent_prefix = parent_prefix
         self.parent_item = parent_item
         self.parent_viewset = parent_viewset
+        self.parent_lookups = parent_lookups
 
-    def register(self, prefix, viewset, basename, parents_query_lookups):
+    def register(self, prefix, viewset, basename, parents_query_lookups=[], parent_query_lookup=""):
         # deepcopy to make sure one viewset class only has one parent viewset
-        copied_viewset = deepcopy(viewset)
+        copied_viewset = type(viewset.__name__, (viewset,), {
+                              k: v for k, v in viewset.__dict__.items()})
+        if not parents_query_lookups:
+            parents_query_lookups = ["__".join(
+                [parent_query_lookup, pl]) for pl in self.parent_lookups] + [parent_query_lookup]
+
         self.router._register(
             prefix=self.get_prefix(
                 current_prefix=prefix,
-                parents_query_lookups=parents_query_lookups),
+                parents_query_lookups=parents_query_lookups
+            ),
             viewset=copied_viewset,
             basename=basename,
         )
         copied_viewset.parent_viewset = self.parent_viewset
+        v = copied_viewset
+        while v.parent_viewset:
+            v = v.parent_viewset
+
         return NestedRegistryItem(
             router=self.router,
             parent_prefix=prefix,
             parent_item=self,
-            parent_viewset=copied_viewset
+            parent_viewset=copied_viewset,
+            parent_lookups=parents_query_lookups
         )
 
     def get_prefix(self, current_prefix, parents_query_lookups):

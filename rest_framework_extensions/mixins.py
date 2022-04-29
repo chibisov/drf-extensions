@@ -1,9 +1,4 @@
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
-from django.core.exceptions import ValidationError
-# from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from django.http import Http404
-from django.db import models
-from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin, ListDestroyModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
 from rest_framework import status, exceptions
 from rest_framework.generics import get_object_or_404
@@ -90,22 +85,57 @@ class NestedViewSetMixin:
 
     def check_ownership(self, serializer):
         parent_query_dicts = self.get_parents_query_dict()
-        if parent_query_dicts:
-            parent_name, parent_value = list(parent_query_dicts.items())[-1]
-            instance_datas = serializer.validated_data
-            if not isinstance(instance_datas, list):
-                instance_datas = [instance_datas]
-            for instance_data in instance_datas:
-                if instance_data.get(parent_name, None) is None:
+        if not parent_query_dicts:
+            return
+
+        parent_lookup, parent_value = list(parent_query_dicts.items())[-1]
+        if "__" in parent_lookup:
+            receive_key, _ = parent_lookup.split("__")
+        else:
+            receive_key = parent_lookup
+
+        instance_datas = serializer.validated_data
+        if not isinstance(instance_datas, list):
+            instance_datas = [instance_datas]
+        received_parent_values = [
+            i.get(receive_key) for i in instance_datas if i.get(receive_key)]
+
+        # 1. check filled parent field
+        if len(received_parent_values) != len(instance_datas):
+            raise exceptions.PermissionDenied(
+                detail=f"You must specific '{parent_lookup}'", code=status.HTTP_403_FORBIDDEN)
+
+        received_parent_values = [str(v) if isinstance(v, (str, int)) else
+                                  str(getattr(v, self.parent_viewset.lookup_field))
+                                  for v in received_parent_values
+                                  ]
+        # 2. check direct FK parent
+        if not "__" in parent_lookup:
+            not_blong = [
+                v for v in received_parent_values if v != str(parent_value)
+            ]
+            if not_blong:
+                raise exceptions.PermissionDenied(
+                    detail=f"You don't have permission to operate item that belong to '{parent_lookup}:{not_blong}'", code=status.HTTP_403_FORBIDDEN)
+        else:
+            # 3. for multiple layer parent
+            direct_parent, direct_parent_look_field = parent_lookup.split(
+                '__', 1)
+            current_model = self.get_queryset().model
+            direct_parent_model = current_model._meta.get_field(
+                direct_parent
+            ).related_model
+            direct_parent_instances = direct_parent_model.objects.filter(
+                **{f"pk__in": received_parent_values}
+            )
+            fields = direct_parent_look_field.split("__")
+            for instance in direct_parent_instances:
+                final_parent_obj = instance
+                for f in fields:
+                    final_parent_obj = getattr(instance, f)
+                if (received_value := str(getattr(final_parent_obj, self.parent_viewset.lookup_field))) != str(parent_value):
                     raise exceptions.PermissionDenied(
-                        detail=f"You must specific '{parent_name}'", code=status.HTTP_403_FORBIDDEN)
-                received_parent_value = instance_data.get(parent_name, None)
-                if not isinstance(received_parent_value, (str, int)):
-                    received_parent_value = getattr(
-                        received_parent_value, self.parent_viewset.lookup_field)
-                if str(received_parent_value) != str(parent_value):
-                    raise exceptions.PermissionDenied(
-                        detail=f"You don't have permission to operate item that belone to '{parent_name}:{parent_value}'", code=status.HTTP_403_FORBIDDEN)
+                        detail=f"You don't have permission to operate item that belong to '{parent_lookup}:{received_value}'", code=status.HTTP_403_FORBIDDEN)
 
     def perform_create(self, serializer):
         self.check_ownership(serializer)
@@ -125,28 +155,28 @@ class NestedViewSetMixin:
     def check_parent_object_permissions(self, request):
         # if parent viewset haven't init yet, then will raise no "kwargs" attribute error, but it doesn't matter, just ignore
         try:
-            parents_query_dict = self.get_parents_query_dict()
+            if not (parents_query_dict := self.get_parents_query_dict()):
+                return
         except:
             return
-        if not parents_query_dict:
-            return
-        current_model = self.get_queryset().model
-        # TODO
         # 2. for generic relations case.
-        for parent_model_lookup_name, parent_model_lookup_value in reversed(parents_query_dict.items()):
+        current_model = self.get_queryset().model
+        current_viewset = self
+
+        for parent_model_lookup_name, parent_model_lookup_value in sorted(parents_query_dict.items(), key=lambda item: len(item[0])):
             parent_model = self.get_parent_model(
                 current_model, parent_model_lookup_name)
-            parent_viewset = self.parent_viewset()
-            parent_viewset_model = getattr(
-                parent_viewset, "model", None) or parent_viewset.queryset.model
+            parent_viewset = current_viewset.parent_viewset()
+
             parent_obj = get_object_or_404(
-                parent_viewset_model.objects.all(),
+                parent_model.objects.all(),
                 **{parent_viewset.lookup_field: parent_model_lookup_value}
             )
             parent_viewset.check_object_permissions(
                 request, parent_obj
             )
-            current_model = parent_model
+
+            current_viewset = parent_viewset
 
     def check_permissions(self, request):
         super().check_permissions(request)
