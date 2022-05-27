@@ -9,7 +9,7 @@ from .models import KeyConstructorUserProperty
 class ListSqlQueryKeyBitTestBehaviour(APITestCase):
     """Regression tests for https://github.com/chibisov/drf-extensions/issues/28#issuecomment-51711927
 
-    `rest_framework.filters.DjangoFilterBackend` uses defalut `FilterSet`.
+    `rest_framework.filters.DjangoFilterBackend` uses default `FilterSet`.
     When there is no filtered fk in db, then `FilterSet.form` is invalid with errors:
         {'property': [u'Select a valid choice. That choice is not one of the available choices.']}
     In that case `FilterSet.qs` returns `self.queryset.none()`
