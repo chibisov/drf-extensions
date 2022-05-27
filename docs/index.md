@@ -1174,7 +1174,7 @@ Retrieves active language for request. Usage example:
 
 #### UserKeyBit
 
-Retrieves user id from request. If it is anonymous then returnes *"anonymous"* string. Usage example:
+Retrieves user id from request. If it is anonymous then returns *"anonymous"* string. Usage example:
 
     class MyKeyConstructor(KeyConstructor):
         user = UserKeyBit()
