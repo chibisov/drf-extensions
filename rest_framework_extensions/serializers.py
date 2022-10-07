@@ -29,6 +29,39 @@ def get_fields_for_partial_update(opts, init_data, fields, init_files=None):
     return sorted(set(update_fields))
 
 
+class BulkCreateModelMixin:
+    """
+    Builk create model instance.
+    Just post data like:
+    [
+        {"name": "xxx"},
+        {"name": "xxx2"},
+    ]
+    """
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        s = super().get_serializer(*args, **kwargs)
+        return s
+
+
+class MultiSerializerViewSetMixin:
+    """
+    serializer_action_classes = {
+        list: ListSerializer,
+        <action_name>: Serializer,
+        ...
+    }
+    """
+    serializer_classes = {}
+    def get_serializer_class(self):
+        try:
+            return self.serializer_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
+
+
 class PartialUpdateSerializerMixin:
     def save(self, **kwargs):
         self._update_fields = kwargs.get('update_fields', None)
