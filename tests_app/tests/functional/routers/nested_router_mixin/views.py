@@ -97,3 +97,9 @@ class UserViewSetWithEmailLookup(NestedViewSetMixin, ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'email'
     lookup_value_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+
+
+class UserViewSetWithUUIDLookup(NestedViewSetMixin, ModelViewSet):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'code'

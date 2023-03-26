@@ -1,9 +1,12 @@
+import uuid
+
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class NestedRouterMixinUserModel(models.Model):
     email = models.EmailField(blank=True, null=True)
+    code = models.UUIDField(default=uuid.uuid4)
     name = models.CharField(max_length=10)
     groups = models.ManyToManyField(
         'NestedRouterMixinGroupModel', related_name='user_groups')

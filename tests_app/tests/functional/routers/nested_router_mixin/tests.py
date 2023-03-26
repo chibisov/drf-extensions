@@ -478,6 +478,17 @@ class NestedRouterMixinTestBehaviour__parent_viewset_lookup(APITestCase):
         msg = 'If user has no requested group it should return 404'
         self.assertEqual(response.status_code, 404, msg=msg)
 
+    def test_get_by_uuid_parent_field_expected_case(self):
+        url = '/users-by-uuid/{user_code}/groups/'.format(
+            user_code=self.users['gena'].code
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_by_uuid_parent_field_wrong_uuid_case(self):
+        url = '/users-by-uuid/{user_code}/groups/'.format(user_code='123')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
 # class NestedRouterMixinTestBehaviour__generic_relations1(APITestCase):
 #     router = ExtendedSimpleRouter()
