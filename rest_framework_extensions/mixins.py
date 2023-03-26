@@ -2,6 +2,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 # from rest_framework_extensions.etag.mixins import ReadOnlyETAGMixin, ETAGMixin
 from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixin, ListDestroyModelMixin
 from rest_framework_extensions.settings import extensions_api_settings
+from django.core.exceptions import ValidationError
 from django.http import Http404
 
 
@@ -60,7 +61,7 @@ class NestedViewSetMixin:
         if parents_query_dict:
             try:
                 return queryset.filter(**parents_query_dict)
-            except ValueError:
+            except (ValueError, ValidationError):
                 raise Http404
         else:
             return queryset
