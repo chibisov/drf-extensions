@@ -1,4 +1,6 @@
-from rest_framework.relations import HyperlinkedRelatedField
+from rest_framework.relations import HyperlinkedRelatedField, PrimaryKeyRelatedField
+
+from rest_framework import serializers
 
 
 class ResourceUriField(HyperlinkedRelatedField):
@@ -26,3 +28,14 @@ class ResourceUriField(HyperlinkedRelatedField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('source', '*')
         super().__init__(*args, **kwargs)
+
+
+class AsymmetricRelatedField(serializers.PrimaryKeyRelatedField):
+    def __init__(
+        self, serializer_class, *args, **kwargs
+    ) -> None:
+        self.serializer_class = serializer_class
+        super().__init__(*args, **kwargs)
+
+    def to_representation(self, value):
+        return self.serializer_class(value).data

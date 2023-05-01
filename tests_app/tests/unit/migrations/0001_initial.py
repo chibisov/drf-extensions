@@ -65,4 +65,23 @@ class Migration(migrations.Migration):
                 ('users_liked', models.ManyToManyField(blank=True, to='unit.UserModel')),
             ],
         ),
+        migrations.CreateModel(
+            name='RelatedModel',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True,
+                                        serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SomeModel',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True,
+                                        serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100)),
+                ('related_model',
+                 models.ForeignKey(blank=True, to='unit.RelatedModel',
+                                   on_delete=models.CASCADE)),
+            ],
+        ),
     ]
