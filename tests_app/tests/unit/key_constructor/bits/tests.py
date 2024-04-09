@@ -1,5 +1,7 @@
-from mock import Mock
-from mock import PropertyMock
+try:
+    from unittest.mock import Mock, PropertyMock
+except ImportError:
+    from mock import Mock, PropertyMock
 
 import django
 from django.test import TestCase
