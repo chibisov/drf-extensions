@@ -8,3 +8,4 @@ from .permissions.extended_django_object_permissions.models import *
 from .routers.models import *
 from .routers.extended_default_router.models import *
 from .routers.nested_router_mixin.models import *
+from ._concurrency.conditional_request.models import *

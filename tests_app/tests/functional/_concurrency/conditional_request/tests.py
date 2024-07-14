@@ -7,11 +7,11 @@ from django.test import override_settings
 import json
 
 
-@override_settings(ROOT_URLCONF='tests_app.tests.functional.concurrency.conditional_request.urls')
+@override_settings(ROOT_URLCONF='tests_app.tests.functional._concurrency.conditional_request.urls')
 class BookAPITestCases(APITestCase):
     """
     Run the conditional requests test cases.
-        `tox -- tests_app.tests.functional.concurrency.conditional_request.tests`
+        `tox -- tests_app.tests.functional._concurrency.conditional_request.tests`
     """
     def setUp(self):
         # create a book

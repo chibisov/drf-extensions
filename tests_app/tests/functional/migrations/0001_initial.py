@@ -166,4 +166,13 @@ class Migration(migrations.Migration):
             name='permissions',
             field=models.ManyToManyField(to='functional.DefaultRouterPermissionModel'),
         ),
+        migrations.CreateModel(
+            name='Book',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100, default=None, blank=True, null=True)),
+                ('author', models.CharField(max_length=100, default=None, blank=True, null=True)),
+                ('issn', models.CharField(max_length=100, default=None, blank=True, null=True)),
+            ],
+        ),
     ]

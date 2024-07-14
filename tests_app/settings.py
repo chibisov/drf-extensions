@@ -139,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'auth.User'
 
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 NOSE_ARGS = [
     '--processes=%s' % multiprocessing.cpu_count(),

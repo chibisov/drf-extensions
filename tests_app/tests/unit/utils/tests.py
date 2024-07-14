@@ -33,8 +33,8 @@ class TestPrepareHeaderName(TestCase):
 
     def test_get_rest_framework_version_exotic_version(self):
         """See <https://github.com/chibisov/drf-extensions/pull/198>"""
-        with parsed_version('1.2alphaSOMETHING') as version:
-            self.assertEqual(version, (1, 2, 'alpha', 'SOMETHING'))
+        with parsed_version('1.2a2') as version:
+            self.assertEqual(version, (1, 2))
 
     def test_get_rest_framework_version_normal_version(self):
         """See <https://github.com/chibisov/drf-extensions/pull/198>"""

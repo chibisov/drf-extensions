@@ -17,6 +17,7 @@ class CacheResponseTest(TestCase):
         super().setUp()
         self.request = factory.get('')
         self.cache = caches[extensions_api_settings.DEFAULT_USE_CACHE]
+        self.cache.clear()
 
     def test_should_return_response_if_it_is_not_in_cache(self):
         class TestView(views.APIView):
