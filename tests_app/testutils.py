@@ -1,5 +1,8 @@
 import base64
-from mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 from rest_framework import HTTP_HEADER_ENCODING
 

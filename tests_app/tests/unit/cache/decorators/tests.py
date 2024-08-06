@@ -1,6 +1,9 @@
 from django.core.cache import caches
 from django.test import TestCase
-from mock import Mock, patch
+try:
+    from unittest.mock import Mock, patch
+except ImportError:
+    from mock import Mock, patch
 from rest_framework import views
 from rest_framework.response import Response
 
