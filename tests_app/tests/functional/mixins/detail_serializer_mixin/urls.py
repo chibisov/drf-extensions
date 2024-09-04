@@ -15,4 +15,5 @@ viewset_router.register('comments-2', CommentWithoutDetailSerializerClassViewSet
 viewset_router.register('comments-3', CommentWithIdTwoViewSet, basename='alt3')
 viewset_router.register('comments-4', CommentWithIdTwoAndIdOneForDetailViewSet, basename='alt4')
 viewset_router.register('comments-5', CommentWithDetailSerializerAndNoArgsForGetQuerySetViewSet, basename='alt5')
+
 urlpatterns = viewset_router.urls
