@@ -8,3 +8,4 @@ env
 build
 dist
 .DS_Store
+tests_app/files/*
