@@ -86,7 +86,12 @@ class ETAGProcessor:
             # There can be more than one ETag in the request, so we
             # consider the list of values.
             try:
-                etags = parse_etags(if_none_match or if_match)
+                value_to_parse = if_none_match or if_match
+                if value_to_parse:
+                    etag_list = [e.strip() for e in value_to_parse.split(' ') if e.strip()]
+                    etag_list = [e if e.startswith('"') else f'"{e}"' for e in etag_list]
+                    value_to_parse = ', '.join(etag_list)
+                    etags = parse_etags(value_to_parse)
             except ValueError:
                 # In case of invalid etag ignore all ETag headers.
                 # Apparently Opera sends invalidly quoted headers at times
@@ -123,7 +128,10 @@ class ETAGProcessor:
 
     def is_if_match_failed(self, res_etag, etags, if_match):
         if res_etag and if_match:
-            return res_etag not in etags and '*' not in etags
+            res_etag =res_etag.strip('"')
+            etags = [etag.strip('"') for etag in etags]
+            matches = res_etag in etags or '*' in etags
+            return not matches
         else:
             return False
 
