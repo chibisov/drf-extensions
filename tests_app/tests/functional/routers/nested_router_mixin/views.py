@@ -105,6 +105,7 @@ class UserViewSetWithUUIDLookup(NestedViewSetMixin, ModelViewSet):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'code'
+
     def get_object(self):
         try:
             # Try to validate UUID before getting object
