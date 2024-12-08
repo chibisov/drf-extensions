@@ -1,9 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.http import Http404
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
+import uuid 
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .models import (
@@ -103,3 +105,16 @@ class UserViewSetWithUUIDLookup(NestedViewSetMixin, ModelViewSet):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'code'
+
+    def get_object(self):
+        try:
+            # Try to validate UUID before getting object
+            lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+            if lookup_url_kwarg in self.kwargs:
+                try:
+                    uuid.UUID(str(self.kwargs[lookup_url_kwarg]))
+                except ValueError:
+                    raise Http404
+            return super().get_object()
+        except (ValueError, ValidationError):
+            raise Http404

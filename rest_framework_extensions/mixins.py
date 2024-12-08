@@ -4,7 +4,7 @@ from rest_framework_extensions.bulk_operations.mixins import ListUpdateModelMixi
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.exceptions import ValidationError
 from django.http import Http404
-
+import uuid
 
 class DetailSerializerMixin:
     """
@@ -60,7 +60,18 @@ class NestedViewSetMixin:
         parents_query_dict = self.get_parents_query_dict()
         if parents_query_dict:
             try:
-                return queryset.filter(**parents_query_dict)
+                # Try to validate UUID fields before filtering
+                cleaned_dict = {}
+                for key, value in parents_query_dict.items():
+                    if 'uuid' in key.lower() or key.endswith('_code'):
+                        try:
+                            # Try to validate as UUID
+                            cleaned_dict[key] = uuid.UUID(str(value))
+                        except ValueError:
+                            raise Http404
+                    else:
+                        cleaned_dict[key] = value
+                return queryset.filter(**cleaned_dict)
             except (ValueError, ValidationError):
                 raise Http404
         else:
