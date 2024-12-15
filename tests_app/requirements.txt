@@ -1,4 +1,4 @@
-nose
+pynose
 django-nose
 django-filter>=2.1.0
 mock
