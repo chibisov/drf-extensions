@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import HelloView
 
 
 urlpatterns = [
-    url(r'^hello/$', HelloView.as_view(), name='hello'),
+    re_path(r'^hello/$', HelloView.as_view(), name='hello'),
 ]
