@@ -17,7 +17,7 @@ router = ExtendedSimpleRouter()
 
 # uuid routes
 (
-    router.register(r'users-by-uuid', UserViewSetWithUUIDLookup)
+    router.register(r'users-by-uuid', UserViewSetWithUUIDLookup, basename='users-by-uuid')
           .register(r'groups', GroupViewSet, 'users-group-uuid', parents_query_lookups=['user_groups__code'])
 )
 
