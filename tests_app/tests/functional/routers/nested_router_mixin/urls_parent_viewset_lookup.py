@@ -11,7 +11,7 @@ router = ExtendedSimpleRouter()
 
 # main routes
 (
-    router.register(r'users', UserViewSetWithEmailLookup)
+    router.register(r'users', UserViewSetWithEmailLookup, basename='users-by-uuid')
           .register(r'groups', GroupViewSet, 'users-group', parents_query_lookups=['user_groups__email'])
 )
 
