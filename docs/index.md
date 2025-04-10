@@ -2213,6 +2213,17 @@ You can read about versioning, deprecation policy and upgrading from
 [Django REST framework documentation](https://www.django-rest-framework.org/community/release-notes/).
 
 
+#### 0.8.0
+
+* Added support for Django 4.2 to 5.2
+* DRF 3.15 support added
+* Python 3.10 to 3.12 support added
+* Removed deprecated libs
+* Added handling for ValidationError while filtering queryset in NestedViewSetMixin
+* Modified lookup_value to use lookup_url_kwarg aswell
+* Migrated CI to Github actions
+
+
 #### 0.7.1
 
 * Added support for Django 3.2
