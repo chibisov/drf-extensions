@@ -4,8 +4,9 @@ try:
     from unittest.mock import Mock, patch
 except ImportError:
     from mock import Mock, patch
-from rest_framework import views
+from rest_framework import views, serializers
 from rest_framework.response import Response
+import json
 
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.settings import extensions_api_settings
@@ -342,3 +343,42 @@ class CacheResponseTest(TestCase):
             self.assertEqual(response._headers['test'], ('Test', 'foo'))
         else:
             self.assertEqual(response['test'], 'foo')
+
+    def test_generator_exhaustion_bug(self):
+        """Test that CacheResponse doesn't exhaust generators by double-rendering"""
+        
+        def key_func(**kwargs):
+            return 'test_generator_key'
+        
+        class GeneratorSerializer(serializers.Serializer):
+            """Serializer that uses a generator expression in a method field"""
+            items = serializers.SerializerMethodField()
+            
+            def get_items(self, obj):
+                # Generator expression that will be exhausted on second render
+                return (i for i in [1, 2, 3])
+        
+        class TestView(views.APIView):
+            @cache_response(key_func=key_func)
+            def get(self, request, *args, **kwargs):
+                serializer = GeneratorSerializer(instance={})
+                return Response(serializer.data)
+        
+        # First request - this will cache the response
+        view_instance = TestView()
+        response = view_instance.dispatch(request=self.request)
+        
+        # Check what was actually cached
+        cached_data = self.cache.get('test_generator_key')
+        self.assertIsNotNone(cached_data, "Response should be cached")
+        
+        # The cached content is the first element of the tuple
+        cached_content = cached_data[0]
+        
+        # Parse the cached JSON
+        cached_result = json.loads(cached_content)
+        
+        # With the bug, the cached content will have an empty array
+        # because rendered_content exhausts the generator
+        self.assertEqual(cached_result['items'], [1, 2, 3], 
+                        "Generator was exhausted! Expected [1, 2, 3] in cache but got %s" % cached_result['items'])
