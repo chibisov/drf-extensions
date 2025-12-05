@@ -15,35 +15,6 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-        django-version: ["3.2", "4.2", "5.2", "6.0"]
-        exclude:
-          # Django 3.2 does not support Python 3.11+.
-          - python-version: "3.11"
-            django-version: "3.2"
-          - python-version: "3.12"
-            django-version: "3.2"
-          - python-version: "3.13"
-            django-version: "3.2"
-          - python-version: "3.14"
-            django-version: "3.2"
-
-          # Django 4.2 does not support Python 3.13 or 3.14.
-          - python-version: "3.13"
-            django-version: "4.2"
-          - python-version: "3.14"
-            django-version: "4.2"
-
-          # Django 5.2 does not support Python 3.9.
-          - python-version: "3.9"
-            django-version: "5.2"
-
-          # Django 6.0 requires Python 3.12+
-          - python-version: "3.9"
-            django-version: "6.0"
-          - python-version: "3.10"
-            django-version: "6.0"
-          - python-version: "3.11"
-            django-version: "6.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -57,4 +28,5 @@ jobs:
         pip install -r tests_app/requirements.txt
     - name: Run Tests
       run: |
-        tox -- tests_app
+        PY_VERSION=$(echo "${{ matrix.python-version }}" | tr -d '.')
+        tox -f py${PY_VERSION} -- tests_app
