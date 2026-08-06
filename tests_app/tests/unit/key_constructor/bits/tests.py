@@ -402,7 +402,7 @@ class ListSqlQueryKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset(self):
-        if django.VERSION >= (3, 1):
+        if (3, 1) <= django.VERSION < (6, 1):
             expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
                         'FROM "unit_bittestmodel" '
                         'WHERE "unit_bittestmodel"."is_active"')
@@ -478,7 +478,7 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
         self.kwargs['view_instance'].filter_queryset = lambda x: x.filter(is_active=True)
 
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field(self):
-        if django.VERSION >= (3, 1):
+        if (3, 1) <= django.VERSION < (6, 1):
             expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
                         'FROM "unit_bittestmodel" '
                         'WHERE ("unit_bittestmodel"."is_active" AND "unit_bittestmodel"."id" = 123)')
@@ -494,7 +494,7 @@ class RetrieveSqlQueryKeyBitTest(TestCase):
     def test_should_use_view__get_queryset__and_filter_it_with__filter_queryset__and_filter_by__lookup_field__and_get_kwarg_from_kwarg_lookup(self):
         self.kwargs['view_instance'].kwargs = {'custom_kwarg_id': 456}
         self.kwargs['view_instance'].lookup_url_kwarg = 'custom_kwarg_id'
-        if django.VERSION >= (3, 1):
+        if (3, 1) <= django.VERSION < (6, 1):
             expected = ('SELECT "unit_bittestmodel"."id", "unit_bittestmodel"."is_active" '
                         'FROM "unit_bittestmodel" '
                         'WHERE ("unit_bittestmodel"."is_active" AND "unit_bittestmodel"."id" = 456)')
