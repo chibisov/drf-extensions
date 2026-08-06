@@ -31,11 +31,12 @@ class ResourceUriField(HyperlinkedRelatedField):
 
 
 class AsymmetricRelatedField(serializers.PrimaryKeyRelatedField):
-    def __init__(
-        self, serializer_class, *args, **kwargs
-    ) -> None:
+    def __init__(self, serializer_class, *args, **kwargs) -> None:
         self.serializer_class = serializer_class
         super().__init__(*args, **kwargs)
 
+    def use_pk_only_optimization(self):
+        return False
+
     def to_representation(self, value):
-        return self.serializer_class(value).data
+        return self.serializer_class(value, context=self.context).data
