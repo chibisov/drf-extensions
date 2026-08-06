@@ -30,3 +30,24 @@ jobs:
       run: |
         PY_VERSION=$(echo "${{ matrix.python-version }}" | tr -d '.')
         tox -f py${PY_VERSION} -- tests_app
+
+  # Django 6.1 needs a DRF release containing encode/django-rest-framework#9978,
+  # so this runs against DRF main until 3.18 ships. Tracking a moving branch can
+  # break for reasons unrelated to this project, hence continue-on-error: once
+  # 3.18 is out, swap the drfmain factor for drf318 and fold this into the matrix.
+  django61:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.14"
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip tox
+        pip install -r tests_app/requirements.txt
+    - name: Run Tests
+      run: tox -e py314-django61-drfmain -- tests_app
