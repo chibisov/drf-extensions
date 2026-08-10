@@ -91,7 +91,7 @@ class CacheResponse:
                 else:
                     headers = {k: (k, v) for k, v in response.items()}
                 response_triple = (
-                    response.rendered_content,
+                    response.content,  # Use already-rendered content to avoid re-evaluating generators and other iterables
                     response.status_code,
                     headers
                 )
