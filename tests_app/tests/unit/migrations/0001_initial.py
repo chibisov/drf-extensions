@@ -65,4 +65,57 @@ class Migration(migrations.Migration):
                 ('users_liked', models.ManyToManyField(blank=True, to='unit.UserModel')),
             ],
         ),
+        migrations.CreateModel(
+            name="Address",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "postal_code",
+                    models.CharField(
+                        max_length=20,
+                        unique=True,
+                        verbose_name="Postal Code",
+                    ),
+                ),
+                (
+                    "province",
+                    models.CharField(
+                        max_length=100,
+                        verbose_name="Province",
+                    ),
+                ),
+                (
+                    "city",
+                    models.CharField(
+                        max_length=100,
+                        verbose_name="City",
+                    ),
+                ),
+                (
+                    "street",
+                    models.CharField(
+                        max_length=255,
+                        blank=True,
+                        null=True,
+                        verbose_name="Street",
+                    ),
+                ),
+                (
+                    "additional_info",
+                    models.TextField(
+                        verbose_name="Additional Info",
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+            ],
+        ),
     ]
